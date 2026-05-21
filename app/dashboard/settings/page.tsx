@@ -12,6 +12,7 @@ export default function SettingsPage() {
   const [tier, setTier] = useState<string>('starter')
   const [portalLoading, setPortalLoading] = useState(false)
   const [upgradeLoading, setUpgradeLoading] = useState(false)
+  const [confirmPlan, setConfirmPlan] = useState<'author' | 'pro' | null>(null)
 
   // --- Email update ---
   const [newEmail, setNewEmail] = useState('')
@@ -69,7 +70,15 @@ export default function SettingsPage() {
   }
 
   function handleUpgradePro() {
-    return handleUpgrade('pro')
+    // Show confirmation modal before upgrading
+    setConfirmPlan('pro')
+  }
+
+  async function handleConfirmedUpgrade() {
+    if (!confirmPlan) return
+    const plan = confirmPlan
+    setConfirmPlan(null)
+    await handleUpgrade(plan)
   }
 
   async function handleEmailUpdate(e: React.FormEvent) {
@@ -371,6 +380,45 @@ export default function SettingsPage() {
           </form>
         </div>
       </div>
+
+      {/* Upgrade confirmation modal */}
+      {confirmPlan && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+          onClick={() => setConfirmPlan(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8"
+            onClick={e => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-bold text-brand-coal mb-2">
+              Upgrade to {confirmPlan === 'pro' ? 'Launch Pro' : 'Author'}?
+            </h2>
+            <p className="text-sm text-gray-500 mb-1">
+              {confirmPlan === 'pro'
+                ? 'You\'ll be upgraded to Launch Pro at $19/month. Your card on file will be charged the prorated difference for the remainder of your current billing period.'
+                : 'You\'ll be upgraded to Author at $9/month. Your card on file will be charged today.'}
+            </p>
+            <p className="text-xs text-gray-400 mb-6">You can cancel or downgrade anytime from Account Settings.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleConfirmedUpgrade}
+                disabled={upgradeLoading}
+                className="flex-1 py-2.5 bg-brand-button text-white text-sm font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity"
+              >
+                {upgradeLoading ? 'Upgrading…' : 'Yes, upgrade my plan'}
+              </button>
+              <button
+                onClick={() => setConfirmPlan(null)}
+                disabled={upgradeLoading}
+                className="flex-1 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
