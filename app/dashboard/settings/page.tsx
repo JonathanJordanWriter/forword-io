@@ -6,11 +6,6 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import SignOutButton from '@/components/SignOutButton'
 
-const TIER_LABELS: Record<string, string> = {
-  starter: 'Free',
-  author: 'Author — $9/mo',
-  pro: 'Launch Pro — $19/mo',
-}
 
 export default function SettingsPage() {
   // --- Billing ---
