@@ -189,7 +189,7 @@ export default function SettingsPage() {
                 <p className="text-xs text-gray-500 mt-0.5">Full 90-day plan · calendar export · post prompts · 1 active book</p>
               )}
               {tier === 'pro' && (
-                <p className="text-xs text-gray-500 mt-0.5">Everything in Author · unlimited books · analytics</p>
+                <p className="text-xs text-gray-500 mt-0.5">Everything in Author · unlimited books · no switching limits</p>
               )}
             </div>
             <div className="flex gap-2 ml-4 shrink-0">
@@ -222,15 +222,12 @@ export default function SettingsPage() {
                     <p className="text-sm font-semibold text-brand-coal">Upgrade to Launch Pro</p>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-brand-accent/30 text-brand-button font-medium">$19/mo</span>
                   </div>
-                  <p className="text-xs text-gray-500 mb-3">Everything in Author, plus tools for authors managing multiple books or a full launch campaign.</p>
+                  <p className="text-xs text-gray-500 mb-3">Everything in Author, plus the ability to market multiple books at once — no switching limits.</p>
                   <ul className="space-y-1">
                     {[
                       'Unlimited active books — market every title at once',
-                      'Series marketing planner',
-                      'Backlist relaunch plans',
-                      'Audiobook marketing plan',
-                      'Progress analytics dashboard',
-                      '1 VA / collaborator seat',
+                      'Switch between projects anytime, no monthly limits',
+                      'Full 90-day plan for every book in your library',
                     ].map(f => (
                       <li key={f} className="flex items-center gap-1.5 text-xs text-gray-600">
                         <svg className="w-3.5 h-3.5 text-brand-button shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -257,7 +254,7 @@ export default function SettingsPage() {
           {tier === 'starter' && (
             <div className="border border-gray-200 rounded-xl p-5 mt-4">
               <p className="text-sm font-semibold text-brand-coal mb-1">Also available: Launch Pro — $19/mo</p>
-              <p className="text-xs text-gray-500 mb-3">Everything in Author plus unlimited books, a series planner, backlist relaunch plans, and an analytics dashboard.</p>
+              <p className="text-xs text-gray-500 mb-3">Everything in Author plus unlimited active books and no switching limits — ideal if you&apos;re marketing more than one title.</p>
               <button
                 onClick={() => handleUpgradePro()}
                 disabled={upgradeLoading}
