@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
     // Strip any accidental code fences Claude might have included
     const cleaned = rawOutput.replace(/^```json\s*/i, '').replace(/\s*```$/, '').trim()
     planData = JSON.parse(cleaned)
-  } catch (err) {
+  } catch {
     console.error('JSON parse error — raw output:', rawOutput)
     return NextResponse.json(
       { error: 'Plan generation returned an invalid response. Please try again.' },

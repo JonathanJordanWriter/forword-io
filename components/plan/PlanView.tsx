@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+// useRouter available if needed for future navigation
 import UpgradeModal from './UpgradeModal'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -259,8 +259,8 @@ function WeekHeader({
 
 // ─── Main PlanView ─────────────────────────────────────────────────────────────
 
-export default function PlanView({ plan, tasks: initialTasks, isStarterTier, userTier = 'starter', bookId, initialTimePerWeek = '3_5hrs' }: Props) {
-  const router = useRouter()
+export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _isStarterTier, userTier = 'starter', bookId, initialTimePerWeek = '3_5hrs' }: Props) {
+  void _isStarterTier // retained in props for potential future use
   const [tasks, setTasks] = useState(initialTasks)
   const [activePhase, setActivePhase] = useState(plan.current_phase)
   const [currentTime, setCurrentTime] = useState(initialTimePerWeek)
