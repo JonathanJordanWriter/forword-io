@@ -178,92 +178,103 @@ export default function SettingsPage() {
           <h2 className="text-base font-semibold text-brand-coal mb-1">Subscription</h2>
           <p className="text-sm text-gray-500 mb-4">Your current plan and billing details.</p>
 
-          {/* Current plan row */}
-          <div className="bg-gray-50 rounded-xl border border-gray-200 p-5 flex items-center justify-between mb-4">
-            <div>
-              <p className="text-sm font-semibold text-brand-coal">{TIER_LABELS[tier] ?? tier}</p>
+          <div className="space-y-3">
+
+            {/* Free tier */}
+            <div className={`rounded-xl border p-5 ${tier === 'starter' ? 'border-brand-button bg-brand-accent/10' : 'border-gray-200 bg-white'}`}>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-sm font-semibold text-brand-coal">Free</p>
+                    {tier === 'starter' && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-brand-button text-white font-medium">Current plan</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500">First 30 days of your plan for 1 active book.</p>
+                </div>
+                <p className="text-sm font-bold text-brand-coal shrink-0">$0</p>
+              </div>
               {tier === 'starter' && (
-                <p className="text-xs text-gray-500 mt-0.5">First 30 days of your plan for 1 active book.</p>
-              )}
-              {tier === 'author' && (
-                <p className="text-xs text-gray-500 mt-0.5">Full 90-day plans for 1 active book.</p>
-              )}
-              {tier === 'pro' && (
-                <p className="text-xs text-gray-500 mt-0.5">Everything in Author plus unlimited active books.</p>
-              )}
-            </div>
-            <div className="flex gap-2 ml-4 shrink-0">
-              {tier === 'starter' ? (
                 <button
                   onClick={() => handleUpgrade('author')}
                   disabled={upgradeLoading}
-                  className="px-4 py-2 bg-brand-button text-white text-sm font-medium rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
+                  className="mt-4 w-full py-2.5 bg-brand-button text-white text-sm font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity"
                 >
-                  {upgradeLoading ? 'Loading…' : 'Upgrade to Author'}
+                  {upgradeLoading ? 'Loading…' : 'Upgrade to Author — $9/mo'}
                 </button>
-              ) : (
+              )}
+            </div>
+
+            {/* Author tier */}
+            <div className={`rounded-xl border p-5 ${tier === 'author' ? 'border-brand-button bg-brand-accent/10' : 'border-gray-200 bg-white'}`}>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-sm font-semibold text-brand-coal">Author</p>
+                    {tier === 'author' && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-brand-button text-white font-medium">Current plan</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500">Full 90-day plans for 1 active book.</p>
+                </div>
+                <p className="text-sm font-bold text-brand-coal shrink-0">$9/mo</p>
+              </div>
+              {tier === 'starter' && (
+                <button
+                  onClick={() => handleUpgrade('author')}
+                  disabled={upgradeLoading}
+                  className="mt-4 w-full py-2.5 bg-brand-button text-white text-sm font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity"
+                >
+                  {upgradeLoading ? 'Loading…' : 'Upgrade to Author — $9/mo'}
+                </button>
+              )}
+              {tier === 'author' && (
                 <button
                   onClick={handleManageBilling}
                   disabled={portalLoading}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-100 disabled:opacity-50 transition-colors"
+                  className="mt-4 w-full py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 disabled:opacity-50 transition-colors"
                 >
                   {portalLoading ? 'Loading…' : 'Manage billing'}
                 </button>
               )}
             </div>
-          </div>
 
-          {/* Launch Pro upsell — shown to Author tier only */}
-          {tier === 'author' && (
-            <div className="border-2 border-brand-button rounded-xl p-5">
+            {/* Launch Pro tier */}
+            <div className={`rounded-xl border p-5 ${tier === 'pro' ? 'border-brand-button bg-brand-accent/10' : 'border-gray-200 bg-white'}`}>
               <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="text-sm font-semibold text-brand-coal">Upgrade to Launch Pro</p>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-brand-accent/30 text-brand-button font-medium">$19/mo</span>
+                <div>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-sm font-semibold text-brand-coal">Launch Pro</p>
+                    {tier === 'pro' && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-brand-button text-white font-medium">Current plan</span>
+                    )}
                   </div>
-                  <p className="text-xs text-gray-500 mb-3">Everything in Author, plus unlimited active books — ideal if you&apos;re marketing more than one title at once.</p>
-                  <ul className="space-y-1">
-                    {[
-                      'Unlimited active books — market every title at once',
-                      'Full 90-day plan for every book in your library',
-                      'No monthly switching limits',
-                    ].map(f => (
-                      <li key={f} className="flex items-center gap-1.5 text-xs text-gray-600">
-                        <svg className="w-3.5 h-3.5 text-brand-button shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
+                  <p className="text-xs text-gray-500">Everything in Author plus unlimited active books.</p>
                 </div>
+                <p className="text-sm font-bold text-brand-coal shrink-0">$19/mo</p>
               </div>
-              <button
-                onClick={() => handleUpgradePro()}
-                disabled={upgradeLoading}
-                className="mt-4 w-full py-2.5 bg-brand-button text-white text-sm font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity"
-              >
-                {upgradeLoading ? 'Loading…' : 'Upgrade to Launch Pro — $19/mo'}
-              </button>
-              <p className="text-center text-xs text-gray-400 mt-2">Cancel anytime. You&apos;ll only be charged the difference.</p>
+              {(tier === 'starter' || tier === 'author') && (
+                <button
+                  onClick={() => handleUpgradePro()}
+                  disabled={upgradeLoading}
+                  className="mt-4 w-full py-2.5 border-2 border-brand-button text-brand-button text-sm font-semibold rounded-xl hover:bg-brand-accent/10 disabled:opacity-50 transition-colors"
+                >
+                  {upgradeLoading ? 'Loading…' : 'Upgrade to Launch Pro — $19/mo'}
+                </button>
+              )}
+              {tier === 'pro' && (
+                <button
+                  onClick={handleManageBilling}
+                  disabled={portalLoading}
+                  className="mt-4 w-full py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                >
+                  {portalLoading ? 'Loading…' : 'Manage billing'}
+                </button>
+              )}
             </div>
-          )}
 
-          {/* Starter upsell — show Author + Pro options */}
-          {tier === 'starter' && (
-            <div className="border border-gray-200 rounded-xl p-5 mt-4">
-              <p className="text-sm font-semibold text-brand-coal mb-1">Also available: Launch Pro — $19/mo</p>
-              <p className="text-xs text-gray-500 mb-3">Everything in Author plus unlimited active books — ideal if you&apos;re marketing more than one title at once.</p>
-              <button
-                onClick={() => handleUpgradePro()}
-                disabled={upgradeLoading}
-                className="w-full py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 disabled:opacity-50 transition-colors"
-              >
-                {upgradeLoading ? 'Loading…' : 'Get Launch Pro — $19/mo'}
-              </button>
-            </div>
-          )}
+          </div>
+          <p className="text-center text-xs text-gray-400 mt-3">Cancel anytime. No long-term commitment.</p>
         </div>
 
         <div className="border-t border-gray-100 mb-10" />
