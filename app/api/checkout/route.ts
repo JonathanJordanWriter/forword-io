@@ -69,6 +69,31 @@ export async function POST(req: NextRequest) {
       metadata: { supabase_user_id: user.id, plan },
     })
 
+    // Update the tier immediately in the database — don't rely solely on the webhook
+    // so the user sees the change right away
+    const newTier = plan === 'pro' ? 'pro' : 'author'
+    await supabase
+      .from('users')
+      .update({ tier: newTier, stripe_subscription_id: updatedSub.id })
+      .eq('id', user.id)
+
+    // If upgrading to Pro, unlock all tasks across all active plans
+    if (newTier === 'pro') {
+      const { data: allPlans } = await supabase
+        .from('plans')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+
+      if (allPlans && allPlans.length > 0) {
+        await supabase
+          .from('tasks')
+          .update({ is_locked: false })
+          .in('plan_id', allPlans.map(p => p.id))
+          .eq('is_locked', true)
+      }
+    }
+
     // Return the success URL directly — no need to go through Stripe checkout
     return NextResponse.json({ url: successUrl, subscriptionId: updatedSub.id })
   }
