@@ -78,14 +78,13 @@ export default function UpgradeModal({ onClose, bookId }: Props) {
             <div className="flex items-start justify-between">
               <div>
                 <p className="font-semibold text-brand-coal">Author</p>
-                <p className="text-xs text-gray-500 mt-0.5">Full 90-day plan + calendar export + post prompts</p>
+                <p className="text-xs text-gray-500 mt-0.5">Full 90-day plan for 1 active book</p>
                 <ul className="mt-2 space-y-0.5">
                   {[
-                    'Full 90-day personalized plan',
-                    'Adaptive plan with burnout guard',
-                    '.ics calendar export',
-                    'Full post prompt library (200+ prompts)',
-                    'Done-for-you outreach templates',
+                    'Full 90-day personalized marketing plan',
+                    'All tasks unlocked — no day-30 cutoff',
+                    'Regenerate your plan anytime',
+                    '1 active book',
                   ].map(f => (
                     <li key={f} className="flex items-center gap-1.5 text-xs text-gray-600">
                       <svg className="w-3.5 h-3.5 text-brand-button shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -115,14 +114,13 @@ export default function UpgradeModal({ onClose, bookId }: Props) {
             <div className="flex items-start justify-between">
               <div>
                 <p className="font-semibold text-brand-coal">Launch Pro</p>
-                <p className="text-xs text-gray-500 mt-0.5">Everything in Author + unlimited books + analytics</p>
+                <p className="text-xs text-gray-500 mt-0.5">Everything in Author plus unlimited active books</p>
                 <ul className="mt-2 space-y-0.5">
                   {[
                     'Everything in Author',
                     'Unlimited active books',
-                    'Series marketing planner',
-                    'Backlist relaunch plans',
-                    'Progress analytics dashboard',
+                    'Full 90-day plan for every title',
+                    'No monthly switching limits',
                   ].map(f => (
                     <li key={f} className="flex items-center gap-1.5 text-xs text-gray-600">
                       <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
