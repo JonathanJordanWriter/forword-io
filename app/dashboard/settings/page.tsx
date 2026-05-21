@@ -183,13 +183,13 @@ export default function SettingsPage() {
             <div>
               <p className="text-sm font-semibold text-brand-coal">{TIER_LABELS[tier] ?? tier}</p>
               {tier === 'starter' && (
-                <p className="text-xs text-gray-500 mt-0.5">First 30 days of your plan · 3 post prompts/week</p>
+                <p className="text-xs text-gray-500 mt-0.5">First 30 days of your plan for 1 active book.</p>
               )}
               {tier === 'author' && (
-                <p className="text-xs text-gray-500 mt-0.5">Full 90-day plan · calendar export · post prompts · 1 active book</p>
+                <p className="text-xs text-gray-500 mt-0.5">Full 90-day plans for 1 active book.</p>
               )}
               {tier === 'pro' && (
-                <p className="text-xs text-gray-500 mt-0.5">Everything in Author · unlimited books · no switching limits</p>
+                <p className="text-xs text-gray-500 mt-0.5">Everything in Author plus unlimited active books.</p>
               )}
             </div>
             <div className="flex gap-2 ml-4 shrink-0">
@@ -222,12 +222,12 @@ export default function SettingsPage() {
                     <p className="text-sm font-semibold text-brand-coal">Upgrade to Launch Pro</p>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-brand-accent/30 text-brand-button font-medium">$19/mo</span>
                   </div>
-                  <p className="text-xs text-gray-500 mb-3">Everything in Author, plus the ability to market multiple books at once — no switching limits.</p>
+                  <p className="text-xs text-gray-500 mb-3">Everything in Author, plus unlimited active books — ideal if you&apos;re marketing more than one title at once.</p>
                   <ul className="space-y-1">
                     {[
                       'Unlimited active books — market every title at once',
-                      'Switch between projects anytime, no monthly limits',
                       'Full 90-day plan for every book in your library',
+                      'No monthly switching limits',
                     ].map(f => (
                       <li key={f} className="flex items-center gap-1.5 text-xs text-gray-600">
                         <svg className="w-3.5 h-3.5 text-brand-button shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -254,7 +254,7 @@ export default function SettingsPage() {
           {tier === 'starter' && (
             <div className="border border-gray-200 rounded-xl p-5 mt-4">
               <p className="text-sm font-semibold text-brand-coal mb-1">Also available: Launch Pro — $19/mo</p>
-              <p className="text-xs text-gray-500 mb-3">Everything in Author plus unlimited active books and no switching limits — ideal if you&apos;re marketing more than one title.</p>
+              <p className="text-xs text-gray-500 mb-3">Everything in Author plus unlimited active books — ideal if you&apos;re marketing more than one title at once.</p>
               <button
                 onClick={() => handleUpgradePro()}
                 disabled={upgradeLoading}
