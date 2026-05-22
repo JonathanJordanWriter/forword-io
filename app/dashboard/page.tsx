@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import SignOutButton from '@/components/SignOutButton'
+import DashboardBookList, { BookListItem } from '@/components/dashboard/DashboardBookList'
 
 const STAGE_LABELS: Record<string, string> = {
   idea: 'Just an idea',
@@ -31,17 +32,78 @@ export default async function DashboardPage() {
   // New user with no books — send to onboarding
   if (!books || books.length === 0) redirect('/onboarding')
 
-  // Fetch active plans to show real status badges
+  // Fetch active plans (with IDs so we can check task lock status)
   const { data: plans } = await supabase
     .from('plans')
-    .select('book_id, completion_pct, status')
+    .select('id, book_id, completion_pct, status')
     .eq('user_id', user.id)
     .eq('status', 'active')
+
+  // Fetch user profile for tier + switch tracking
+  const { data: profile } = await supabase
+    .from('users')
+    .select('tier, author_plan_switched_at')
+    .eq('id', user.id)
+    .single()
+
+  const isAuthorTier = profile?.tier === 'author'
+
+  // For Author tier: find which book (if any) has unlocked day-31+ tasks —
+  // that's the "active" book whose deletion would trigger a subscription transfer.
+  let unlockedBookId: string | null = null
+  if (isAuthorTier && plans && plans.length > 0) {
+    const planIds = plans.map(p => p.id)
+    const { data: unlockedTask } = await supabase
+      .from('tasks')
+      .select('plan_id')
+      .in('plan_id', planIds)
+      .eq('is_locked', false)
+      .gt('day_number', 30)
+      .limit(1)
+      .single()
+
+    if (unlockedTask) {
+      const matchedPlan = plans.find(p => p.id === unlockedTask.plan_id)
+      unlockedBookId = matchedPlan?.book_id ?? null
+    }
+  }
+
+  // Subscription switch timing
+  const now = new Date()
+  const lastSwitch = profile?.author_plan_switched_at
+    ? new Date(profile.author_plan_switched_at as string)
+    : null
+  const hasAlreadySwitchedThisMonth = lastSwitch
+    ? lastSwitch.getMonth() === now.getMonth() && lastSwitch.getFullYear() === now.getFullYear()
+    : false
+  const nextSwitchDate = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+    .toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
 
   // Build a quick lookup: bookId → plan
   const planByBook = Object.fromEntries(
     (plans ?? []).map(p => [p.book_id, p])
   )
+
+  // Assemble the enriched book list for the client component
+  const bookItems: BookListItem[] = books.map((book) => {
+    const genres = (book.genres as string[] | null) ?? (book.genre ? [book.genre] : [])
+    const plan = planByBook[book.id]
+
+    // willTransferSub: Author tier, this is the unlocked book, and there are other books
+    const isUnlockedBook = isAuthorTier && book.id === unlockedBookId
+    const willTransferSub = isUnlockedBook && books.length > 1
+
+    return {
+      id: book.id,
+      title: book.title || 'Untitled book',
+      stage: STAGE_LABELS[book.book_stage as string] ?? book.book_stage ?? 'Unknown stage',
+      genres,
+      plan: plan ? { completion_pct: plan.completion_pct } : null,
+      willTransferSub,
+      hasAlreadySwitchedThisMonth,
+      nextSwitchDate,
+    }
+  })
 
   return (
     <div className="min-h-screen bg-white">
@@ -78,70 +140,8 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
-        {/* Book / plan list */}
-        <div className="space-y-3">
-          {books.map((book) => {
-            const genres = (book.genres as string[] | null) ?? (book.genre ? [book.genre] : [])
-            const stage = STAGE_LABELS[book.book_stage as string] ?? book.book_stage ?? 'Unknown stage'
-            const displayTitle = book.title || 'Untitled book'
-            const plan = planByBook[book.id]
-
-            return (
-              <Link
-                key={book.id}
-                href={`/dashboard/plan/${book.id}`}
-                className="flex items-center justify-between p-5 rounded-2xl border border-gray-200 hover:border-brand-button hover:bg-brand-accent/10 transition-all group"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-base font-semibold text-brand-coal group-hover:text-brand-button transition-colors truncate">
-                    {displayTitle}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    {genres.length > 0 && (
-                      <span className="text-xs text-gray-500">{genres.join(', ')}</span>
-                    )}
-                    {genres.length > 0 && (
-                      <span className="text-gray-300 text-xs">·</span>
-                    )}
-                    <span className="text-xs text-gray-500">{stage}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 ml-4 shrink-0">
-                  {plan ? (
-                    plan.completion_pct > 0 ? (
-                      /* Plan in progress — show progress bar */
-                      <div className="flex items-center gap-2">
-                        <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-brand-button rounded-full"
-                            style={{ width: `${plan.completion_pct}%` }}
-                          />
-                        </div>
-                        <span className="text-xs text-gray-500 font-medium tabular-nums">
-                          {plan.completion_pct}%
-                        </span>
-                      </div>
-                    ) : (
-                      /* Plan exists but not started yet */
-                      <span className="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 font-medium">
-                        Ready to start
-                      </span>
-                    )
-                  ) : (
-                    /* No plan — prompt to generate */
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-brand-accent/20 text-brand-button font-medium border border-brand-accent/40">
-                      Draft plan
-                    </span>
-                  )}
-                  <svg className="w-4 h-4 text-gray-400 group-hover:text-brand-button transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
+        {/* Book / plan list — client component handles delete interaction */}
+        <DashboardBookList books={bookItems} />
       </div>
     </div>
   )
