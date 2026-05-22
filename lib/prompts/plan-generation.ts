@@ -66,11 +66,38 @@ NEVER assign these tasks to authors at stages: idea, still_writing, finished_man
 
 For stages idea, still_writing: Focus 100% on audience-building fundamentals — establishing platform presence, finding and following readers and creators in the genre community, learning what content resonates, building an email list or newsletter foundation, researching comp titles and the market.
 
+Alpha reader tasks (ONLY for stages idea and still_writing — never assign to finished_manuscript or beyond):
+- Include 1–2 tasks across the 90-day plan related to building an alpha reader circle. Alpha readers are the author's first real test audience — they read rough, messy drafts and give honest feedback before a manuscript has gone through revision. They are different from beta readers (who read a polished draft before publication).
+- Appropriate alpha reader task types: (a) identifying 2–3 critique partners by joining writing groups, online communities (r/WriteWithMe, NaNoWriMo, local writing meetups, genre-specific Discord servers), or platforms like Scribophile or Critique Circle; (b) researching and reaching out to a book coach if the author has budget; (c) drafting a short "alpha reader brief" explaining their manuscript, genre, where they are in the draft, and what kind of feedback they're looking for — honesty about pacing, structure, character, and whether the core concept is working; (d) sharing the first chapter or an opening scene with a trusted person in their life to get initial reactions.
+- Frame these tasks as relationship-building and feedback-gathering, not as marketing. The value is in getting real-world readers to confirm whether the concept, voice, and story are resonating before investing more time.
+- Keep the tone encouraging: most authors skip alpha readers entirely, but the ones who use them arrive at revision with much stronger manuscripts.
+- Do NOT assign alpha reader tasks to authors at stages finished_manuscript, beta_reading, revision, editing, cover_design, or published — the alpha reader window has passed by then.
+
 For stages finished_manuscript, beta_reading, revision, editing: The author can begin warming up their platform and building anticipation, but no direct sales or launch tasks. Appropriate tasks: growing social following, engaging in reader communities, starting a newsletter, connecting with other authors in the genre, researching agents or publishers depending on publishing_path.
 
 For stage cover_design: The author is close to launch. Appropriate to begin: teaser content (cover reveal planning, "something big is coming" posts), early podcast pitch research (identifying shows and building a hit list for when the book launches — but not pitching yet), ARC reader recruitment if launch date is confirmed.
 
 For stage published: All task types are appropriate. This is the only stage where direct sales promotion, podcast pitching for immediate bookings, and "read next" recommendation content make sense.
+
+Behind-the-scenes (BTS) content tasks — apply at EVERY stage:
+Every plan at every stage should include regular behind-the-scenes content tasks for social media and/or newsletter. BTS content is consistently among the highest-performing organic content for authors because it gives readers authentic access to the creative process — and it is available to authors at ALL stages, including those who do not yet have a published book to promote.
+
+BTS content should be specific to the author's actual stage. Use stage-matched examples like these (do not limit yourself to these — generate fresh, specific BTS ideas tailored to the author's genre and situation):
+- idea: "BTS: I've been obsessed with researching [genre/setting/topic] for my new project — here's what I've been reading." / "BTS: mapping out the structure of my next book — here's how I plan before I write a word."
+- still_writing: "BTS: I just wrote [milestone — 10k words, the midpoint, the hardest chapter] and here's what I learned." / "BTS: my writing space right now — messy, cozy, caffeinated." / "BTS: a sentence from today's draft that I actually love." / "BTS: come write with me — here's my session goal."
+- finished_manuscript: "BTS: I just typed 'The End' — here's what finishing my first draft actually felt like." / "BTS: the self-editing process has begun and it is humbling."
+- beta_reading: "BTS: reading and reconciling beta reader feedback — the comments that stung (and why they're probably right)." / "BTS: my beta readers came through — here's what they said about [character/scene/concept]."
+- revision: "BTS: deep in revisions — I just cut [X pages/a whole subplot/a character] and it made the book so much better." / "BTS: self-editing my manuscript — here's my process."
+- editing: "BTS: my manuscript is with [a developmental editor / a copyeditor] and the waiting is its own kind of suspense." / "BTS: my editor's notes just landed in my inbox — here's my first reaction."
+- cover_design: "BTS: cover design is underway and I have approximately zero chill about it." / "BTS: behind the cover — here's the mood board I sent my designer."
+- published: "BTS: what the first week on sale actually looked like — the numbers, the feelings, the surprises." / "BTS: writing book 2 while book 1 is in readers' hands — the strange joy of living in two timelines."
+
+Guidelines for BTS tasks:
+- Include at least 1 BTS content task per phase in every plan — treat it as a standing requirement, not a nice-to-have.
+- BTS tasks can be tagged to any platform the author uses (Instagram, TikTok, Substack, Facebook, Threads, YouTube). Tailor the format to the platform: short video for TikTok/Reels, a longer personal essay for Substack, a short text post for Threads, a carousel or Stories poll for Instagram.
+- The task description should include a specific, ready-to-use BTS post idea relevant to the author's current stage, genre, and publishing journey — not a generic instruction like "post BTS content." Give them the actual idea.
+- For newsletter/Substack tasks, BTS content works especially well as the "personal opener" section before the main content — 2–4 sentences about what the author is working on, what they're struggling with, or a small win from this week.
+- BTS content builds parasocial connection. Readers who follow the journey become invested buyers. Prioritize moments of honest process over polished performance.
 
 LinkedIn rules (only apply if LinkedIn is in the author's active or open_to arrays):
 - FICTION authors: LinkedIn tasks must focus exclusively on connecting with publishing industry professionals — acquisitions editors, literary agents, publicists, or imprint editors relevant to their genre. Example tasks: "Connect with 5 acquisitions editors at Big Five imprints on LinkedIn," "Follow 3 literary agents who rep [genre] and send a brief intro message." Never suggest fiction authors post articles or personal essays on LinkedIn.
