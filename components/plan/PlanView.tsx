@@ -436,14 +436,14 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
               key={phase.phase_number}
               type="button"
               onClick={() => setActivePhase(phase.phase_number)}
-              className={`shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
+              className={`shrink-0 w-[130px] px-3 py-2.5 rounded-xl text-sm font-medium transition-all border text-center ${
                 activePhase === phase.phase_number
                   ? 'bg-brand-button text-white border-brand-button'
                   : 'bg-white text-gray-600 border-gray-200 hover:border-brand-accent'
               }`}
             >
               Phase {phase.phase_number}
-              <span className="block text-xs font-normal truncate max-w-[120px]">
+              <span className="block text-xs font-normal leading-snug mt-0.5">
                 {phase.title}
               </span>
             </button>
