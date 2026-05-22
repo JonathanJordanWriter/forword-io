@@ -26,6 +26,12 @@ export default function SettingsPage() {
   const [passwordLoading, setPasswordLoading] = useState(false)
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
+  // --- Delete account ---
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+
   useEffect(() => {
     async function loadTier() {
       const supabase = createClient()
@@ -99,6 +105,27 @@ export default function SettingsPage() {
       setNewEmail('')
     }
     setEmailLoading(false)
+  }
+
+  async function handleDeleteAccount() {
+    setDeleteLoading(true)
+    setDeleteError(null)
+    try {
+      const res = await fetch('/api/delete-account', { method: 'DELETE' })
+      if (!res.ok) {
+        const data = await res.json()
+        setDeleteError(data.error ?? 'Something went wrong. Please try again.')
+        setDeleteLoading(false)
+        return
+      }
+      // Sign out and redirect to the home page
+      const supabase = createClient()
+      await supabase.auth.signOut()
+      window.location.href = '/'
+    } catch {
+      setDeleteError('Something went wrong. Please try again.')
+      setDeleteLoading(false)
+    }
   }
 
   async function handlePasswordUpdate(e: React.FormEvent) {
@@ -323,7 +350,7 @@ export default function SettingsPage() {
         <div className="border-t border-gray-100 mb-10" />
 
         {/* Password section */}
-        <div>
+        <div className="mb-10">
           <h2 className="text-base font-semibold text-brand-coal mb-1">Password</h2>
           <p className="text-sm text-gray-500 mb-4">
             Choose a strong password of at least 8 characters.
@@ -379,7 +406,87 @@ export default function SettingsPage() {
             </button>
           </form>
         </div>
+
+        <div className="border-t border-gray-100 mb-10" />
+
+        {/* Danger zone */}
+        <div className="mb-10">
+          <h2 className="text-base font-semibold text-red-600 mb-1">Delete account</h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Permanently delete your forword.io account and all associated data — books, plans, and tasks. This cannot be undone.
+          </p>
+          <button
+            onClick={() => { setShowDeleteModal(true); setDeleteConfirmText(''); setDeleteError(null) }}
+            className="px-5 py-2 border border-red-300 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 transition-colors"
+          >
+            Delete my account
+          </button>
+        </div>
       </div>
+
+      {/* Delete account confirmation modal */}
+      {showDeleteModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+          onClick={() => !deleteLoading && setShowDeleteModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Warning icon */}
+            <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+            </div>
+
+            <h2 className="text-lg font-bold text-brand-coal text-center mb-2">Delete your account?</h2>
+            <p className="text-sm text-gray-500 text-center mb-1">
+              This will permanently delete your account and all of your data — including your books, plans, and tasks.
+            </p>
+            <p className="text-sm font-medium text-red-600 text-center mb-6">
+              This action cannot be undone.
+            </p>
+
+            {/* Confirm by typing DELETE */}
+            <div className="mb-5">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Type <span className="font-bold text-red-600">DELETE</span> to confirm
+              </label>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={e => setDeleteConfirmText(e.target.value)}
+                placeholder="DELETE"
+                disabled={deleteLoading}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent disabled:opacity-50"
+              />
+            </div>
+
+            {deleteError && (
+              <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2 mb-4">{deleteError}</p>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleteConfirmText !== 'DELETE' || deleteLoading}
+                className="flex-1 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                {deleteLoading ? 'Deleting…' : 'Yes, delete my account'}
+              </button>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleteLoading}
+                className="flex-1 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Upgrade confirmation modal */}
       {confirmPlan && (
