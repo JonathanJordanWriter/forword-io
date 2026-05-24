@@ -10,13 +10,7 @@ import DeleteBookButton from '@/components/plan/DeleteBookButton'
 import SignOutButton from '@/components/SignOutButton'
 import { stripe, PLANS } from '@/lib/stripe'
 
-export default async function PlanPage({
-  params,
-  searchParams,
-}: {
-  params: { bookId: string }
-  searchParams?: { upgraded?: string }
-}) {
+export default async function PlanPage({ params }: { params: { bookId: string } }) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -41,11 +35,13 @@ export default async function PlanPage({
   let userTier = profile?.tier ?? 'starter'
 
   // ── Upgrade sync ──────────────────────────────────────────────────────────
-  // When a user completes a brand-new Stripe checkout, they land here with
-  // ?upgraded=1. Webhooks are async and may not have fired yet, so the DB
-  // still shows 'starter'. We sync directly from Stripe to fix this immediately
-  // rather than making the user wait or refresh.
-  if (searchParams?.upgraded === '1' && userTier === 'starter' && profile?.stripe_customer_id) {
+  // Webhooks are async — by the time the user lands on any page the webhook
+  // may not have fired yet. Any time the DB still shows 'starter' but the user
+  // has a Stripe customer ID, we verify directly with Stripe. This covers:
+  //   • landing on the plan page immediately after checkout (?upgraded=1)
+  //   • navigating here from the dashboard after a checkout redirect
+  //   • any delayed webhook scenario
+  if (userTier === 'starter' && profile?.stripe_customer_id) {
     try {
       const subs = await stripe.subscriptions.list({
         customer: profile.stripe_customer_id,
