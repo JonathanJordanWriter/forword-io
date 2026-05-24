@@ -8,8 +8,15 @@ import EditableTitle from '@/components/plan/EditableTitle'
 import EditableBookProfile from '@/components/plan/EditableBookProfile'
 import DeleteBookButton from '@/components/plan/DeleteBookButton'
 import SignOutButton from '@/components/SignOutButton'
+import { stripe, PLANS } from '@/lib/stripe'
 
-export default async function PlanPage({ params }: { params: { bookId: string } }) {
+export default async function PlanPage({
+  params,
+  searchParams,
+}: {
+  params: { bookId: string }
+  searchParams?: { upgraded?: string }
+}) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -28,10 +35,71 @@ export default async function PlanPage({ params }: { params: { bookId: string } 
   // Fetch the user's tier + switch tracking for locking and delete-limit logic
   const { data: profile } = await supabase
     .from('users')
-    .select('tier, author_plan_switched_at')
+    .select('tier, author_plan_switched_at, stripe_customer_id')
     .eq('id', user.id)
     .single()
-  const userTier = profile?.tier ?? 'starter'
+  let userTier = profile?.tier ?? 'starter'
+
+  // ── Upgrade sync ──────────────────────────────────────────────────────────
+  // When a user completes a brand-new Stripe checkout, they land here with
+  // ?upgraded=1. Webhooks are async and may not have fired yet, so the DB
+  // still shows 'starter'. We sync directly from Stripe to fix this immediately
+  // rather than making the user wait or refresh.
+  if (searchParams?.upgraded === '1' && userTier === 'starter' && profile?.stripe_customer_id) {
+    try {
+      const subs = await stripe.subscriptions.list({
+        customer: profile.stripe_customer_id,
+        status: 'active',
+        limit: 1,
+      })
+
+      if (subs.data.length > 0) {
+        const sub = subs.data[0]
+        const priceId = sub.items.data[0]?.price?.id
+        const syncedTier =
+          priceId === PLANS.author.priceId ? 'author' :
+          priceId === PLANS.pro.priceId ? 'pro' :
+          null
+
+        if (syncedTier) {
+          // Update the user's tier in the DB
+          await supabase
+            .from('users')
+            .update({ tier: syncedTier, stripe_subscription_id: sub.id })
+            .eq('id', user.id)
+
+          // Unlock tasks: author gets 1 plan, pro gets all plans
+          const plansRes = await supabase
+            .from('plans')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('status', 'active')
+            .order('generated_at', { ascending: false })
+
+          const activePlans = plansRes.data ?? []
+
+          if (activePlans.length > 0) {
+            const plansToUnlock = syncedTier === 'author'
+              ? [activePlans[0]]   // only the most recent plan for Author
+              : activePlans        // all plans for Pro
+
+            await supabase
+              .from('tasks')
+              .update({ is_locked: false })
+              .in('plan_id', plansToUnlock.map(p => p.id))
+              .eq('is_locked', true)
+          }
+
+          // Use the synced tier for the rest of this page render
+          userTier = syncedTier
+        }
+      }
+    } catch (err) {
+      // Don't block the page render if the sync fails — webhook will eventually catch up
+      console.error('Upgrade sync failed:', err)
+    }
+  }
+
   const isStarterTier = userTier === 'starter'
   const isAuthorTier = userTier === 'author'
 

@@ -63,6 +63,9 @@ export async function POST(req: NextRequest) {
       // - author: full 90 days but only 1 book (the most recently generated plan)
       // - pro: full 90 days across all books
       if (isActive) {
+        // Author tier gets only their most recent plan; Pro gets all plans.
+        // Note: query builder is immutable — .limit() must be chained on the
+        // same expression that gets awaited, not called as a side-effect.
         const plansQuery = supabase
           .from('plans')
           .select('id')
@@ -70,10 +73,7 @@ export async function POST(req: NextRequest) {
           .eq('status', 'active')
           .order('generated_at', { ascending: false })
 
-        // Author tier: limit to 1 plan only
-        if (tier === 'author') plansQuery.limit(1)
-
-        const { data: plans } = await plansQuery
+        const { data: plans } = await (tier === 'author' ? plansQuery.limit(1) : plansQuery)
 
         if (plans && plans.length > 0) {
           await supabase
