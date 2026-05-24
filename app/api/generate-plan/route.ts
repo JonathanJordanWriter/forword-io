@@ -283,30 +283,30 @@ export async function POST(req: NextRequest) {
   }
 
   // 11. Restore previously completed tasks (preserving user progress)
+  // Match by day_number and UPDATE the newly-generated task in place — never insert
+  // duplicate rows, which would cause tasks to appear twice in the plan view.
   if (completedTasksToPreserve.length > 0) {
-    const restoredRows = completedTasksToPreserve.map(t => ({
-      plan_id: plan.id,
-      user_id: user.id,
-      phase: t.phase,
-      week_number: t.week_number,
-      day_number: t.day_number,
-      title: t.title,
-      description: t.description,
-      category: normalizeCategory(t.category),
-      platform_tag: t.platform_tag,
-      estimated_mins: t.estimated_mins,
-      is_completed: true,
-      completed_at: new Date().toISOString(),
-      is_locked: false,
-    }))
-    const { error: restoreError } = await supabase.from('tasks').insert(restoredRows)
+    const completedDays = completedTasksToPreserve.map(t => t.day_number)
+    const { error: restoreError } = await supabase
+      .from('tasks')
+      .update({ is_completed: true, completed_at: new Date().toISOString() })
+      .eq('plan_id', plan.id)
+      .in('day_number', completedDays)
+
     if (restoreError) console.error('Failed to restore completed tasks:', restoreError)
 
-    // Update completion_pct to reflect restored tasks
-    const totalUnlocked = taskRows.filter(t => !t.is_locked).length + restoredRows.length
-    const completedCount = restoredRows.length
-    const pct = totalUnlocked > 0 ? Math.round((completedCount / totalUnlocked) * 100) : 0
-    await supabase.from('plans').update({ completion_pct: pct }).eq('id', plan.id)
+    // Recalculate completion_pct based on the actual updated rows
+    const { data: updatedTasks } = await supabase
+      .from('tasks')
+      .select('is_completed, is_locked')
+      .eq('plan_id', plan.id)
+
+    if (updatedTasks) {
+      const unlocked = updatedTasks.filter(t => !t.is_locked)
+      const completedCount = unlocked.filter(t => t.is_completed).length
+      const pct = unlocked.length > 0 ? Math.round((completedCount / unlocked.length) * 100) : 0
+      await supabase.from('plans').update({ completion_pct: pct }).eq('id', plan.id)
+    }
   }
 
   return NextResponse.json({

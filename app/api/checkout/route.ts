@@ -91,6 +91,7 @@ export async function POST(req: NextRequest) {
           .update({ is_locked: false })
           .in('plan_id', allPlans.map(p => p.id))
           .eq('is_locked', true)
+          .eq('is_completed', false) // never touch already-completed tasks
       }
     }
 

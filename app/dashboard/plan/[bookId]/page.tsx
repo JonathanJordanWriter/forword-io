@@ -84,6 +84,7 @@ export default async function PlanPage({ params }: { params: { bookId: string } 
               .update({ is_locked: false })
               .in('plan_id', plansToUnlock.map(p => p.id))
               .eq('is_locked', true)
+              .eq('is_completed', false) // never touch already-completed tasks
           }
 
           // Use the synced tier for the rest of this page render

@@ -81,6 +81,7 @@ export async function POST(req: NextRequest) {
             .update({ is_locked: false })
             .in('plan_id', plans.map(p => p.id))
             .eq('is_locked', true)
+            .eq('is_completed', false) // never touch already-completed tasks
         }
 
         // For author tier: re-lock any tasks on older plans beyond day 30
