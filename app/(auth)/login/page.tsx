@@ -1,23 +1,28 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
+// useSearchParams() requires a Suspense boundary in Next.js 14.
+// We isolate it here so the rest of the page renders normally.
+function VerificationErrorBanner({ onError }: { onError: (msg: string) => void }) {
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    if (searchParams.get('error') === 'verification_failed') {
+      onError('Email verification failed or the link has expired. Please sign up again or contact support.')
+    }
+  }, [searchParams, onError])
+  return null
+}
+
 export default function LoginPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    if (searchParams.get('error') === 'verification_failed') {
-      setError('Email verification failed or the link has expired. Please sign up again or contact support.')
-    }
-  }, [searchParams])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -39,6 +44,11 @@ export default function LoginPage() {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+      {/* Reads ?error= from the URL without blocking the rest of the page */}
+      <Suspense fallback={null}>
+        <VerificationErrorBanner onError={setError} />
+      </Suspense>
+
       <h2 className="text-xl font-semibold text-brand-coal mb-6">Welcome back</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
