@@ -17,7 +17,7 @@ export type ExperienceLevel = 'first_time' | 'mid_career' | 'established'
 export type ExistingAudience = 'under_500' | '500_2k' | '2k_10k' | '10k_plus'
 
 // Launch timeframe ranges instead of exact date
-export type LaunchTimeframe = 'within_12mo' | '12_18mo' | '1_2yr' | '2yr_plus'
+export type LaunchTimeframe = 'within_12mo' | '12_18mo' | '1_2yr' | '2yr_plus' | 'already_published'
 
 export interface CompTitle {
   title: string

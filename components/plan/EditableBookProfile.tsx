@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 // ─── Option sets (mirrors onboarding) ────────────────────────────────────────
 
@@ -22,6 +22,7 @@ const TIMEFRAMES = [
   { value: '12_18mo', label: '12–18 months' },
   { value: '1_2yr', label: '1–2 years' },
   { value: '2yr_plus', label: '2+ years' },
+  { value: 'already_published', label: 'Already published' },
 ]
 
 const BOOK_STAGES = [
@@ -156,6 +157,8 @@ export default function EditableBookProfile({ bookId, book, defaultCollapsed = f
   const [activePlatforms, setActivePlatforms] = useState<string[]>(book.platforms?.active ?? [])
   const [openToPlatforms, setOpenToPlatforms] = useState<string[]>(book.platforms?.open_to ?? [])
   const [timePerWeek, setTimePerWeek] = useState(book.time_per_week ?? '')
+  // Track the last-saved time so we can detect a change after the user edits
+  const savedTimePerWeek = useRef(book.time_per_week ?? '')
   const [monthlyBudget, setMonthlyBudget] = useState(book.monthly_budget ?? '')
   const [experienceLevel, setExperienceLevel] = useState(book.experience_level ?? '')
   const [existingAudience, setExistingAudience] = useState(book.existing_audience ?? '')
@@ -207,6 +210,17 @@ export default function EditableBookProfile({ bookId, book, defaultCollapsed = f
         }),
       })
       if (!res.ok) { setSaveError('Failed to save — please try again'); return }
+
+      // If time_per_week changed, flag that the plan needs regeneration.
+      // sessionStorage persists through refreshes; the custom event updates
+      // PlanView immediately when both components are on the same page.
+      if (timePerWeek !== savedTimePerWeek.current) {
+        const storageKey = `plan-needs-regen-${bookId}`
+        sessionStorage.setItem(storageKey, '1')
+        window.dispatchEvent(new CustomEvent('plan-needs-regen'))
+        savedTimePerWeek.current = timePerWeek
+      }
+
       setSaved(true)
       setEditing(false)
       setTimeout(() => setSaved(false), 3000)

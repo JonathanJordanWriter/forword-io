@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 // useRouter available if needed for future navigation
 import UpgradeModal from './UpgradeModal'
 
@@ -272,9 +272,30 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
 
   const completedCount_total = tasks.filter(t => t.is_completed).length
 
+  // ── Persist "needs regeneration" across refreshes ──────────────────────────
+  // sessionStorage key is scoped to this book so multiple tabs don't interfere.
+  const regenStorageKey = `plan-needs-regen-${bookId}`
+
+  // On mount: restore the banner if a previous time change wasn't acted on yet,
+  // and listen for changes dispatched by EditableBookProfile on the same page.
+  useEffect(() => {
+    if (sessionStorage.getItem(regenStorageKey)) {
+      setTimeChanged(true)
+    }
+
+    function handleExternalChange() {
+      setTimeChanged(true)
+    }
+
+    window.addEventListener('plan-needs-regen', handleExternalChange)
+    return () => window.removeEventListener('plan-needs-regen', handleExternalChange)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [regenStorageKey])
+
   function handleTimeSaved(newTime: string) {
     setCurrentTime(newTime)
     setTimeChanged(true)
+    sessionStorage.setItem(regenStorageKey, '1')
   }
 
   async function handleRegenerate(hardReset = false) {
@@ -293,6 +314,8 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
         setRegenerating(false)
         return
       }
+      // Clear the flag before reloading — plan is being regenerated
+      sessionStorage.removeItem(regenStorageKey)
       window.location.reload()
     } catch {
       setRegenError('Network error. Please try again.')

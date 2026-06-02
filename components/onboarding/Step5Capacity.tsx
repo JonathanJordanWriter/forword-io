@@ -125,6 +125,7 @@ export default function Step5Capacity({ data, onChange, onNext, onBack }: Props)
             { value: '12_18mo', label: '12–18 months' },
             { value: '1_2yr', label: '1–2 years' },
             { value: '2yr_plus', label: '2+ years' },
+            { value: 'already_published', label: 'Already published' },
           ] as { value: LaunchTimeframe; label: string }[]).map(opt => (
             <button
               key={opt.value}
