@@ -241,9 +241,9 @@ function WeekHeader({
         </button>
 
         <div className="text-center">
-          <p className="text-sm font-semibold text-brand-coal">Week {weekNum}</p>
-          <p className="text-xs text-gray-400">
-            of {totalWeeks} · {taskCount} task{taskCount !== 1 ? 's' : ''}
+          <p className="text-sm font-semibold text-brand-coal">Week {weekNum} of {totalWeeks}</p>
+          <p className="text-xs font-medium text-brand-button">
+            {taskCount} task{taskCount !== 1 ? 's' : ''}
           </p>
         </div>
 
@@ -276,7 +276,7 @@ function WeekHeader({
         </button>
 
         <span className={`text-xs font-medium px-2 min-w-[96px] text-center transition-colors ${
-          flash ? 'text-brand-button' : 'text-gray-400'
+          flash ? 'text-brand-coal' : 'text-brand-button'
         }`}>
           {label}
         </span>
