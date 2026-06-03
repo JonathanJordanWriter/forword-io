@@ -172,16 +172,26 @@ function TaskCard({
 
 function WeekHeader({
   weekNum,
+  totalWeeks,
   taskCount,
   bookId,
   currentTime,
   onTimeSaved,
+  canGoPrev,
+  canGoNext,
+  onPrev,
+  onNext,
 }: {
   weekNum: number
+  totalWeeks: number
   taskCount: number
   bookId: string
   currentTime: string
   onTimeSaved: (newTime: string) => void
+  canGoPrev: boolean
+  canGoNext: boolean
+  onPrev: () => void
+  onNext: () => void
 }) {
   const [saving, setSaving] = useState(false)
   const [flash, setFlash] = useState(false)
@@ -214,15 +224,45 @@ function WeekHeader({
   const label = TIME_OPTIONS[safeIndex].label
 
   return (
-    <div className="flex items-center justify-between mb-2">
-      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-        Week {weekNum}
-        <span className="ml-2 font-normal normal-case text-gray-300">·</span>
-        <span className="ml-2 font-normal normal-case text-gray-400">{taskCount} task{taskCount !== 1 ? 's' : ''}</span>
-      </h3>
+    <div className="mb-4">
+      {/* Top row: week prev/next navigation */}
+      <div className="flex items-center justify-between mb-2">
+        <button
+          type="button"
+          onClick={onPrev}
+          disabled={!canGoPrev}
+          aria-label="Previous week"
+          className="flex items-center gap-1 text-xs text-gray-400 hover:text-brand-button disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Prev
+        </button>
 
-      {/* Stepper: [−]  3–5 hrs / week  [+] */}
-      <div className="flex items-center gap-1">
+        <div className="text-center">
+          <p className="text-sm font-semibold text-brand-coal">Week {weekNum}</p>
+          <p className="text-xs text-gray-400">
+            of {totalWeeks} · {taskCount} task{taskCount !== 1 ? 's' : ''}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={onNext}
+          disabled={!canGoNext}
+          aria-label="Next week"
+          className="flex items-center gap-1 text-xs text-gray-400 hover:text-brand-button disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        >
+          Next
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Bottom row: time availability stepper */}
+      <div className="flex items-center justify-center gap-1">
         <button
           type="button"
           onClick={() => step(-1)}
@@ -236,7 +276,7 @@ function WeekHeader({
         </button>
 
         <span className={`text-xs font-medium px-2 min-w-[96px] text-center transition-colors ${
-          flash ? 'text-brand-button' : 'text-gray-500'
+          flash ? 'text-brand-button' : 'text-gray-400'
         }`}>
           {label}
         </span>
@@ -259,6 +299,15 @@ function WeekHeader({
 
 // ─── Main PlanView ─────────────────────────────────────────────────────────────
 
+// ─── Helper: first week in a list that has an incomplete unlocked task ────────
+
+function firstIncompleteWeek(weeksList: number[], tasksList: Task[]): number {
+  const w = weeksList.find(wk =>
+    tasksList.filter(t => t.week_number === wk && !t.is_locked).some(t => !t.is_completed)
+  )
+  return w ?? weeksList[0]
+}
+
 export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _isStarterTier, userTier = 'starter', bookId, initialTimePerWeek = '3_5hrs' }: Props) {
   void _isStarterTier // retained in props for potential future use
   const [tasks, setTasks] = useState(initialTasks)
@@ -269,6 +318,23 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
   const [regenError, setRegenError] = useState<string | null>(null)
   const [confirmReset, setConfirmReset] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+  // ── Active week — start on the first week with incomplete work ─────────────
+  const [activeWeek, setActiveWeek] = useState(() => {
+    const startTasks = initialTasks.filter(t => t.phase === plan.current_phase)
+    const startWeeks = Array.from(new Set(startTasks.map(t => t.week_number))).sort((a, b) => a - b)
+    return firstIncompleteWeek(startWeeks, startTasks)
+  })
+
+  // When the user switches phases, jump to that phase's first incomplete week
+  useEffect(() => {
+    const newPhaseTasks = tasks.filter(t => t.phase === activePhase)
+    const newPhaseWeeks = Array.from(new Set(newPhaseTasks.map(t => t.week_number))).sort((a, b) => a - b)
+    if (newPhaseWeeks.length > 0) {
+      setActiveWeek(firstIncompleteWeek(newPhaseWeeks, newPhaseTasks))
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePhase])
 
   const completedCount_total = tasks.filter(t => t.is_completed).length
 
@@ -354,9 +420,27 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
     ? Math.round((completedCount / unlockedTasks.length) * 100)
     : 0
 
-  // ── Phase tasks ────────────────────────────────────────────────────────────
+  // ── Phase tasks & week navigation ─────────────────────────────────────────
   const phaseTasks = tasks.filter(t => t.phase === activePhase)
   const weeks = Array.from(new Set(phaseTasks.map(t => t.week_number))).sort((a, b) => a - b)
+
+  // All weeks across the full plan (for "Week X of 13" labelling)
+  const allWeeks = Array.from(new Set(tasks.map(t => t.week_number))).sort((a, b) => a - b)
+  const totalWeeks = allWeeks.length
+
+  const activeWeekIndex = weeks.indexOf(activeWeek)
+  const canGoPrev = activeWeekIndex > 0
+  const canGoNext = activeWeekIndex < weeks.length - 1
+
+  // Tasks visible in the currently selected week
+  const weekTasks = phaseTasks
+    .filter(t => t.week_number === activeWeek)
+    .sort((a, b) => a.day_number - b.day_number)
+
+  // Count completed tasks in the active week (for the "all done" nudge)
+  const weekCompletedCount = weekTasks.filter(t => !t.is_locked && t.is_completed).length
+  const weekUnlockedCount  = weekTasks.filter(t => !t.is_locked).length
+  const weekAllDone = weekUnlockedCount > 0 && weekCompletedCount === weekUnlockedCount
 
   return (
     <div>
@@ -485,39 +569,56 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
         </div>
       )}
 
-      {/* Tasks grouped by week */}
+      {/* Week navigator + tasks */}
       {phaseTasks.length === 0 ? (
         <p className="text-sm text-gray-400 text-center py-8">No tasks in this phase.</p>
       ) : (
-        <div className="space-y-6">
-          {weeks.map(weekNum => {
-            const weekTasks = phaseTasks
-              .filter(t => t.week_number === weekNum)
-              .sort((a, b) => a.day_number - b.day_number)
+        <div>
+          {/* Week header row: prev/next + time stepper */}
+          <WeekHeader
+            weekNum={activeWeek}
+            totalWeeks={totalWeeks}
+            taskCount={weekTasks.length}
+            bookId={bookId}
+            currentTime={currentTime}
+            onTimeSaved={handleTimeSaved}
+            canGoPrev={canGoPrev}
+            canGoNext={canGoNext}
+            onPrev={() => setActiveWeek(weeks[activeWeekIndex - 1])}
+            onNext={() => setActiveWeek(weeks[activeWeekIndex + 1])}
+          />
 
-            return (
-              <div key={weekNum}>
-                <WeekHeader
-                  weekNum={weekNum}
-                  taskCount={weekTasks.length}
-                  bookId={bookId}
-                  currentTime={currentTime}
-                  onTimeSaved={handleTimeSaved}
-                />
-                <div className="space-y-2">
-                  {weekTasks.map(task => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      taskNumber={taskNumberMap.get(task.id) ?? 0}
-                      onToggle={handleToggle}
-                      onUpgradeClick={() => setShowUpgradeModal(true)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )
-          })}
+          {/* Task list for the active week */}
+          <div className="space-y-2">
+            {weekTasks.map(task => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                taskNumber={taskNumberMap.get(task.id) ?? 0}
+                onToggle={handleToggle}
+                onUpgradeClick={() => setShowUpgradeModal(true)}
+              />
+            ))}
+          </div>
+
+          {/* "All done this week" nudge */}
+          {weekAllDone && canGoNext && (
+            <div className="mt-4 flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+              <p className="text-sm font-medium text-green-700">
+                Week {activeWeek} complete! 🎉
+              </p>
+              <button
+                type="button"
+                onClick={() => setActiveWeek(weeks[activeWeekIndex + 1])}
+                className="flex items-center gap-1.5 text-sm font-semibold text-green-700 hover:opacity-80 transition-opacity"
+              >
+                Week {weeks[activeWeekIndex + 1]}
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          )}
         </div>
       )}
 
