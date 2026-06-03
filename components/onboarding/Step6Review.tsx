@@ -101,7 +101,7 @@ export default function Step6Review({ data, onSubmit, onBack, onEditStep, loadin
         </button>
         <button type="button" onClick={onSubmit} disabled={loading}
           className="flex-1 py-2.5 px-4 bg-brand-button text-white text-sm font-medium rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity">
-          {loading ? 'Saving…' : 'Generate my plan →'}
+          {loading ? 'Saving…' : 'Create book profile →'}
         </button>
       </div>
     </div>
