@@ -258,21 +258,46 @@ export async function POST(req: NextRequest) {
   const normalizedCategories = rawCategories.map(c => `${c} → ${normalizeCategory(c)}`)
   console.log('Normalized:', normalizedCategories)
 
+  // Build a normalised set of the author's selected platform names so we can
+  // enforce platform restrictions server-side as a safety net (Claude occasionally
+  // slips in platforms the author didn't select despite the prompt rule).
+  const bookPlatforms = book.platforms as { active?: string[]; open_to?: string[] } | null
+  const selectedPlatforms = [
+    ...(bookPlatforms?.active ?? []),
+    ...(bookPlatforms?.open_to ?? []),
+  ].map(p => p.toLowerCase().replace(/[^a-z0-9]/g, ''))
+  // Always allow generic / multi-platform tags
+  const genericTags = new Set(['all', 'none', 'general', 'any', 'canva', 'buffer', 'email', 'kdp', 'ingramspark', 'amazon', 'goodreads', 'substack', 'newsletter', 'querytracker', 'publishersmarketplace', 'booksirens', 'netgalley', 'bookstagram', 'booktok'])
+
+  function isPlatformAllowed(tag: string): boolean {
+    if (!tag) return true
+    const normalised = tag.toLowerCase().replace(/[^a-z0-9]/g, '')
+    if (genericTags.has(normalised)) return true
+    // Check whether any of the author's selected platforms contains this tag
+    return selectedPlatforms.some(p => p.includes(normalised) || normalised.includes(p))
+  }
+
   // 10. Insert all task records
-  const taskRows = allTasks.map(task => ({
-    plan_id: plan.id,
-    user_id: user.id,
-    phase: planData.phases.find(p => p.tasks.includes(task))?.phase_number ?? 1,
-    week_number: task.week_number,
-    day_number: task.day_number,
-    title: task.title,
-    description: task.description,
-    category: normalizeCategory(task.category),
-    platform_tag: task.platform_tag,
-    estimated_mins: task.estimated_mins,
-    is_completed: false,
-    is_locked: shouldLockDay31Plus && task.day_number > 30,
-  }))
+  const taskRows = allTasks.map(task => {
+    const allowed = isPlatformAllowed(task.platform_tag)
+    if (!allowed) {
+      console.warn(`Platform filter: task "${task.title}" had platform_tag "${task.platform_tag}" which is not in the author's selected platforms — resetting to "all"`)
+    }
+    return {
+      plan_id: plan.id,
+      user_id: user.id,
+      phase: planData.phases.find(p => p.tasks.includes(task))?.phase_number ?? 1,
+      week_number: task.week_number,
+      day_number: task.day_number,
+      title: task.title,
+      description: task.description,
+      category: normalizeCategory(task.category),
+      platform_tag: allowed ? task.platform_tag : 'all',
+      estimated_mins: task.estimated_mins,
+      is_completed: false,
+      is_locked: shouldLockDay31Plus && task.day_number > 30,
+    }
+  })
 
   const { error: tasksError } = await supabase.from('tasks').insert(taskRows)
 

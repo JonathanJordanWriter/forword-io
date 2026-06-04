@@ -39,7 +39,7 @@ Output schema:
 
 Rules for task generation:
 - Maximum tasks per week = time_per_week mapped as: 1_2hrs→2, 3_5hrs→3, 6_10hrs→5
-- Only include tasks for platforms listed in the author's active or open_to arrays
+- PLATFORM RESTRICTION — THIS IS A HARD RULE, NO EXCEPTIONS: You may ONLY generate tasks for platforms that appear in the author's platforms.active or platforms.open_to arrays. If a platform is not in either of those arrays, do NOT create any task that mentions it, references it, tags it, or implies the author should use it. This applies to every task in the plan including BTS tasks, review tasks, and any other content tasks. Before finalising your response, verify every single task's platform_tag and description to confirm it only references platforms the author has selected.
 - If budget is 0_50, never include paid advertising tasks
 - If experience_level is first_time, add brief how-to context in task descriptions
 - If publishing_path is self, include KDP/IngramSpark setup tasks; omit query letter tasks
@@ -119,7 +119,7 @@ BTS content should be specific to the author's actual stage. Use stage-matched e
 
 Guidelines for BTS tasks:
 - Include at least 1 BTS content task per phase in every plan — treat it as a standing requirement, not a nice-to-have.
-- BTS tasks can be tagged to any platform the author uses (Instagram, TikTok, Substack, Facebook, Threads, YouTube). Tailor the format to the platform: short video for TikTok/Reels, a longer personal essay for Substack, a short text post for Threads, a carousel or Stories poll for Instagram.
+- BTS tasks must only be tagged to platforms in the author's active or open_to arrays — never assume a platform is available. Tailor the format to whichever of their selected platforms fits best: short video for TikTok/Reels, a longer personal essay for Substack, a short text post for Threads (only if selected), a carousel or Stories poll for Instagram (only if selected).
 - The task description should include a specific, ready-to-use BTS post idea relevant to the author's current stage, genre, and publishing journey — not a generic instruction like "post BTS content." Give them the actual idea.
 - For newsletter/Substack tasks, BTS content works especially well as the "personal opener" section before the main content — 2–4 sentences about what the author is working on, what they're struggling with, or a small win from this week.
 - BTS content builds parasocial connection. Readers who follow the journey become invested buyers. Prioritize moments of honest process over polished performance.
