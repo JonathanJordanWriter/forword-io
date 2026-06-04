@@ -101,32 +101,23 @@ export async function PATCH(
 
   if (updateError) return NextResponse.json({ error: 'Failed to update task' }, { status: 500 })
 
-  // ── Apply points delta ─────────────────────────────────────────────────────
+  // ── Apply points delta via atomic DB functions ────────────────────────────
+  // Using RPC (PostgreSQL functions) instead of fetch-then-update to avoid
+  // silent failures when the SELECT step errors before the UPDATE can run.
   if (pointsDelta !== 0) {
     const service = getServiceClient()
 
-    // 1. Update running total on the user record
-    const { data: userRow, error: userFetchErr } = await service
-      .from('users')
-      .select('total_points')
-      .eq('id', user.id)
-      .single()
+    // 1. Atomically increment/decrement total_points on the user record
+    const { data: newTotal, error: pointsErr } = await service
+      .rpc('increment_user_points', { p_user_id: user.id, p_delta: pointsDelta })
 
-    if (userFetchErr) {
-      console.error('Points: failed to fetch user total_points', userFetchErr)
+    if (pointsErr) {
+      console.error('Points RPC error (increment_user_points):', pointsErr)
     } else {
-      const currentTotal = (userRow?.total_points as number) ?? 0
-      const newTotal = Math.max(0, currentTotal + pointsDelta)
-
-      const { error: updateErr } = await service
-        .from('users')
-        .update({ total_points: newTotal })
-        .eq('id', user.id)
-
-      if (updateErr) console.error('Points: failed to update total_points', updateErr)
+      console.log(`Points updated: user ${user.id} → ${newTotal} pts (delta: ${pointsDelta})`)
     }
 
-    // 2. Update weekly leaderboard row — look up book_type for categorisation
+    // 2. Upsert weekly leaderboard row via atomic function
     const { data: planRow } = await supabase
       .from('plans')
       .select('book_id')
@@ -143,29 +134,15 @@ export async function PATCH(
       const bookType = (bookRow?.book_type as string) ?? 'fiction'
       const weekStart = getCurrentWeekStart()
 
-      const { data: weekRow, error: weekFetchErr } = await service
-        .from('weekly_points')
-        .select('id, points_earned')
-        .eq('user_id', user.id)
-        .eq('week_start', weekStart)
-        .eq('book_type', bookType)
-        .maybeSingle()
+      const { error: weekErr } = await service
+        .rpc('upsert_weekly_points', {
+          p_user_id: user.id,
+          p_week_start: weekStart,
+          p_book_type: bookType,
+          p_delta: pointsDelta,
+        })
 
-      if (weekFetchErr) {
-        console.error('Points: failed to fetch weekly_points', weekFetchErr)
-      } else if (weekRow) {
-        const newWeekly = Math.max(0, weekRow.points_earned + pointsDelta)
-        const { error: weekUpdateErr } = await service
-          .from('weekly_points')
-          .update({ points_earned: newWeekly })
-          .eq('id', weekRow.id)
-        if (weekUpdateErr) console.error('Points: failed to update weekly_points', weekUpdateErr)
-      } else if (pointsDelta > 0) {
-        const { error: weekInsertErr } = await service
-          .from('weekly_points')
-          .insert({ user_id: user.id, week_start: weekStart, points_earned: pointsDelta, book_type: bookType })
-        if (weekInsertErr) console.error('Points: failed to insert weekly_points', weekInsertErr)
-      }
+      if (weekErr) console.error('Points RPC error (upsert_weekly_points):', weekErr)
     }
   }
 
