@@ -190,6 +190,12 @@ export default function SettingsPage() {
               Your plans
             </Link>
             <Link
+              href="/dashboard/rewards"
+              className="text-sm text-gray-600 hover:text-brand-coal font-medium transition-colors"
+            >
+              Rewards
+            </Link>
+            <Link
               href="/dashboard/settings"
               className="text-sm text-brand-button font-medium"
             >
