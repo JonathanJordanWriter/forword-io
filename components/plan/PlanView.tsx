@@ -478,8 +478,48 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
   const totalWeeks = allWeeks.length
 
   const activeWeekIndex = weeks.indexOf(activeWeek)
-  const canGoPrev = activeWeekIndex > 0
-  const canGoNext = activeWeekIndex < weeks.length - 1
+
+  // Cross-phase prev: if on first week of this phase, look at the previous phase
+  const prevPhaseNum = activePhase - 1
+  const prevPhaseTasks = tasks.filter(t => t.phase === prevPhaseNum)
+  const prevPhaseWeeks = Array.from(new Set(prevPhaseTasks.map(t => t.week_number))).sort((a, b) => a - b)
+
+  const isFirstWeekOfPhase = activeWeekIndex === 0
+  const isLastWeekOfPhase  = activeWeekIndex === weeks.length - 1
+
+  // Prev: either previous week in this phase, or last week of the previous phase
+  const canGoPrev = activeWeekIndex > 0 || (isFirstWeekOfPhase && prevPhaseWeeks.length > 0)
+  const prevWeekNum = canGoPrev
+    ? (activeWeekIndex > 0 ? weeks[activeWeekIndex - 1] : prevPhaseWeeks[prevPhaseWeeks.length - 1])
+    : null
+
+  // Next: either next week in this phase, or first week of the next phase
+  const nextPhaseNum = activePhase + 1
+  const nextPhaseTasks = tasks.filter(t => t.phase === nextPhaseNum)
+  const nextPhaseWeeks = Array.from(new Set(nextPhaseTasks.map(t => t.week_number))).sort((a, b) => a - b)
+
+  const canGoNext = activeWeekIndex < weeks.length - 1 || (isLastWeekOfPhase && nextPhaseWeeks.length > 0)
+  const nextWeekNum = canGoNext
+    ? (activeWeekIndex < weeks.length - 1 ? weeks[activeWeekIndex + 1] : nextPhaseWeeks[0])
+    : null
+
+  function goToPrev() {
+    if (activeWeekIndex > 0) {
+      setActiveWeek(weeks[activeWeekIndex - 1])
+    } else if (prevPhaseWeeks.length > 0) {
+      setActivePhase(prevPhaseNum)
+      setActiveWeek(prevPhaseWeeks[prevPhaseWeeks.length - 1])
+    }
+  }
+
+  function goToNext() {
+    if (activeWeekIndex < weeks.length - 1) {
+      setActiveWeek(weeks[activeWeekIndex + 1])
+    } else if (nextPhaseWeeks.length > 0) {
+      setActivePhase(nextPhaseNum)
+      setActiveWeek(nextPhaseWeeks[0])
+    }
+  }
 
   // Tasks visible in the currently selected week
   const weekTasks = phaseTasks
@@ -633,10 +673,10 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
             onTimeSaved={handleTimeSaved}
             canGoPrev={canGoPrev}
             canGoNext={canGoNext}
-            prevWeekNum={canGoPrev ? weeks[activeWeekIndex - 1] : null}
-            nextWeekNum={canGoNext ? weeks[activeWeekIndex + 1] : null}
-            onPrev={() => setActiveWeek(weeks[activeWeekIndex - 1])}
-            onNext={() => setActiveWeek(weeks[activeWeekIndex + 1])}
+            prevWeekNum={prevWeekNum}
+            nextWeekNum={nextWeekNum}
+            onPrev={goToPrev}
+            onNext={goToNext}
             timeChanged={timeChanged}
             regenerating={regenerating}
             onRegenerate={() => handleRegenerate(false)}
@@ -663,10 +703,10 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
               </p>
               <button
                 type="button"
-                onClick={() => setActiveWeek(weeks[activeWeekIndex + 1])}
+                onClick={goToNext}
                 className="flex items-center gap-1.5 text-sm font-semibold text-green-700 hover:opacity-80 transition-opacity"
               >
-                Week {weeks[activeWeekIndex + 1]}
+                Week {nextWeekNum}
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
