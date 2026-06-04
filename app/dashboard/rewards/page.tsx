@@ -30,7 +30,7 @@ interface LeaderboardData {
 
 // ─── Leaderboard component ────────────────────────────────────────────────────
 
-function LeaderboardTable({ data, category }: { data: LeaderboardCategory; category: string }) {
+function LeaderboardTable({ data }: { data: LeaderboardCategory }) {
   if (data.entries.length === 0) {
     return (
       <div className="text-center py-8">
@@ -289,7 +289,6 @@ export default function RewardsPage() {
                 {leaderboard && (
                   <LeaderboardTable
                     data={leaderboard[activeTab]}
-                    category={activeTab}
                   />
                 )}
               </div>
