@@ -173,6 +173,12 @@ export default async function PlanPage({ params }: { params: { bookId: string } 
               Your plans
             </Link>
             <Link
+              href="/dashboard/rewards"
+              className="text-sm text-gray-600 hover:text-brand-coal font-medium transition-colors"
+            >
+              Rewards
+            </Link>
+            <Link
               href="/dashboard/settings"
               className="text-sm text-gray-600 hover:text-brand-coal font-medium transition-colors"
             >

@@ -25,3 +25,41 @@ body {
     text-wrap: balance;
   }
 }
+
+/* ── Book flip animation ─────────────────────────────────────────────────── */
+@keyframes pageFlipRight {
+  0%   { transform: rotateY(0deg);    z-index: 2; }
+  49%  { transform: rotateY(-90deg);  z-index: 2; }
+  50%  { transform: rotateY(-90deg);  z-index: 1; }
+  100% { transform: rotateY(-180deg); z-index: 1; }
+}
+
+@keyframes pageFlipLeft {
+  0%   { transform: rotateY(0deg);   z-index: 2; }
+  49%  { transform: rotateY(90deg);  z-index: 2; }
+  50%  { transform: rotateY(90deg);  z-index: 1; }
+  100% { transform: rotateY(180deg); z-index: 1; }
+}
+
+@keyframes bookBounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
+.page-flip-right {
+  animation: pageFlipRight 0.4s ease-in-out infinite alternate;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.page-flip-left {
+  animation: pageFlipLeft 0.4s ease-in-out infinite alternate;
+  transform-origin: right center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.book-bounce {
+  animation: bookBounce 0.8s ease-in-out infinite;
+}

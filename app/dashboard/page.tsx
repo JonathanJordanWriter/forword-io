@@ -39,10 +39,10 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
     .eq('status', 'active')
 
-  // Fetch user profile for tier + switch tracking
+  // Fetch user profile for tier + switch tracking + points
   const { data: profile } = await supabase
     .from('users')
-    .select('tier, author_plan_switched_at')
+    .select('tier, author_plan_switched_at, total_points')
     .eq('id', user.id)
     .single()
 
@@ -113,6 +113,12 @@ export default async function DashboardPage() {
           <Image src="/logo.png" alt="forword.io" width={120} height={34} />
           <div className="flex items-center gap-6">
             <Link
+              href="/dashboard/rewards"
+              className="text-sm text-gray-600 hover:text-brand-coal font-medium transition-colors"
+            >
+              Rewards
+            </Link>
+            <Link
               href="/dashboard/settings"
               className="text-sm text-gray-600 hover:text-brand-coal font-medium transition-colors"
             >
@@ -139,6 +145,28 @@ export default async function DashboardPage() {
             + Add another book
           </Link>
         </div>
+
+        {/* Points widget */}
+        {((profile?.total_points as number) ?? 0) >= 0 && (
+          <div className="mb-6 flex items-center justify-between bg-gradient-to-r from-brand-accent/30 to-purple-50 border border-brand-accent/40 rounded-2xl px-5 py-4">
+            <div>
+              <p className="text-xs text-gray-500 font-medium mb-0.5">Your reward points</p>
+              <p className="text-2xl font-bold text-brand-coal">
+                {((profile?.total_points as number) ?? 0).toLocaleString()}
+                <span className="text-sm font-normal text-gray-400 ml-1">pts</span>
+              </p>
+            </div>
+            <Link
+              href="/dashboard/rewards"
+              className="flex items-center gap-1.5 px-4 py-2 bg-brand-button text-white text-xs font-semibold rounded-xl hover:opacity-90 transition-opacity"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+              </svg>
+              View Rewards
+            </Link>
+          </div>
+        )}
 
         {/* Book / plan list — client component handles delete interaction */}
         <DashboardBookList books={bookItems} />
