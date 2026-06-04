@@ -9,16 +9,19 @@ interface Props {
   totalPoints: number
   isPaidUser: boolean
   profileLoaded: boolean  // prevents showing upgrade prompt before profile is fetched
+  spinsRemaining: number
+  spinsLimit: number
   onSpinComplete: (prize: string, code: string | null, newTotal: number) => void
 }
 
-export default function BookFlip({ totalPoints, isPaidUser, profileLoaded, onSpinComplete }: Props) {
+export default function BookFlip({ totalPoints, isPaidUser, profileLoaded, spinsRemaining, spinsLimit, onSpinComplete }: Props) {
   const [phase, setPhase] = useState<'idle' | 'flipping' | 'result'>('idle')
   const [prize, setPrize] = useState<string | null>(null)
   const [prizeCode, setPrizeCode] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const canSpin = isPaidUser && totalPoints >= SPIN_COST
+  const hasSpinsLeft = spinsRemaining > 0
+  const canSpin = isPaidUser && totalPoints >= SPIN_COST && hasSpinsLeft
 
   async function handleFlip() {
     if (!canSpin || phase !== 'idle') return
@@ -165,8 +168,16 @@ export default function BookFlip({ totalPoints, isPaidUser, profileLoaded, onSpi
           onClick={handleReset}
           className="text-sm text-brand-button font-medium hover:opacity-75 transition-opacity"
         >
-          Flip again next time
+          {spinsRemaining > 0 ? `${spinsRemaining} flip${spinsRemaining !== 1 ? 's' : ''} left this month` : 'No flips left this month'}
         </button>
+      ) : !hasSpinsLeft ? (
+        // Used all flips for the month
+        <div className="text-center">
+          <p className="text-sm font-semibold text-gray-500">
+            You&apos;ve used all {spinsLimit} flip{spinsLimit !== 1 ? 's' : ''} for this month
+          </p>
+          <p className="text-xs text-gray-400 mt-1">Come back next month to flip again!</p>
+        </div>
       ) : (
         <div className="text-center">
           <button
@@ -178,9 +189,11 @@ export default function BookFlip({ totalPoints, isPaidUser, profileLoaded, onSpi
             {phase === 'flipping' ? 'Flipping…' : 'Flip the Book'}
           </button>
           <p className="text-xs text-gray-400 mt-2">
-            {totalPoints >= SPIN_COST
-              ? `Costs 2,500 points · you have ${totalPoints.toLocaleString()}`
-              : `${(SPIN_COST - totalPoints).toLocaleString()} more points needed`}
+            {!hasSpinsLeft
+              ? `No flips remaining this month`
+              : totalPoints >= SPIN_COST
+                ? `Costs 2,500 points · ${spinsRemaining} of ${spinsLimit} flip${spinsLimit !== 1 ? 's' : ''} left this month`
+                : `${(SPIN_COST - totalPoints).toLocaleString()} more points needed`}
           </p>
         </div>
       )}

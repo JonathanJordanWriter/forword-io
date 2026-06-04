@@ -109,6 +109,8 @@ export default function RewardsPage() {
   const [totalPoints, setTotalPoints] = useState(0)
   const [isPaidUser, setIsPaidUser] = useState(false)
   const [profileLoaded, setProfileLoaded] = useState(false)
+  const [spinsRemaining, setSpinsRemaining] = useState(0)
+  const [spinsLimit, setSpinsLimit] = useState(0)
   const [leaderboard, setLeaderboard] = useState<LeaderboardData | null>(null)
   const [activeTab, setActiveTab] = useState<'fiction' | 'nonfiction'>('fiction')
   const [loading, setLoading] = useState(true)
@@ -125,6 +127,8 @@ export default function RewardsPage() {
         const profile = await profileRes.json()
         setTotalPoints(profile.total_points ?? 0)
         setIsPaidUser(profile.tier === 'author' || profile.tier === 'pro')
+        setSpinsRemaining(profile.spins_remaining ?? 0)
+        setSpinsLimit(profile.spins_limit ?? 0)
       }
       setProfileLoaded(true)
 
@@ -142,6 +146,7 @@ export default function RewardsPage() {
 
   function handleSpinComplete(_prize: string, _code: string | null, newTotal: number) {
     setTotalPoints(newTotal)
+    setSpinsRemaining(prev => Math.max(0, prev - 1))
   }
 
   // Format week_start as "Jun 1 – Jun 7"
@@ -218,6 +223,8 @@ export default function RewardsPage() {
                 totalPoints={totalPoints}
                 isPaidUser={isPaidUser}
                 profileLoaded={profileLoaded}
+                spinsRemaining={spinsRemaining}
+                spinsLimit={spinsLimit}
                 onSpinComplete={handleSpinComplete}
               />
             </div>
