@@ -203,7 +203,6 @@ const PHASE_MESSAGES: Record<number, string> = {
   5: "You did it! Phase 5 complete — your entire 90-day plan is finished. What an achievement!",
 }
 
-const PHASE_BONUSES: Record<number, number> = { 1: 100, 2: 150, 3: 200, 4: 250, 5: 300 }
 
 // ─── TaskCelebration — confetti burst + floating points text ─────────────────
 
