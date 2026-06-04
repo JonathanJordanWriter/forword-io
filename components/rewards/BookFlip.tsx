@@ -8,10 +8,11 @@ const SPIN_COST = 2500
 interface Props {
   totalPoints: number
   isPaidUser: boolean
+  profileLoaded: boolean  // prevents showing upgrade prompt before profile is fetched
   onSpinComplete: (prize: string, code: string | null, newTotal: number) => void
 }
 
-export default function BookFlip({ totalPoints, isPaidUser, onSpinComplete }: Props) {
+export default function BookFlip({ totalPoints, isPaidUser, profileLoaded, onSpinComplete }: Props) {
   const [phase, setPhase] = useState<'idle' | 'flipping' | 'result'>('idle')
   const [prize, setPrize] = useState<string | null>(null)
   const [prizeCode, setPrizeCode] = useState<string | null>(null)
@@ -145,8 +146,8 @@ export default function BookFlip({ totalPoints, isPaidUser, onSpinComplete }: Pr
         <p className="text-sm text-red-500 mb-4 text-center">{error}</p>
       )}
 
-      {/* CTA area */}
-      {!isPaidUser ? (
+      {/* CTA area — wait for profile to load before deciding which prompt to show */}
+      {!profileLoaded ? null : !isPaidUser ? (
         <div className="text-center">
           <div className="opacity-40 pointer-events-none mb-3 select-none text-sm text-gray-500">
             Flip the Book costs 2,500 points

@@ -104,6 +104,7 @@ function LeaderboardTable({ data, category }: { data: LeaderboardCategory; categ
 export default function RewardsPage() {
   const [totalPoints, setTotalPoints] = useState(0)
   const [isPaidUser, setIsPaidUser] = useState(false)
+  const [profileLoaded, setProfileLoaded] = useState(false)
   const [leaderboard, setLeaderboard] = useState<LeaderboardData | null>(null)
   const [activeTab, setActiveTab] = useState<'fiction' | 'nonfiction'>('fiction')
   const [loading, setLoading] = useState(true)
@@ -121,6 +122,7 @@ export default function RewardsPage() {
         setTotalPoints(profile.total_points ?? 0)
         setIsPaidUser(profile.tier === 'author' || profile.tier === 'pro')
       }
+      setProfileLoaded(true)
 
       if (lbRes.ok) {
         const lb = await lbRes.json()
@@ -211,6 +213,7 @@ export default function RewardsPage() {
               <BookFlip
                 totalPoints={totalPoints}
                 isPaidUser={isPaidUser}
+                profileLoaded={profileLoaded}
                 onSpinComplete={handleSpinComplete}
               />
             </div>
