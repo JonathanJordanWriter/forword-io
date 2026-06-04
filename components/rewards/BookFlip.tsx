@@ -89,8 +89,15 @@ function ClosedBook({ onClick }: { onClick?: () => void }) {
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', gap: 12,
       }}>
-        {/* Logo instead of text */}
-        <Image src="/logo.png" alt="forword.io" width={110} height={31} style={{ filter: 'brightness(0) invert(1)' }} />
+        {/* Logo in a white pill — works with any logo background */}
+        <div style={{
+          background: 'white',
+          borderRadius: 8,
+          padding: '7px 14px',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+        }}>
+          <Image src="/logo.png" alt="forword.io" width={100} height={28} style={{ display: 'block' }} />
+        </div>
 
         <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15, fontWeight: 600, letterSpacing: 2 }}>
           Rewards
