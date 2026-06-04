@@ -64,14 +64,18 @@ function LeaderboardTable({ data, category }: { data: LeaderboardCategory; categ
               <p className="text-sm font-bold text-brand-coal">{entry.points.toLocaleString()}</p>
               <p className="text-xs text-gray-400">pts</p>
             </div>
-            {entry.rank === 1 && !entry.bonus_awarded && (
-              <span className="text-xs text-amber-600 font-medium bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full flex-shrink-0">
-                Leader
+            {entry.rank <= 3 && !entry.bonus_awarded && (
+              <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full flex-shrink-0 border ${
+                entry.rank === 1 ? 'text-amber-600 bg-amber-50 border-amber-200' :
+                entry.rank === 2 ? 'text-slate-500 bg-slate-50 border-slate-200' :
+                                   'text-orange-600 bg-orange-50 border-orange-200'
+              }`}>
+                {entry.rank === 1 ? '🥇 Gold' : entry.rank === 2 ? '🥈 Silver' : '🥉 Bronze'}
               </span>
             )}
-            {entry.rank === 1 && entry.bonus_awarded && (
+            {entry.rank <= 3 && entry.bonus_awarded && (
               <span className="text-xs text-green-600 font-medium bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full flex-shrink-0">
-                +200 ✓
+                {entry.rank === 1 ? '+200' : entry.rank === 2 ? '+100' : '+50'} ✓
               </span>
             )}
           </div>
@@ -93,7 +97,7 @@ function LeaderboardTable({ data, category }: { data: LeaderboardCategory; categ
       )}
 
       <p className="text-xs text-gray-400 text-center mt-3">
-        Top {category} author wins <span className="font-semibold text-brand-button">+200 bonus points</span> at week end
+        🥇 Gold +200 pts &nbsp;·&nbsp; 🥈 Silver +100 pts &nbsp;·&nbsp; 🥉 Bronze +50 pts · awarded at week end
       </p>
     </div>
   )
@@ -225,7 +229,7 @@ export default function RewardsPage() {
                 {[
                   '$1 off your next month',
                   '$2 off your next month',
-                  '10% off at ForWord Writers Etsy shop (code: WIN10)',
+                  '10% off at ForWord Writers Etsy shop',
                   '1 free month of Author',
                   '50% off Launch Pro for one month',
                 ].map(prize => (
@@ -252,7 +256,7 @@ export default function RewardsPage() {
                   )}
                 </div>
                 <span className="text-xs text-brand-button font-semibold bg-brand-accent/30 px-2.5 py-1 rounded-full">
-                  +200 pts to winner
+                  🥇+200 🥈+100 🥉+50
                 </span>
               </div>
 

@@ -3,10 +3,10 @@ import { createClient } from '@supabase/supabase-js'
 
 // This endpoint is called by Vercel Cron every Sunday at 5am UTC
 // (= midnight US Eastern during EST, 1am during EDT — close enough).
-// It finds the top scorer for each book_type in the just-completed week,
-// awards them 200 bonus points, and marks the bonus as awarded.
+// It finds the top 3 scorers for each book_type in the just-completed week
+// and awards Gold / Silver / Bronze bonus points.
 
-const WEEKLY_BONUS = 200
+const PODIUM_BONUSES = [200, 100, 50] // Gold, Silver, Bronze
 
 function getServiceClient() {
   return createClient(
@@ -16,11 +16,8 @@ function getServiceClient() {
 }
 
 // Return the Sunday that started the week that just ended
-// (i.e. last week's week_start, which is today's date since we run at Sunday midnight)
 function getJustEndedWeekStart(): string {
   const now = new Date()
-  // The cron fires at the start of Sunday — that IS the new week_start.
-  // We want the week that's ending, which started the previous Sunday.
   const etString = now.toLocaleDateString('en-US', {
     timeZone: 'America/New_York',
     year: 'numeric', month: '2-digit', day: '2-digit',
@@ -45,10 +42,10 @@ export async function GET(req: NextRequest) {
   const weekStart = getJustEndedWeekStart()
 
   const bookTypes = ['fiction', 'nonfiction']
-  const results: Record<string, string | null> = {}
+  const results: Record<string, { user_id: string; bonus: number }[]> = {}
 
   for (const bookType of bookTypes) {
-    // Find the top scorer for this book_type in the completed week
+    // Fetch top 3 scorers who haven't had a bonus awarded yet
     const { data: rows } = await supabase
       .from('weekly_points')
       .select('id, user_id, points_earned, bonus_awarded')
@@ -56,36 +53,46 @@ export async function GET(req: NextRequest) {
       .eq('book_type', bookType)
       .eq('bonus_awarded', false)
       .order('points_earned', { ascending: false })
-      .limit(1)
+      .limit(3)
 
-    const winner = rows?.[0]
-    if (!winner || winner.points_earned === 0) {
-      results[bookType] = null
+    if (!rows || rows.length === 0) {
+      results[bookType] = []
       continue
     }
 
-    // Award 200 bonus points to the winner
-    const { data: userRow } = await supabase
-      .from('users')
-      .select('total_points')
-      .eq('id', winner.user_id)
-      .single()
+    results[bookType] = []
 
-    const currentTotal = (userRow?.total_points as number) ?? 0
-    await supabase
-      .from('users')
-      .update({ total_points: currentTotal + WEEKLY_BONUS })
-      .eq('id', winner.user_id)
+    for (let i = 0; i < rows.length; i++) {
+      const entry = rows[i]
+      if (entry.points_earned === 0) continue
 
-    // Mark the bonus as awarded so it doesn't get awarded twice
-    await supabase
-      .from('weekly_points')
-      .update({ bonus_awarded: true })
-      .eq('id', winner.id)
+      const bonus = PODIUM_BONUSES[i] ?? 0
+      if (bonus === 0) continue
 
-    results[bookType] = winner.user_id
+      // Award bonus points
+      const { data: userRow } = await supabase
+        .from('users')
+        .select('total_points')
+        .eq('id', entry.user_id)
+        .single()
+
+      const currentTotal = (userRow?.total_points as number) ?? 0
+      await supabase
+        .from('users')
+        .update({ total_points: currentTotal + bonus })
+        .eq('id', entry.user_id)
+
+      // Mark bonus as awarded so it can't be double-applied
+      await supabase
+        .from('weekly_points')
+        .update({ bonus_awarded: true })
+        .eq('id', entry.id)
+
+      const medal = i === 0 ? 'Gold' : i === 1 ? 'Silver' : 'Bronze'
+      console.log(`Weekly reset [${bookType}] ${medal}: user ${entry.user_id} awarded ${bonus} pts`)
+      results[bookType].push({ user_id: entry.user_id, bonus })
+    }
   }
 
-  console.log(`Weekly reset complete for week starting ${weekStart}:`, results)
   return NextResponse.json({ success: true, week_start: weekStart, winners: results })
 }
