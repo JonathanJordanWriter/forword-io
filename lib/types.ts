@@ -1,3 +1,33 @@
+// ── User profile (collected in onboarding Step 1) ────────────────────────────
+
+export interface UserProfileData {
+  display_name: string        // required — pen name / display name
+  identities: string[]        // required — at least one chip selected
+  birthdate: string           // optional — YYYY-MM-DD
+  gender: string              // optional — Male | Female | Non-binary
+  nationality: string         // optional — country
+  location: string            // optional — city, state/country
+  writing_experience: string  // optional
+  publishing_goals: string[]  // optional
+  heard_from: string          // optional
+  profile_photo_url: string   // optional — set after storage upload
+}
+
+export const EMPTY_USER_PROFILE: UserProfileData = {
+  display_name: '',
+  identities: [],
+  birthdate: '',
+  gender: '',
+  nationality: '',
+  location: '',
+  writing_experience: '',
+  publishing_goals: [],
+  heard_from: '',
+  profile_photo_url: '',
+}
+
+// ── Book types ────────────────────────────────────────────────────────────────
+
 export type BookType = 'fiction' | 'nonfiction'
 
 export type BookStage =

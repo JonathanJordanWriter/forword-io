@@ -1,5 +1,15 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
+
+// Service client bypasses RLS — weekly_points has no policies so the
+// regular session client returns no rows.
+function getServiceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 function getCurrentWeekStart(): string {
   const now = new Date()
@@ -19,11 +29,11 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const service = getServiceClient()
   const weekStart = getCurrentWeekStart()
 
-  // Fetch top 10 for fiction and nonfiction
   const fetchLeaderboard = async (bookType: string) => {
-    const { data } = await supabase
+    const { data } = await service
       .from('weekly_points')
       .select('user_id, points_earned, bonus_awarded')
       .eq('week_start', weekStart)
@@ -33,14 +43,19 @@ export async function GET() {
 
     if (!data || data.length === 0) return []
 
-    // Look up display names for each user
+    // Look up display names — prefer display_name (pen name), fall back to full_name
     const userIds = data.map(r => r.user_id)
-    const { data: userRows } = await supabase
+    const { data: userRows } = await service
       .from('users')
-      .select('id, full_name')
+      .select('id, display_name, full_name')
       .in('id', userIds)
 
-    const nameMap = Object.fromEntries((userRows ?? []).map(u => [u.id, u.full_name as string]))
+    const nameMap = Object.fromEntries(
+      (userRows ?? []).map(u => [
+        u.id,
+        (u.display_name as string) || (u.full_name as string) || 'Anonymous',
+      ])
+    )
 
     return data.map((row, index) => ({
       rank: index + 1,
@@ -52,9 +67,8 @@ export async function GET() {
     }))
   }
 
-  // Also find the current user's rank even if outside top 10
   const findUserRank = async (bookType: string) => {
-    const { data } = await supabase
+    const { data } = await service
       .from('weekly_points')
       .select('user_id, points_earned')
       .eq('week_start', weekStart)
