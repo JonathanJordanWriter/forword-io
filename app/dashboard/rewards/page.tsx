@@ -220,15 +220,15 @@ export default function RewardsPage() {
               <h3 className="text-sm font-semibold text-brand-coal mb-3">Prize pool</h3>
               <div className="grid grid-cols-1 gap-2">
                 {[
-                  { prize: '$1 off your next month', chance: 'Most common' },
-                  { prize: '$2 off your next month', chance: 'Common' },
-                  { prize: '10% off at ForWord Writers Etsy shop (code: WIN10)', chance: 'Common' },
-                  { prize: '1 free month of Author', chance: 'Uncommon' },
-                  { prize: '50% off Launch Pro for one month', chance: 'Rare' },
-                ].map(({ prize, chance }) => (
-                  <div key={prize} className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
+                  '$1 off your next month',
+                  '$2 off your next month',
+                  '10% off at ForWord Writers Etsy shop (code: WIN10)',
+                  '1 free month of Author',
+                  '50% off Launch Pro for one month',
+                ].map(prize => (
+                  <div key={prize} className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
+                    <span className="text-brand-button text-xs">✦</span>
                     <p className="text-sm text-gray-700">{prize}</p>
-                    <span className="text-xs text-gray-400 ml-4 flex-shrink-0">{chance}</span>
                   </div>
                 ))}
               </div>

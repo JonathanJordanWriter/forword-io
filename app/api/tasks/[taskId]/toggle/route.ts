@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
+
+// Service role client bypasses RLS — used only for trusted server-side points writes
+function getServiceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 // Points awarded per task category
 const CATEGORY_POINTS: Record<string, number> = {
@@ -65,20 +74,29 @@ export async function PATCH(
   // Only award if the task state is actually changing (guard against double-clicks)
   const wasAlreadyCompleted = task.is_completed === is_completed
   if (!wasAlreadyCompleted && delta !== 0) {
+    // Use service role to bypass RLS on users and weekly_points tables
+    const service = getServiceClient()
+
     // 1. Update running total on the user record
-    const { data: userRow } = await supabase
+    const { data: userRow, error: userFetchErr } = await service
       .from('users')
       .select('total_points')
       .eq('id', user.id)
       .single()
 
-    const currentTotal = (userRow?.total_points as number) ?? 0
-    const newTotal = Math.max(0, currentTotal + delta)
+    if (userFetchErr) {
+      console.error('Points: failed to fetch user total_points', userFetchErr)
+    } else {
+      const currentTotal = (userRow?.total_points as number) ?? 0
+      const newTotal = Math.max(0, currentTotal + delta)
 
-    await supabase
-      .from('users')
-      .update({ total_points: newTotal })
-      .eq('id', user.id)
+      const { error: updateErr } = await service
+        .from('users')
+        .update({ total_points: newTotal })
+        .eq('id', user.id)
+
+      if (updateErr) console.error('Points: failed to update total_points', updateErr)
+    }
 
     // 2. Update weekly leaderboard row — need the book_type for categorisation
     const { data: planRow } = await supabase
@@ -97,26 +115,30 @@ export async function PATCH(
       const bookType = (bookRow?.book_type as string) ?? 'fiction'
       const weekStart = getCurrentWeekStart()
 
-      // Upsert weekly_points — increment or decrement, floor at 0
-      const { data: weekRow } = await supabase
+      // Upsert weekly_points via service role (new table, RLS would block regular client)
+      const { data: weekRow, error: weekFetchErr } = await service
         .from('weekly_points')
         .select('id, points_earned')
         .eq('user_id', user.id)
         .eq('week_start', weekStart)
         .eq('book_type', bookType)
-        .single()
+        .maybeSingle()
 
-      if (weekRow) {
+      if (weekFetchErr) {
+        console.error('Points: failed to fetch weekly_points', weekFetchErr)
+      } else if (weekRow) {
         const newWeekly = Math.max(0, weekRow.points_earned + delta)
-        await supabase
+        const { error: weekUpdateErr } = await service
           .from('weekly_points')
           .update({ points_earned: newWeekly })
           .eq('id', weekRow.id)
+        if (weekUpdateErr) console.error('Points: failed to update weekly_points', weekUpdateErr)
       } else if (delta > 0) {
         // Only create a new row when earning (not when un-completing with no existing row)
-        await supabase
+        const { error: weekInsertErr } = await service
           .from('weekly_points')
           .insert({ user_id: user.id, week_start: weekStart, points_earned: delta, book_type: bookType })
+        if (weekInsertErr) console.error('Points: failed to insert weekly_points', weekInsertErr)
       }
     }
   }
