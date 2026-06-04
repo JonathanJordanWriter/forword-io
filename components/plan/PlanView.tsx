@@ -181,6 +181,9 @@ function WeekHeader({
   canGoNext,
   onPrev,
   onNext,
+  timeChanged,
+  regenerating,
+  onRegenerate,
 }: {
   weekNum: number
   totalWeeks: number
@@ -192,6 +195,9 @@ function WeekHeader({
   canGoNext: boolean
   onPrev: () => void
   onNext: () => void
+  timeChanged: boolean
+  regenerating: boolean
+  onRegenerate: () => void
 }) {
   const [saving, setSaving] = useState(false)
   const [flash, setFlash] = useState(false)
@@ -293,6 +299,36 @@ function WeekHeader({
           </svg>
         </button>
       </div>
+
+      {/* Inline redraft prompt — appears right below the stepper when time has changed */}
+      {timeChanged && (
+        <div className="mt-3 flex items-center justify-center gap-2 bg-brand-accent/20 border border-brand-accent/40 rounded-lg px-3 py-2">
+          <p className="text-xs text-brand-coal">Time updated —</p>
+          <button
+            type="button"
+            onClick={onRegenerate}
+            disabled={regenerating}
+            className="flex items-center gap-1 text-xs font-semibold text-brand-button hover:opacity-80 disabled:opacity-50 transition-opacity"
+          >
+            {regenerating ? (
+              <>
+                <svg className="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+                Redrafting…
+              </>
+            ) : (
+              <>
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Redraft plan
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -586,6 +622,9 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
             canGoNext={canGoNext}
             onPrev={() => setActiveWeek(weeks[activeWeekIndex - 1])}
             onNext={() => setActiveWeek(weeks[activeWeekIndex + 1])}
+            timeChanged={timeChanged}
+            regenerating={regenerating}
+            onRegenerate={() => handleRegenerate(false)}
           />
 
           {/* Task list for the active week */}
