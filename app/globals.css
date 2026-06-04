@@ -45,7 +45,20 @@ body {
   100% { transform: translateY(-52px) scale(0.9); opacity: 0; }
 }
 
-/* ── Book flip animation ─────────────────────────────────────────────────── */
+/* ── Book page flip (3D rotateY) ─────────────────────────────────────────── */
+@keyframes bookPageFlip {
+  0%   { transform: rotateY(0deg);    }
+  50%  { transform: rotateY(-90deg);  }
+  100% { transform: rotateY(-180deg); }
+}
+
+@keyframes bookOpenReveal {
+  from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+
+/* ── Book bounce (loading dots) ─────────────────────────────────────────── */
+/* ── Original book flip animation (kept for compatibility) ──────────────── */
 @keyframes pageFlipRight {
   0%   { transform: rotateY(0deg);    z-index: 2; }
   49%  { transform: rotateY(-90deg);  z-index: 2; }

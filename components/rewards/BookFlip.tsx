@@ -5,17 +5,308 @@ import Link from 'next/link'
 
 const SPIN_COST = 2500
 
+// ── Book geometry constants ───────────────────────────────────────────────────
+const BOOK_H  = 320   // height of the book
+const PAGE_W  = 130   // width of one page
+const SPINE_W = 18    // width of the spine
+const BOOK_W  = PAGE_W * 2 + SPINE_W  // total open-book width (278px)
+
 interface Props {
   totalPoints: number
   isPaidUser: boolean
-  profileLoaded: boolean  // prevents showing upgrade prompt before profile is fetched
+  profileLoaded: boolean
   spinsRemaining: number
   spinsLimit: number
   onSpinComplete: (prize: string, code: string | null, newTotal: number) => void
 }
 
-export default function BookFlip({ totalPoints, isPaidUser, profileLoaded, spinsRemaining, spinsLimit, onSpinComplete }: Props) {
-  const [phase, setPhase] = useState<'idle' | 'flipping' | 'result'>('idle')
+// ── Helper: ruled page lines ──────────────────────────────────────────────────
+
+function PageLines({ count = 11 }: { count?: number }) {
+  return (
+    <div style={{ padding: '22px 14px 14px', display: 'flex', flexDirection: 'column', gap: 11 }}>
+      {Array.from({ length: count }, (_, i) => (
+        <div
+          key={i}
+          style={{
+            height: 1,
+            background: 'rgba(0,0,0,0.09)',
+            width: i === count - 1 ? '50%' : i === 0 ? '70%' : '100%',
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// ── ClosedBook ────────────────────────────────────────────────────────────────
+// Shown before the user clicks. Styled to look like a thick hardcover from a
+// slight 3-quarter angle so the spine and page edges are visible.
+
+function ClosedBook({ onClick }: { onClick?: () => void }) {
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        width: PAGE_W + SPINE_W + 12,
+        height: BOOK_H,
+        position: 'relative',
+        cursor: onClick ? 'pointer' : 'default',
+        // 3D tilt to show spine + page edges
+        transform: 'perspective(900px) rotateX(-6deg) rotateY(-22deg)',
+        transition: 'transform 0.25s ease',
+        filter: 'drop-shadow(0 28px 40px rgba(79,70,229,0.38))',
+      }}
+    >
+      {/* Spine (left edge) */}
+      <div style={{
+        position: 'absolute',
+        left: 0, top: 0,
+        width: SPINE_W, height: BOOK_H,
+        background: 'linear-gradient(to right, #2e1065, #3730a3)',
+        borderRadius: '5px 0 0 5px',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <span style={{
+          writingMode: 'vertical-rl',
+          fontSize: 7, fontWeight: 800, letterSpacing: 3,
+          color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase',
+        }}>
+          forword.io
+        </span>
+      </div>
+
+      {/* Front cover */}
+      <div style={{
+        position: 'absolute',
+        left: SPINE_W, top: 0,
+        width: PAGE_W, height: BOOK_H,
+        background: 'linear-gradient(148deg, #6366f1 0%, #4f46e5 45%, #4338ca 100%)',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', gap: 10,
+      }}>
+        <span style={{ fontSize: 52, lineHeight: 1 }}>📖</span>
+        <p style={{ color: 'white', fontSize: 13, fontWeight: 800, letterSpacing: 3, textTransform: 'uppercase' }}>
+          forword.io
+        </p>
+        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 10, letterSpacing: 1 }}>
+          Rewards
+        </p>
+        {onClick && (
+          <div style={{
+            marginTop: 18,
+            background: 'rgba(255,255,255,0.13)',
+            borderRadius: 24, padding: '6px 16px',
+          }}>
+            <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 10, fontWeight: 700 }}>
+              Tap to flip ✦
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Page edges — visible strip on the right side */}
+      <div style={{
+        position: 'absolute',
+        left: SPINE_W + PAGE_W, top: 3,
+        width: 12, height: BOOK_H - 6,
+        background: 'repeating-linear-gradient(to right, #f2ede4, #f2ede4 2px, #e4ddd1 2px, #e4ddd1 3.5px)',
+        borderRadius: '0 3px 3px 0',
+      }} />
+
+      {/* Bottom thickness for depth */}
+      <div style={{
+        position: 'absolute',
+        bottom: -5, left: SPINE_W,
+        width: PAGE_W + 12, height: 6,
+        background: 'rgba(0,0,0,0.18)',
+        borderRadius: '0 0 3px 3px',
+        filter: 'blur(2px)',
+      }} />
+    </div>
+  )
+}
+
+// ── FlippingBook ──────────────────────────────────────────────────────────────
+// Shown while the API call is running. An open book with pages
+// rapidly flipping from right to left using CSS 3D rotateY.
+
+function FlippingBook() {
+  const pages = [0, 1, 2, 3, 4, 5, 6, 7]
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {/* Perspective container — must have no filter here or it flattens 3D */}
+      <div style={{
+        width: BOOK_W, height: BOOK_H,
+        position: 'relative',
+        perspective: '900px',
+        boxShadow: '0 24px 48px rgba(0,0,0,0.18)',
+        borderRadius: 8,
+      }}>
+        {/* Left page (background) */}
+        <div style={{
+          position: 'absolute', left: 0, top: 0,
+          width: PAGE_W, height: BOOK_H,
+          background: 'linear-gradient(to right, #e8e2d6, #f2ede4)',
+          borderRadius: '6px 0 0 6px',
+        }}>
+          <PageLines count={11} />
+        </div>
+
+        {/* Spine */}
+        <div style={{
+          position: 'absolute', left: PAGE_W, top: 0,
+          width: SPINE_W, height: BOOK_H,
+          background: 'linear-gradient(to right, #b0aaa0, #ccc6bc)',
+        }} />
+
+        {/* Right page (background — revealed as pages flip off) */}
+        <div style={{
+          position: 'absolute', left: PAGE_W + SPINE_W, top: 0,
+          width: PAGE_W, height: BOOK_H,
+          background: 'linear-gradient(to left, #e8e2d6, #f2ede4)',
+          borderRadius: '0 6px 6px 0',
+        }}>
+          <PageLines count={11} />
+        </div>
+
+        {/* Flipping pages — each rotates from right to left with staggered delay */}
+        {pages.map(i => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: PAGE_W + SPINE_W,
+              width: PAGE_W,
+              height: BOOK_H,
+              background: i % 2 === 0 ? '#f2ede4' : '#e8e2d6',
+              transformOrigin: 'left center',
+              animation: `bookPageFlip 0.42s ease-in-out ${(i * 0.28).toFixed(2)}s both`,
+              zIndex: pages.length - i,
+              borderRadius: i === 0 ? '0 6px 6px 0' : 0,
+            }}
+          >
+            <PageLines count={10} />
+          </div>
+        ))}
+      </div>
+
+      {/* Loading dots */}
+      <div style={{ display: 'flex', gap: 6, marginTop: 20 }}>
+        {['#6366f1', '#8b5cf6', '#ec4899'].map((color, i) => (
+          <div
+            key={i}
+            style={{
+              width: 7, height: 7, borderRadius: '50%', background: color,
+              animation: `bookBounce 0.7s ease-in-out ${i * 0.18}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── OpenBook ──────────────────────────────────────────────────────────────────
+// The final state. Prize text is written directly on the right page.
+
+function OpenBook({ prize, code }: { prize: string | null; code: string | null }) {
+  return (
+    <div style={{
+      width: BOOK_W, height: BOOK_H,
+      display: 'flex',
+      boxShadow: '0 24px 48px rgba(0,0,0,0.18)',
+      borderRadius: 8,
+      animation: 'bookOpenReveal 0.5s ease-out forwards',
+    }}>
+      {/* Left page — decorative ruled lines */}
+      <div style={{
+        width: PAGE_W, height: BOOK_H,
+        background: 'linear-gradient(to right, #e8e2d6, #f2ede4)',
+        borderRadius: '6px 0 0 6px',
+        display: 'flex', flexDirection: 'column',
+        justifyContent: 'center',
+      }}>
+        <PageLines count={13} />
+      </div>
+
+      {/* Spine */}
+      <div style={{
+        width: SPINE_W, height: BOOK_H, flexShrink: 0,
+        background: 'linear-gradient(to right, #b0aaa0, #ccc6bc)',
+      }} />
+
+      {/* Right page — prize content */}
+      <div style={{
+        width: PAGE_W, height: BOOK_H,
+        background: 'linear-gradient(to left, #e8e2d6, #f2ede4)',
+        borderRadius: '0 6px 6px 0',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        padding: '20px 16px',
+        gap: 10,
+      }}>
+        <span style={{ fontSize: 38, lineHeight: 1 }}>🏆</span>
+
+        {/* "You won!" written like a heading on the page */}
+        <p style={{
+          fontSize: 10, fontWeight: 800, letterSpacing: 3,
+          color: '#9ca3af', textTransform: 'uppercase',
+        }}>
+          You won!
+        </p>
+
+        {/* Prize name — styled like handwritten page text */}
+        <p style={{
+          fontSize: 14, fontWeight: 700, color: '#1f2937',
+          textAlign: 'center', lineHeight: 1.5,
+          fontFamily: 'Georgia, "Times New Roman", serif',
+          borderBottom: '1px solid rgba(0,0,0,0.08)',
+          paddingBottom: 10, width: '100%',
+        }}>
+          {prize}
+        </p>
+
+        {/* Discount code if applicable */}
+        {code && (
+          <div style={{
+            background: 'rgba(255,255,255,0.6)',
+            border: '1px dashed #d1d5db',
+            borderRadius: 6,
+            padding: '6px 12px',
+            textAlign: 'center',
+            width: '100%',
+          }}>
+            <p style={{ fontSize: 9, color: '#9ca3af', marginBottom: 2 }}>Your code</p>
+            <p style={{
+              fontSize: 15, fontWeight: 900, color: '#4f46e5',
+              letterSpacing: 3, fontFamily: 'monospace',
+            }}>
+              {code}
+            </p>
+          </div>
+        )}
+
+        <p style={{
+          fontSize: 9, color: '#b0aaa0',
+          textAlign: 'center', lineHeight: 1.5, marginTop: 2,
+        }}>
+          Our team will apply<br />your reward within 2–3 days.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+// ── Main BookFlip component ───────────────────────────────────────────────────
+
+export default function BookFlip({
+  totalPoints, isPaidUser, profileLoaded,
+  spinsRemaining, spinsLimit, onSpinComplete,
+}: Props) {
+  const [phase, setPhase] = useState<'closed' | 'flipping' | 'open'>('closed')
   const [prize, setPrize] = useState<string | null>(null)
   const [prizeCode, setPrizeCode] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -24,7 +315,7 @@ export default function BookFlip({ totalPoints, isPaidUser, profileLoaded, spins
   const canSpin = isPaidUser && totalPoints >= SPIN_COST && hasSpinsLeft
 
   async function handleFlip() {
-    if (!canSpin || phase !== 'idle') return
+    if (!canSpin || phase !== 'closed') return
     setPhase('flipping')
     setError(null)
     setPrize(null)
@@ -36,125 +327,43 @@ export default function BookFlip({ totalPoints, isPaidUser, profileLoaded, spins
 
       if (!res.ok) {
         setError(data.error ?? 'Something went wrong. Please try again.')
-        setPhase('idle')
+        setPhase('closed')
         return
       }
 
-      // Let the animation run for 3 seconds before revealing
-      await new Promise(r => setTimeout(r, 3000))
+      // Let pages flip for 2.5 seconds, then reveal the prize
+      await new Promise(r => setTimeout(r, 2500))
       setPrize(data.prize)
       setPrizeCode(data.prize_code ?? null)
-      setPhase('result')
+      setPhase('open')
       onSpinComplete(data.prize, data.prize_code ?? null, data.points_remaining)
     } catch {
       setError('Network error. Please try again.')
-      setPhase('idle')
+      setPhase('closed')
     }
   }
 
   function handleReset() {
-    setPhase('idle')
+    setPhase('closed')
     setPrize(null)
     setPrizeCode(null)
   }
 
   return (
     <div className="flex flex-col items-center">
-      {/* Book illustration */}
-      <div className="relative mb-6" style={{ perspective: '600px' }}>
-        {phase === 'flipping' ? (
-          // Animated open book with flipping pages
-          <div className="book-bounce flex items-end justify-center gap-0.5">
-            {/* Left cover */}
-            <div
-              className="w-16 h-20 rounded-l-md flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', boxShadow: '-2px 2px 8px rgba(0,0,0,0.2)' }}
-            >
-              <div className="w-1 h-12 bg-white/20 rounded-full" />
-            </div>
-            {/* Spine */}
-            <div className="w-2 h-20 bg-purple-900 flex-shrink-0" style={{ boxShadow: 'inset 0 0 4px rgba(0,0,0,0.4)' }} />
-            {/* Flipping pages — stack of animated divs */}
-            <div className="relative w-16 h-20" style={{ transformStyle: 'preserve-3d' }}>
-              {[0, 1, 2, 3, 4].map(i => (
-                <div
-                  key={i}
-                  className="absolute inset-0 rounded-r-sm"
-                  style={{
-                    background: i % 2 === 0 ? '#f8f7f4' : '#fffef9',
-                    animationDelay: `${i * 0.08}s`,
-                    transformOrigin: 'left center',
-                    animation: `pageFlipRight ${0.4 + i * 0.05}s ease-in-out ${i * 0.08}s infinite alternate`,
-                    boxShadow: '1px 0 3px rgba(0,0,0,0.1)',
-                  }}
-                >
-                  {/* Page lines */}
-                  <div className="p-2 space-y-1.5 pt-3">
-                    {[...Array(5)].map((_, j) => (
-                      <div key={j} className="h-0.5 rounded-full bg-gray-200" style={{ width: `${60 + (j % 3) * 15}%` }} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-            {/* Right cover */}
-            <div
-              className="w-16 h-20 rounded-r-md"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', boxShadow: '2px 2px 8px rgba(0,0,0,0.2)' }}
-            />
-          </div>
-        ) : (
-          // Static open book (idle or result state)
-          <div className="flex items-end justify-center gap-0.5">
-            {/* Left page */}
-            <div
-              className="w-16 h-20 rounded-l-md flex flex-col justify-between p-2 pt-3"
-              style={{ background: '#f8f7f4', boxShadow: '-2px 2px 8px rgba(0,0,0,0.12)' }}
-            >
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-0.5 rounded-full bg-gray-300" style={{ width: `${55 + (i % 3) * 15}%` }} />
-              ))}
-            </div>
-            {/* Spine */}
-            <div className="w-2 h-20 flex-shrink-0" style={{ background: '#4f46e5', boxShadow: 'inset 0 0 4px rgba(0,0,0,0.3)' }} />
-            {/* Right page */}
-            <div
-              className="w-16 h-20 rounded-r-md flex flex-col justify-between p-2 pt-3"
-              style={{ background: '#fffef9', boxShadow: '2px 2px 8px rgba(0,0,0,0.12)' }}
-            >
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-0.5 rounded-full bg-gray-300" style={{ width: `${60 + (i % 2) * 20}%` }} />
-              ))}
-            </div>
-          </div>
-        )}
+      {/* Book — switches between three visual states */}
+      <div className="mb-8 flex justify-center" style={{ minHeight: BOOK_H + 40 }}>
+        {phase === 'closed'   && <ClosedBook onClick={canSpin ? handleFlip : undefined} />}
+        {phase === 'flipping' && <FlippingBook />}
+        {phase === 'open'     && <OpenBook prize={prize} code={prizeCode} />}
       </div>
 
-      {/* Prize result */}
-      {phase === 'result' && prize && (
-        <div className="mb-5 bg-brand-accent/20 border border-brand-accent rounded-2xl px-6 py-4 text-center max-w-xs">
-          <p className="text-lg font-bold text-brand-coal mb-1">🎉 You won!</p>
-          <p className="text-base font-semibold text-brand-button">{prize}</p>
-          {prizeCode && (
-            <div className="mt-2 bg-white border border-brand-accent rounded-lg px-3 py-1.5">
-              <p className="text-xs text-gray-500 mb-0.5">Use code at checkout</p>
-              <p className="text-sm font-mono font-bold text-brand-coal tracking-widest">{prizeCode}</p>
-            </div>
-          )}
-          <p className="text-xs text-gray-400 mt-2">Our team will be in touch to apply your reward.</p>
-        </div>
-      )}
+      {error && <p className="text-sm text-red-500 mb-4 text-center max-w-xs">{error}</p>}
 
-      {error && (
-        <p className="text-sm text-red-500 mb-4 text-center">{error}</p>
-      )}
-
-      {/* CTA area — wait for profile to load before deciding which prompt to show */}
+      {/* CTA — wait for profile before deciding which to show */}
       {!profileLoaded ? null : !isPaidUser ? (
         <div className="text-center">
-          <div className="opacity-40 pointer-events-none mb-3 select-none text-sm text-gray-500">
-            Flip the Book costs 2,500 points
-          </div>
+          <p className="text-sm text-gray-400 mb-3">Flip the Book costs 2,500 points</p>
           <Link
             href="/dashboard/settings"
             className="inline-block px-6 py-2.5 bg-brand-button text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity"
@@ -162,16 +371,17 @@ export default function BookFlip({ totalPoints, isPaidUser, profileLoaded, spins
             Upgrade to win rewards
           </Link>
         </div>
-      ) : phase === 'result' ? (
+      ) : phase === 'open' ? (
         <button
           type="button"
           onClick={handleReset}
           className="text-sm text-brand-button font-medium hover:opacity-75 transition-opacity"
         >
-          {spinsRemaining > 0 ? `${spinsRemaining} flip${spinsRemaining !== 1 ? 's' : ''} left this month` : 'No flips left this month'}
+          {spinsRemaining > 0
+            ? `${spinsRemaining} flip${spinsRemaining !== 1 ? 's' : ''} left this month`
+            : 'No flips left this month'}
         </button>
       ) : !hasSpinsLeft ? (
-        // Used all flips for the month
         <div className="text-center">
           <p className="text-sm font-semibold text-gray-500">
             You&apos;ve used all {spinsLimit} flip{spinsLimit !== 1 ? 's' : ''} for this month
@@ -189,11 +399,9 @@ export default function BookFlip({ totalPoints, isPaidUser, profileLoaded, spins
             {phase === 'flipping' ? 'Flipping…' : 'Flip the Book'}
           </button>
           <p className="text-xs text-gray-400 mt-2">
-            {!hasSpinsLeft
-              ? `No flips remaining this month`
-              : totalPoints >= SPIN_COST
-                ? `Costs 2,500 points · ${spinsRemaining} of ${spinsLimit} flip${spinsLimit !== 1 ? 's' : ''} left this month`
-                : `${(SPIN_COST - totalPoints).toLocaleString()} more points needed`}
+            {totalPoints >= SPIN_COST
+              ? `Costs 2,500 points · ${spinsRemaining} of ${spinsLimit} flip${spinsLimit !== 1 ? 's' : ''} left this month`
+              : `${(SPIN_COST - totalPoints).toLocaleString()} more points needed`}
           </p>
         </div>
       )}
