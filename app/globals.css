@@ -26,6 +26,25 @@ body {
   }
 }
 
+/* ── Task completion celebration ────────────────────────────────────────── */
+@keyframes confettiBurst {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--tr)) scale(0.05);
+    opacity: 0;
+  }
+}
+
+@keyframes pointsFloat {
+  0%   { transform: translateY(0) scale(0.5);   opacity: 0; }
+  18%  { transform: translateY(-6px) scale(1.3); opacity: 1; }
+  62%  { transform: translateY(-22px) scale(1.05); opacity: 1; }
+  100% { transform: translateY(-52px) scale(0.9); opacity: 0; }
+}
+
 /* ── Book flip animation ─────────────────────────────────────────────────── */
 @keyframes pageFlipRight {
   0%   { transform: rotateY(0deg);    z-index: 2; }

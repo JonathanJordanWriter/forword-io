@@ -146,9 +146,12 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
-        {/* Points widget */}
-        {((profile?.total_points as number) ?? 0) >= 0 && (
-          <div className="mb-6 flex items-center justify-between bg-gradient-to-r from-brand-accent/30 to-purple-50 border border-brand-accent/40 rounded-2xl px-5 py-4">
+        {/* Book / plan list — client component handles delete interaction */}
+        <DashboardBookList books={bookItems} />
+
+        {/* Points widget — sits below the book list */}
+        {((profile?.total_points as number) ?? 0) > 0 && (
+          <div className="mt-6 flex items-center justify-between bg-gradient-to-r from-brand-accent/30 to-purple-50 border border-brand-accent/40 rounded-2xl px-5 py-4">
             <div>
               <p className="text-xs text-gray-500 font-medium mb-0.5">Your reward points</p>
               <p className="text-2xl font-bold text-brand-coal">
@@ -167,9 +170,6 @@ export default async function DashboardPage() {
             </Link>
           </div>
         )}
-
-        {/* Book / plan list — client component handles delete interaction */}
-        <DashboardBookList books={bookItems} />
       </div>
     </div>
   )

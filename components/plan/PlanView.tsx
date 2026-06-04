@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import UpgradeModal from './UpgradeModal'
 
@@ -166,6 +166,121 @@ function TaskCard({
         </div>
       </div>
     </button>
+  )
+}
+
+// ─── Celebration helpers ──────────────────────────────────────────────────────
+
+const CONFETTI_COLORS = [
+  '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b',
+  '#10b981', '#3b82f6', '#ef4444', '#f97316',
+]
+
+function makeParticles(count: number, spread: number) {
+  return Array.from({ length: count }, (_, i) => {
+    const angle = (i / count) * Math.PI * 2
+    const dist = spread + (i % 3) * (spread * 0.4)
+    return {
+      tx: Math.round(Math.cos(angle) * dist),
+      ty: Math.round(Math.sin(angle) * dist - spread * 0.3),
+      tr: Math.round((angle * 180 / Math.PI) * 2.5),
+      delay: (i % 5) * 0.05,
+      size: 7 + (i % 3) * 3,
+      round: i % 2 === 0,
+      color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    }
+  })
+}
+
+const TASK_PARTICLES = makeParticles(16, 55)
+const PHASE_PARTICLES = makeParticles(28, 90)
+
+const PHASE_MESSAGES: Record<number, string> = {
+  1: 'Amazing! You just finished Phase 1. Keep moving your book forward!',
+  2: "Congratulations! You knocked out Phase 2. Let's keep moving your book forward!",
+  3: "You're halfway there! Phase 3 is complete — the momentum is building!",
+  4: "Incredible work! Phase 4 is done. You're in the home stretch now!",
+  5: "You did it! Phase 5 complete — your entire 90-day plan is finished. What an achievement!",
+}
+
+const PHASE_BONUSES: Record<number, number> = { 1: 100, 2: 150, 3: 200, 4: 250, 5: 300 }
+
+// ─── TaskCelebration — confetti burst + floating points text ─────────────────
+
+function TaskCelebration({ points, onDone }: { points: number; onDone: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 1600)
+    return () => clearTimeout(t)
+  }, [onDone])
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+      <p
+        className="font-black text-3xl text-brand-button select-none"
+        style={{ animation: 'pointsFloat 1.4s ease-out forwards', textShadow: '0 2px 12px rgba(99,102,241,0.4)' }}
+      >
+        +{points.toLocaleString()} pts!
+      </p>
+      {TASK_PARTICLES.map((p, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute', left: '50%', top: '50%',
+            width: p.size, height: p.size,
+            borderRadius: p.round ? '50%' : '3px',
+            backgroundColor: p.color,
+            animation: `confettiBurst 1.2s ease-out ${p.delay}s forwards`,
+            '--tx': `${p.tx}px`, '--ty': `${p.ty}px`, '--tr': `${p.tr}deg`,
+          } as React.CSSProperties}
+        />
+      ))}
+    </div>
+  )
+}
+
+// ─── PhaseCompleteModal ───────────────────────────────────────────────────────
+
+function PhaseCompleteModal({ phase, bonus, onClose }: { phase: number; bonus: number; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+      <div className="relative bg-white rounded-3xl px-8 py-8 max-w-sm w-full text-center shadow-2xl overflow-hidden">
+        {/* Confetti */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+          {PHASE_PARTICLES.map((p, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute', left: '50%', top: '50%',
+                width: p.size, height: p.size,
+                borderRadius: p.round ? '50%' : '3px',
+                backgroundColor: p.color,
+                animation: `confettiBurst 1.5s ease-out ${p.delay}s forwards`,
+                '--tx': `${p.tx}px`, '--ty': `${p.ty}px`, '--tr': `${p.tr}deg`,
+              } as React.CSSProperties}
+            />
+          ))}
+        </div>
+
+        <div className="text-5xl mb-3">🎉</div>
+        <h2 className="text-xl font-bold text-brand-coal mb-2">Phase {phase} Complete!</h2>
+        <p className="text-sm text-gray-600 mb-5 leading-relaxed">
+          {PHASE_MESSAGES[phase] ?? `Phase ${phase} complete! Keep up the great work!`}
+        </p>
+
+        <div className="bg-brand-accent/20 border border-brand-accent/40 rounded-2xl px-4 py-3 mb-5">
+          <p className="text-xs text-gray-500 mb-0.5">Phase completion bonus</p>
+          <p className="text-2xl font-black text-brand-button">+{bonus.toLocaleString()} pts</p>
+        </div>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-full py-3 bg-brand-button text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
+        >
+          Keep going! →
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -362,6 +477,10 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
   void _isStarterTier // retained in props for potential future use
   const [tasks, setTasks] = useState(initialTasks)
   const [totalPoints, setTotalPoints] = useState(initialTotalPoints)
+  const [celebration, setCelebration] = useState<{ points: number } | null>(null)
+  const [phaseComplete, setPhaseComplete] = useState<{ phase: number; bonus: number } | null>(null)
+  // Track phases already celebrated so we don't re-trigger on re-renders
+  const awardedPhasesRef = useRef<Set<number>>(new Set())
   const [activePhase, setActivePhase] = useState(plan.current_phase)
   const [currentTime, setCurrentTime] = useState(initialTimePerWeek)
   const [timeChanged, setTimeChanged] = useState(false)
@@ -376,6 +495,19 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
     const startWeeks = Array.from(new Set(startTasks.map(t => t.week_number))).sort((a, b) => a - b)
     return firstIncompleteWeek(startWeeks, startTasks)
   })
+
+  // Pre-populate awardedPhasesRef with any phases already complete on load
+  // so we never show the celebration modal for work done in a previous session.
+  useEffect(() => {
+    const phases = Array.from(new Set(initialTasks.map(t => t.phase)))
+    for (const phase of phases) {
+      const pts = initialTasks.filter(t => t.phase === phase && !t.is_locked)
+      if (pts.length > 0 && pts.every(t => t.is_completed)) {
+        awardedPhasesRef.current.add(phase)
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // When the user switches phases, jump to that phase's first incomplete week
   useEffect(() => {
@@ -449,24 +581,61 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
 
   // ── Completion toggle ──────────────────────────────────────────────────────
   async function handleToggle(taskId: string, newValue: boolean) {
-    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, is_completed: newValue } : t))
+    // Capture state snapshot for revert and phase-check
+    const prevTasks = tasks
+    const nextTasks = tasks.map(t => t.id === taskId ? { ...t, is_completed: newValue } : t)
+    setTasks(nextTasks)
+
     try {
       const res = await fetch(`/api/tasks/${taskId}/toggle`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_completed: newValue }),
       })
+
       if (!res.ok) {
-        setTasks(prev => prev.map(t => t.id === taskId ? { ...t, is_completed: !newValue } : t))
+        setTasks(prevTasks) // revert optimistic update
       } else {
-        // Update live points counter from the server response
         const data = await res.json()
+
+        // Update live points and show celebration
         if (typeof data.points_delta === 'number' && data.points_delta !== 0) {
           setTotalPoints(prev => Math.max(0, prev + data.points_delta))
+          if (data.points_delta > 0) setCelebration({ points: data.points_delta })
+        }
+
+        // Check if this completion finished a phase (only on complete, not uncheck)
+        if (newValue) {
+          const toggledTask = prevTasks.find(t => t.id === taskId)
+          if (toggledTask) {
+            const phase = toggledTask.phase
+            const phaseTasks = nextTasks.filter(t => t.phase === phase && !t.is_locked)
+            const allDone = phaseTasks.length > 0 && phaseTasks.every(t => t.is_completed)
+
+            if (allDone && !awardedPhasesRef.current.has(phase)) {
+              awardedPhasesRef.current.add(phase) // block double-trigger immediately
+              try {
+                const phaseRes = await fetch('/api/rewards/phase-complete', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ planId: plan.id, phaseNumber: phase }),
+                })
+                if (phaseRes.ok) {
+                  const pd = await phaseRes.json()
+                  if (!pd.already_awarded && pd.bonus > 0) {
+                    setTotalPoints(prev => prev + pd.bonus)
+                    setPhaseComplete({ phase, bonus: pd.bonus })
+                  }
+                }
+              } catch {
+                awardedPhasesRef.current.delete(phase) // allow retry if network error
+              }
+            }
+          }
         }
       }
     } catch {
-      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, is_completed: !newValue } : t))
+      setTasks(prevTasks)
     }
   }
 
@@ -739,6 +908,23 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
 
       {showUpgradeModal && (
         <UpgradeModal onClose={() => setShowUpgradeModal(false)} bookId={bookId} />
+      )}
+
+      {/* Task completion celebration */}
+      {celebration && (
+        <TaskCelebration
+          points={celebration.points}
+          onDone={() => setCelebration(null)}
+        />
+      )}
+
+      {/* Phase completion modal */}
+      {phaseComplete && (
+        <PhaseCompleteModal
+          phase={phaseComplete.phase}
+          bonus={phaseComplete.bonus}
+          onClose={() => setPhaseComplete(null)}
+        />
       )}
     </div>
   )
