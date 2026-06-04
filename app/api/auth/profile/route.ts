@@ -24,21 +24,38 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // Use service role to guarantee accurate tier/points regardless of RLS
   const service = createServiceClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  const { data: profile, error } = await service
+  // Fetch tier + name separately from total_points so a missing column
+  // on either side can't cause the other to fail.
+  const { data: coreRow, error: coreErr } = await service
     .from('users')
-    .select('tier, total_points, full_name')
+    .select('tier, full_name')
     .eq('id', user.id)
     .single()
 
-  if (error) console.error('Profile fetch error:', error)
+  if (coreErr) console.error('Profile core fetch error:', coreErr)
 
-  const tier = (profile?.tier as string) ?? 'starter'
+  const tier = (coreRow?.tier as string) ?? 'starter'
+
+  // total_points is a newer column — fetch separately so a schema issue
+  // here never causes the tier to fall back to 'starter' incorrectly.
+  let totalPoints = 0
+  const { data: pointsRow, error: pointsErr } = await service
+    .from('users')
+    .select('total_points')
+    .eq('id', user.id)
+    .single()
+
+  if (pointsErr) {
+    console.error('Profile points fetch error (total_points column may not exist yet):', pointsErr)
+  } else {
+    totalPoints = (pointsRow?.total_points as number) ?? 0
+  }
+
   const spinLimit = SPIN_LIMITS[tier] ?? 0
 
   // Count spins used this calendar month
@@ -52,10 +69,12 @@ export async function GET() {
     spinsUsed = count ?? 0
   }
 
+  console.log(`Profile loaded for ${user.id}: tier=${tier}, points=${totalPoints}, spinLimit=${spinLimit}`)
+
   return NextResponse.json({
     tier,
-    total_points: profile?.total_points ?? 0,
-    full_name: profile?.full_name ?? null,
+    total_points: totalPoints,
+    full_name: coreRow?.full_name ?? null,
     spins_used: spinsUsed,
     spins_limit: spinLimit,
     spins_remaining: Math.max(0, spinLimit - spinsUsed),

@@ -29,7 +29,7 @@ export default async function PlanPage({ params }: { params: { bookId: string } 
   // Fetch the user's tier + switch tracking for locking and delete-limit logic
   const { data: profile } = await supabase
     .from('users')
-    .select('tier, author_plan_switched_at, stripe_customer_id')
+    .select('tier, author_plan_switched_at, stripe_customer_id, total_points')
     .eq('id', user.id)
     .single()
   let userTier = profile?.tier ?? 'starter'
@@ -246,6 +246,7 @@ export default async function PlanPage({ params }: { params: { bookId: string } 
               userTier={userTier}
               bookId={params.bookId}
               initialTimePerWeek={(book.time_per_week as string) ?? '3_5hrs'}
+              initialTotalPoints={(profile?.total_points as number) ?? 0}
             />
           </div>
         ) : (

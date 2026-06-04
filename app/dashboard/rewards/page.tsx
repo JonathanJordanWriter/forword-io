@@ -54,7 +54,7 @@ function LeaderboardTable({ data }: { data: LeaderboardCategory }) {
                 : 'bg-gray-50'
             }`}
           >
-            <span className="text-base w-6 text-center flex-shrink-0">
+            <span className="text-2xl w-9 text-center flex-shrink-0 leading-none">
               {entry.rank <= 3 ? medals[entry.rank - 1] : <span className="text-xs text-gray-400 font-medium">#{entry.rank}</span>}
             </span>
             <p className={`flex-1 text-sm font-medium truncate ${entry.is_current_user ? 'text-brand-button' : 'text-gray-800'}`}>
@@ -65,16 +65,16 @@ function LeaderboardTable({ data }: { data: LeaderboardCategory }) {
               <p className="text-xs text-gray-400">pts</p>
             </div>
             {entry.rank <= 3 && !entry.bonus_awarded && (
-              <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full flex-shrink-0 border ${
+              <span className={`text-sm font-semibold px-2 py-0.5 rounded-full flex-shrink-0 border ${
                 entry.rank === 1 ? 'text-amber-600 bg-amber-50 border-amber-200' :
                 entry.rank === 2 ? 'text-slate-500 bg-slate-50 border-slate-200' :
                                    'text-orange-600 bg-orange-50 border-orange-200'
               }`}>
-                {entry.rank === 1 ? '🥇 Gold' : entry.rank === 2 ? '🥈 Silver' : '🥉 Bronze'}
+                {entry.rank === 1 ? 'Gold' : entry.rank === 2 ? 'Silver' : 'Bronze'}
               </span>
             )}
             {entry.rank <= 3 && entry.bonus_awarded && (
-              <span className="text-xs text-green-600 font-medium bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full flex-shrink-0">
+              <span className="text-sm font-semibold text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full flex-shrink-0">
                 {entry.rank === 1 ? '+200' : entry.rank === 2 ? '+100' : '+50'} ✓
               </span>
             )}

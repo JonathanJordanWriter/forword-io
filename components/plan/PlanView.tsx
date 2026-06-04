@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-// useRouter available if needed for future navigation
+import Link from 'next/link'
 import UpgradeModal from './UpgradeModal'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -52,6 +52,7 @@ interface Props {
   userTier?: string
   bookId: string
   initialTimePerWeek?: string
+  initialTotalPoints?: number
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -357,9 +358,10 @@ function firstIncompleteWeek(weeksList: number[], tasksList: Task[]): number {
   return w ?? weeksList[0]
 }
 
-export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _isStarterTier, userTier = 'starter', bookId, initialTimePerWeek = '3_5hrs' }: Props) {
+export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _isStarterTier, userTier = 'starter', bookId, initialTimePerWeek = '3_5hrs', initialTotalPoints = 0 }: Props) {
   void _isStarterTier // retained in props for potential future use
   const [tasks, setTasks] = useState(initialTasks)
+  const [totalPoints, setTotalPoints] = useState(initialTotalPoints)
   const [activePhase, setActivePhase] = useState(plan.current_phase)
   const [currentTime, setCurrentTime] = useState(initialTimePerWeek)
   const [timeChanged, setTimeChanged] = useState(false)
@@ -456,6 +458,12 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
       })
       if (!res.ok) {
         setTasks(prev => prev.map(t => t.id === taskId ? { ...t, is_completed: !newValue } : t))
+      } else {
+        // Update live points counter from the server response
+        const data = await res.json()
+        if (typeof data.points_delta === 'number' && data.points_delta !== 0) {
+          setTotalPoints(prev => Math.max(0, prev + data.points_delta))
+        }
       }
     } catch {
       setTasks(prev => prev.map(t => t.id === taskId ? { ...t, is_completed: !newValue } : t))
@@ -533,6 +541,19 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
 
   return (
     <div>
+      {/* Live points counter */}
+      {totalPoints > 0 && (
+        <div className="flex items-center justify-between mb-4 px-4 py-2.5 bg-gradient-to-r from-brand-accent/20 to-purple-50 border border-brand-accent/30 rounded-xl">
+          <p className="text-xs text-gray-500 font-medium">Reward points earned</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-bold text-brand-coal">{totalPoints.toLocaleString()} pts</p>
+            <Link href="/dashboard/rewards" className="text-xs text-brand-button font-semibold hover:opacity-75 transition-opacity">
+              View →
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Progress bar */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-1.5">
