@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 
 const SPIN_COST = 2500
@@ -20,7 +21,7 @@ interface Props {
   profileLoaded: boolean
   spinsRemaining: number
   spinsLimit: number
-  onSpinComplete: (prize: string, code: string | null, newTotal: number) => void
+  onSpinComplete: (prize: string, code: string | null, newTotal: number, spinsLeft: number) => void
 }
 
 // ── Helper: ruled page lines ──────────────────────────────────────────────────
@@ -86,22 +87,23 @@ function ClosedBook({ onClick }: { onClick?: () => void }) {
         width: PAGE_W, height: BOOK_H,
         background: 'linear-gradient(148deg, #6366f1 0%, #4f46e5 45%, #4338ca 100%)',
         display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', gap: 10,
+        alignItems: 'center', justifyContent: 'center', gap: 12,
       }}>
-        <span style={{ fontSize: 52, lineHeight: 1 }}>📖</span>
-        <p style={{ color: 'white', fontSize: 13, fontWeight: 800, letterSpacing: 3, textTransform: 'uppercase' }}>
-          forword.io
-        </p>
-        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 10, letterSpacing: 1 }}>
+        {/* Logo instead of text */}
+        <Image src="/logo.png" alt="forword.io" width={110} height={31} style={{ filter: 'brightness(0) invert(1)' }} />
+
+        <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15, fontWeight: 600, letterSpacing: 2 }}>
           Rewards
         </p>
+
         {onClick && (
           <div style={{
-            marginTop: 18,
-            background: 'rgba(255,255,255,0.13)',
-            borderRadius: 24, padding: '6px 16px',
+            marginTop: 20,
+            background: 'rgba(255,255,255,0.18)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: 24, padding: '8px 20px',
           }}>
-            <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 10, fontWeight: 700 }}>
+            <p style={{ color: 'white', fontSize: 13, fontWeight: 700, letterSpacing: 0.5 }}>
               Tap to flip ✦
             </p>
           </div>
@@ -339,7 +341,7 @@ export default function BookFlip({
       setPrize(data.prize)
       setPrizeCode(data.prize_code ?? null)
       setPhase('open')
-      onSpinComplete(data.prize, data.prize_code ?? null, data.points_remaining)
+      onSpinComplete(data.prize, data.prize_code ?? null, data.points_remaining, data.spins_remaining ?? 0)
     } catch {
       setError('Network error. Please try again.')
       setPhase('closed')

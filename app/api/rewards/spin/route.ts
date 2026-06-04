@@ -128,5 +128,6 @@ export async function POST() {
     points_remaining: newTotal,
     spins_used: usedSpins + 1,
     spins_limit: monthLimit,
+    spins_remaining: monthLimit - (usedSpins + 1),
   })
 }

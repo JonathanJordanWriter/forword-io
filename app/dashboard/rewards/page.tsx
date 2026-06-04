@@ -144,9 +144,9 @@ export default function RewardsPage() {
 
   useEffect(() => { loadData() }, [loadData])
 
-  function handleSpinComplete(_prize: string, _code: string | null, newTotal: number) {
+  function handleSpinComplete(_prize: string, _code: string | null, newTotal: number, spinsLeft: number) {
     setTotalPoints(newTotal)
-    setSpinsRemaining(prev => Math.max(0, prev - 1))
+    setSpinsRemaining(Math.max(0, spinsLeft))
   }
 
   // Format week_start as "Jun 1 – Jun 7"
