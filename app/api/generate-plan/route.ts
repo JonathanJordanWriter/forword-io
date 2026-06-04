@@ -266,23 +266,56 @@ export async function POST(req: NextRequest) {
     ...(bookPlatforms?.active ?? []),
     ...(bookPlatforms?.open_to ?? []),
   ].map(p => p.toLowerCase().replace(/[^a-z0-9]/g, ''))
-  // Always allow generic / multi-platform tags
+
+  // Tags that are always allowed regardless of platform selection (tools, retailers, etc.)
   const genericTags = new Set(['all', 'none', 'general', 'any', 'canva', 'buffer', 'email', 'kdp', 'ingramspark', 'amazon', 'goodreads', 'substack', 'newsletter', 'querytracker', 'publishersmarketplace', 'booksirens', 'netgalley', 'bookstagram', 'booktok'])
 
-  function isPlatformAllowed(tag: string): boolean {
+  // Platforms that are never selectable in the app and must never appear as
+  // engagement destinations in task titles or descriptions.
+  const unsupportedPlatformPatterns = [
+    /\breddit\b/i,
+    /\bsubreddit\b/i,
+    /\bdiscord\b/i,
+    /\bbluesky\b/i,
+    /\bmastodon\b/i,
+    /\btumblr\b/i,
+    /\bsnapchat\b/i,
+    /\bbereal\b/i,
+    /\btelegram\b/i,
+    /\bwhatsapp\b/i,
+  ]
+
+  // Returns true if the platform_tag is in the author's selection or is generic
+  function isPlatformTagAllowed(tag: string): boolean {
     if (!tag) return true
     const normalised = tag.toLowerCase().replace(/[^a-z0-9]/g, '')
     if (genericTags.has(normalised)) return true
-    // Check whether any of the author's selected platforms contains this tag
     return selectedPlatforms.some(p => p.includes(normalised) || normalised.includes(p))
+  }
+
+  // Returns true if the task text contains an engagement reference to an unsupported platform.
+  // We allow purely passive/research mentions (e.g. "read r/fantasy to understand readers")
+  // but block action-oriented phrases like "post on Reddit", "join a subreddit", etc.
+  function containsUnsupportedPlatformEngagement(text: string): boolean {
+    const engagementVerbs = /\b(post|comment|join|engage|build|grow|share|reply|message|dm|participate|contribute)\b/i
+    for (const pattern of unsupportedPlatformPatterns) {
+      if (pattern.test(text) && engagementVerbs.test(text)) return true
+    }
+    return false
   }
 
   // 10. Insert all task records
   const taskRows = allTasks.map(task => {
-    const allowed = isPlatformAllowed(task.platform_tag)
-    if (!allowed) {
-      console.warn(`Platform filter: task "${task.title}" had platform_tag "${task.platform_tag}" which is not in the author's selected platforms — resetting to "all"`)
+    const tagAllowed = isPlatformTagAllowed(task.platform_tag)
+    const descriptionClean = !containsUnsupportedPlatformEngagement(task.title + ' ' + task.description)
+
+    if (!tagAllowed) {
+      console.warn(`Platform filter [tag]: "${task.title}" had platform_tag "${task.platform_tag}" not in author's selected platforms — resetting to "all"`)
     }
+    if (!descriptionClean) {
+      console.warn(`Platform filter [description]: "${task.title}" references an unsupported platform engagement — flagged for review`)
+    }
+
     return {
       plan_id: plan.id,
       user_id: user.id,
@@ -292,7 +325,7 @@ export async function POST(req: NextRequest) {
       title: task.title,
       description: task.description,
       category: normalizeCategory(task.category),
-      platform_tag: allowed ? task.platform_tag : 'all',
+      platform_tag: tagAllowed ? task.platform_tag : 'all',
       estimated_mins: task.estimated_mins,
       is_completed: false,
       is_locked: shouldLockDay31Plus && task.day_number > 30,
