@@ -6,10 +6,13 @@ import Link from 'next/link'
 const SPIN_COST = 2500
 
 // ── Book geometry constants ───────────────────────────────────────────────────
-const BOOK_H  = 320   // height of the book
-const PAGE_W  = 130   // width of one page
-const SPINE_W = 18    // width of the spine
-const BOOK_W  = PAGE_W * 2 + SPINE_W  // total open-book width (278px)
+// Based on a real 6×9 inch book cover. Open book = 13×9 inches (6+1+6).
+// Scaled to a display height of 270px → page width = 270 × (6/9) = 180px,
+// spine width = 270 × (1/9) = 30px, total open width = 390px.
+const BOOK_H  = 270   // 9 inches scaled
+const PAGE_W  = 180   // 6 inches scaled
+const SPINE_W = 30    // 1 inch scaled
+const BOOK_W  = PAGE_W * 2 + SPINE_W  // 390px — correct 13:9 open-book ratio
 
 interface Props {
   totalPoints: number
