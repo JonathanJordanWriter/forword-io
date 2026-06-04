@@ -4,6 +4,7 @@ interface Props {
   data: OnboardingData
   onChange: (updates: Partial<OnboardingData>) => void
   onNext: () => void
+  onBack?: () => void
 }
 
 const STAGES: { value: BookStage; label: string; description: string }[] = [
@@ -17,7 +18,7 @@ const STAGES: { value: BookStage; label: string; description: string }[] = [
   { value: 'published', label: 'Already published', description: "My book is live and I want to grow readership" },
 ]
 
-export default function Step1BookStage({ data, onChange, onNext }: Props) {
+export default function Step1BookStage({ data, onChange, onNext, onBack }: Props) {
   const canProceed = data.book_stage !== ''
 
   return (
@@ -59,14 +60,25 @@ export default function Step1BookStage({ data, onChange, onNext }: Props) {
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={onNext}
-        disabled={!canProceed}
-        className="w-full py-2.5 px-4 bg-brand-button text-white text-sm font-medium rounded-lg hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
-      >
-        Continue
-      </button>
+      <div className="flex gap-3">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex-1 py-2.5 px-4 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Back
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={onNext}
+          disabled={!canProceed}
+          className="flex-1 py-2.5 px-4 bg-brand-button text-white text-sm font-medium rounded-lg hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+        >
+          Continue
+        </button>
+      </div>
     </div>
   )
 }
