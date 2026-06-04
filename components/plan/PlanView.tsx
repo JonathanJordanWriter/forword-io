@@ -179,6 +179,8 @@ function WeekHeader({
   onTimeSaved,
   canGoPrev,
   canGoNext,
+  prevWeekNum,
+  nextWeekNum,
   onPrev,
   onNext,
   timeChanged,
@@ -193,6 +195,8 @@ function WeekHeader({
   onTimeSaved: (newTime: string) => void
   canGoPrev: boolean
   canGoNext: boolean
+  prevWeekNum: number | null
+  nextWeekNum: number | null
   onPrev: () => void
   onNext: () => void
   timeChanged: boolean
@@ -231,21 +235,26 @@ function WeekHeader({
 
   return (
     <div className="mb-4">
-      {/* Top row: week prev/next navigation */}
-      <div className="flex items-center justify-between mb-2">
-        <button
-          type="button"
-          onClick={onPrev}
-          disabled={!canGoPrev}
-          aria-label="Previous week"
-          className="flex items-center gap-1 text-xs text-gray-400 hover:text-brand-button disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-          Prev
-        </button>
+      {/* Top row: week navigation */}
+      <div className="flex items-center justify-center gap-4 mb-2">
+        {/* Previous week button — always reserves space so centre stays centred */}
+        <div className="w-24 flex justify-end">
+          {canGoPrev && (
+            <button
+              type="button"
+              onClick={onPrev}
+              aria-label="Previous week"
+              className="flex items-center gap-1 text-sm font-semibold text-brand-button hover:opacity-75 transition-opacity"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+              Week {prevWeekNum}
+            </button>
+          )}
+        </div>
 
+        {/* Centre label */}
         <div className="text-center">
           <p className="text-sm font-semibold text-brand-coal">Week {weekNum} of {totalWeeks}</p>
           <p className="text-xs font-medium text-brand-button">
@@ -253,18 +262,22 @@ function WeekHeader({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={onNext}
-          disabled={!canGoNext}
-          aria-label="Next week"
-          className="flex items-center gap-1 text-xs text-gray-400 hover:text-brand-button disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-        >
-          Next
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
+        {/* Next week button */}
+        <div className="w-24 flex justify-start">
+          {canGoNext && (
+            <button
+              type="button"
+              onClick={onNext}
+              aria-label="Next week"
+              className="flex items-center gap-1 text-sm font-semibold text-brand-button hover:opacity-75 transition-opacity"
+            >
+              Week {nextWeekNum}
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Bottom row: time availability stepper */}
@@ -620,6 +633,8 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
             onTimeSaved={handleTimeSaved}
             canGoPrev={canGoPrev}
             canGoNext={canGoNext}
+            prevWeekNum={canGoPrev ? weeks[activeWeekIndex - 1] : null}
+            nextWeekNum={canGoNext ? weeks[activeWeekIndex + 1] : null}
             onPrev={() => setActiveWeek(weeks[activeWeekIndex - 1])}
             onNext={() => setActiveWeek(weeks[activeWeekIndex + 1])}
             timeChanged={timeChanged}
