@@ -20,9 +20,11 @@ const EXPERIENCE_OPTIONS = [
 ]
 
 const GOAL_OPTIONS = [
-  { value: 'fulltime',    label: 'Build a full-time writing career' },
-  { value: 'side',        label: 'Side project / hobby' },
-  { value: 'personal',    label: 'Personal fulfillment' },
+  { value: 'fulltime',          label: 'Build a full-time writing career' },
+  { value: 'side',              label: 'Side project / hobby' },
+  { value: 'personal',          label: 'Personal fulfillment' },
+  { value: 'business_booster',  label: 'Business Booster' },
+  { value: 'legacy',            label: 'Legacy' },
 ]
 
 const HEARD_FROM_OPTIONS = [
