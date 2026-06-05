@@ -84,7 +84,7 @@ export default async function DashboardPage() {
   )
 
   // Assemble the enriched book list for the client component
-  const bookItems: BookListItem[] = books.map((book) => {
+  const bookItems: BookListItem[] = (books ?? []).map((book) => {
     const genres = (book.genres as string[] | null) ?? (book.genre ? [book.genre] : [])
     const plan = planByBook[book.id]
 
