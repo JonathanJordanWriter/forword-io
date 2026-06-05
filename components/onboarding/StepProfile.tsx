@@ -68,6 +68,8 @@ interface Props {
   data: UserProfileData
   onChange: (updates: Partial<UserProfileData>) => void
   onNext: () => void
+  saving?: boolean    // parent is saving to DB
+  error?: string | null  // error from parent's save attempt
 }
 
 // ── Chip selector ─────────────────────────────────────────────────────────────
@@ -108,7 +110,7 @@ function ChipToggle({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function StepProfile({ data, onChange, onNext }: Props) {
+export default function StepProfile({ data, onChange, onNext, saving = false, error = null }: Props) {
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [photoError, setPhotoError] = useState<string | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
@@ -334,17 +336,20 @@ export default function StepProfile({ data, onChange, onNext }: Props) {
 
       </div>
 
-      {validationError && (
-        <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2 mt-4">{validationError}</p>
+      {(validationError || error) && (
+        <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2 mt-4">
+          {validationError ?? error}
+        </p>
       )}
 
       <div className="mt-6">
         <button
           type="button"
           onClick={handleNext}
-          className="w-full py-2.5 px-4 bg-brand-button text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+          disabled={saving}
+          className="w-full py-2.5 px-4 bg-brand-button text-white text-sm font-medium rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
         >
-          Continue →
+          {saving ? 'Saving your profile…' : 'Create author profile →'}
         </button>
       </div>
     </div>

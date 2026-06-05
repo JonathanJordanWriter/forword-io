@@ -29,8 +29,7 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
-  // New user with no books — send to onboarding
-  if (!books || books.length === 0) redirect('/onboarding')
+  // No redirect when books is empty — dashboard shows an empty state instead
 
   // Fetch active plans (with IDs so we can check task lock status)
   const { data: plans } = await supabase
@@ -135,19 +134,40 @@ export default async function DashboardPage() {
           <div>
             <h1 className="text-2xl font-bold text-brand-coal">Your marketing plans</h1>
             <p className="text-gray-500 text-sm mt-1">
-              {books.length === 1 ? '1 book' : `${books.length} books`}
+              {books.length === 0 ? 'No projects yet' : books.length === 1 ? '1 book' : `${books.length} books`}
             </p>
           </div>
           <Link
-            href="/onboarding"
+            href="/onboarding/book"
             className="px-4 py-2 bg-brand-button text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
           >
             + Add another book
           </Link>
         </div>
 
-        {/* Book / plan list — client component handles delete interaction */}
-        <DashboardBookList books={bookItems} />
+        {/* Empty state — shown before the user adds their first book */}
+        {books.length === 0 ? (
+          <div className="text-center py-16 bg-gray-50 rounded-2xl border border-gray-200">
+            <div className="w-14 h-14 rounded-full bg-brand-accent/30 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-7 h-7 text-brand-button" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            <h2 className="text-lg font-semibold text-brand-coal mb-2">Ready to market your book?</h2>
+            <p className="text-gray-500 text-sm max-w-sm mx-auto mb-6">
+              Add your first project and we&apos;ll build a personalized 90-day marketing plan around it.
+            </p>
+            <Link
+              href="/onboarding/book"
+              className="inline-block px-6 py-3 bg-brand-button text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity"
+            >
+              + Add your first project
+            </Link>
+          </div>
+        ) : (
+          /* Book / plan list — client component handles delete interaction */
+          <DashboardBookList books={bookItems} />
+        )}
 
         {/* Points widget — sits below the book list */}
         {((profile?.total_points as number) ?? 0) > 0 && (
