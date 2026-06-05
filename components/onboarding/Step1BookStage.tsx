@@ -13,6 +13,7 @@ const STAGES: { value: BookStage; label: string; description: string }[] = [
   { value: 'finished_manuscript', label: 'Finished manuscript', description: "I've completed the first draft" },
   { value: 'beta_reading', label: 'Beta reading', description: "My book is out with beta readers" },
   { value: 'revision', label: 'In revision', description: "I'm revising based on feedback" },
+  { value: 'querying', label: 'Querying', description: "I'm actively querying literary agents or publishers" },
   { value: 'editing', label: 'Editing', description: "I'm working with an editor or in final edits" },
   { value: 'cover_design', label: 'Cover & production', description: "I'm in the final pre-launch stage" },
   { value: 'published', label: 'Already published', description: "My book is live and I want to grow readership" },

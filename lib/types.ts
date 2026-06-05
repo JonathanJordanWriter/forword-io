@@ -32,7 +32,7 @@ export type BookType = 'fiction' | 'nonfiction'
 
 export type BookStage =
   | 'idea' | 'still_writing' | 'finished_manuscript' | 'beta_reading'
-  | 'revision' | 'editing' | 'cover_design' | 'published'
+  | 'revision' | 'querying' | 'editing' | 'cover_design' | 'published'
 
 export type PublishingPath = 'self' | 'traditional' | 'hybrid' | 'undecided'
 

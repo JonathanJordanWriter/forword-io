@@ -31,6 +31,7 @@ const BOOK_STAGES = [
   { value: 'finished_manuscript', label: 'Finished manuscript' },
   { value: 'beta_reading', label: 'Beta reading' },
   { value: 'revision', label: 'In revision' },
+  { value: 'querying', label: 'Querying' },
   { value: 'editing', label: 'Editing' },
   { value: 'cover_design', label: 'Cover & production' },
   { value: 'published', label: 'Published' },
