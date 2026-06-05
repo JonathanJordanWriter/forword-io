@@ -90,7 +90,7 @@ export default async function DashboardPage() {
 
     // willTransferSub: Author tier, this is the unlocked book, and there are other books
     const isUnlockedBook = isAuthorTier && book.id === unlockedBookId
-    const willTransferSub = isUnlockedBook && books.length > 1
+    const willTransferSub = isUnlockedBook && (books ?? []).length > 1
 
     return {
       id: book.id,
@@ -134,7 +134,7 @@ export default async function DashboardPage() {
           <div>
             <h1 className="text-2xl font-bold text-brand-coal">Your marketing plans</h1>
             <p className="text-gray-500 text-sm mt-1">
-              {books.length === 0 ? 'No projects yet' : books.length === 1 ? '1 book' : `${books.length} books`}
+              {(books ?? []).length === 0 ? 'No projects yet' : (books ?? []).length === 1 ? '1 book' : `${(books ?? []).length} books`}
             </p>
           </div>
           <Link
@@ -146,7 +146,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Empty state — shown before the user adds their first book */}
-        {books.length === 0 ? (
+        {(books ?? []).length === 0 ? (
           <div className="text-center py-16 bg-gray-50 rounded-2xl border border-gray-200">
             <div className="w-14 h-14 rounded-full bg-brand-accent/30 flex items-center justify-center mx-auto mb-4">
               <svg className="w-7 h-7 text-brand-button" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
