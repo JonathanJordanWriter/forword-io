@@ -23,12 +23,18 @@ export default function ForgotPasswordPage() {
     // signInWithOtp sends an email containing a 6-digit code (and a magic link).
     // shouldCreateUser: false means it errors silently for unknown emails —
     // we always show the code step so we don't reveal whether an account exists.
-    await supabase.auth.signInWithOtp({
+    const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
       options: { shouldCreateUser: false },
     })
 
     setLoading(false)
+
+    if (otpError) {
+      setError(`Error: ${otpError.message}`)
+      return
+    }
+
     setStep('code')
   }
 
