@@ -17,9 +17,7 @@ export default function ForgotPasswordPage() {
 
     const supabase = createClient()
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      // Exact URL — must match one of the entries in Supabase's redirect URL list.
-      // No query params since Supabase may do exact matching.
-      redirectTo: `${window.location.origin}/auth/callback`,
+      redirectTo: 'https://forword.io/auth/callback',
     })
 
     if (error) {
