@@ -6,7 +6,6 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const type = searchParams.get('type') // 'recovery' for password reset links
 
   // Email verification is disabled for beta, so auth/callback is only
   // hit by password reset links. Default to /reset-password.
