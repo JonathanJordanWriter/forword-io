@@ -1,16 +1,35 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
 
-// Server-side sign out — clears auth cookies before redirecting so the
-// middleware correctly sees the user as unauthenticated on /login.
-// Client-side signOut() + router.push() has a race condition where the
-// middleware still reads the old cookie and bounces the user back.
-export async function POST() {
-  const supabase = createClient()
-  await supabase.auth.signOut()
-
-  return NextResponse.redirect(
+export async function POST(request: NextRequest) {
+  // Create the redirect response first so we can attach cookie deletions to it.
+  // The previous approach used createClient() which writes cookies via next/headers
+  // but those changes don't carry over to a new NextResponse object.
+  const response = NextResponse.redirect(
     new URL('/login', process.env.NEXT_PUBLIC_APP_URL ?? 'https://forword.io'),
     { status: 302 }
   )
+
+  // Wire the Supabase client directly to the response's cookie jar so that
+  // signOut()'s cookie deletions are written onto the redirect response itself.
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
+  await supabase.auth.signOut()
+
+  return response
 }
