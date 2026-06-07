@@ -8,9 +8,9 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code')
   const type = searchParams.get('type') // 'recovery' for password reset links
 
-  // Password reset links come through with type=recovery — send to reset page
-  const defaultNext = type === 'recovery' ? '/reset-password' : '/onboarding'
-  const next = searchParams.get('next') ?? defaultNext
+  // Email verification is disabled for beta, so auth/callback is only
+  // hit by password reset links. Default to /reset-password.
+  const next = searchParams.get('next') ?? '/reset-password'
 
   if (code) {
     const supabase = createClient()
