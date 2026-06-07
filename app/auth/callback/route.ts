@@ -6,7 +6,11 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/onboarding'
+  const type = searchParams.get('type') // 'recovery' for password reset links
+
+  // Password reset links come through with type=recovery — send to reset page
+  const defaultNext = type === 'recovery' ? '/reset-password' : '/onboarding'
+  const next = searchParams.get('next') ?? defaultNext
 
   if (code) {
     const supabase = createClient()
