@@ -2,10 +2,13 @@
 
 export default function SignOutButton() {
   async function handleSignOut() {
-    await fetch('/api/auth/signout', { method: 'POST' })
-    // Hard reload after the server has cleared cookies so the middleware
-    // sees the session as gone and doesn't bounce back to /dashboard
-    window.location.href = '/login'
+    // Don't follow the server redirect — let window.location do the navigation
+    // after the server has cleared the auth cookies.
+    await fetch('/api/auth/signout', {
+      method: 'POST',
+      redirect: 'manual',
+    })
+    window.location.replace('/login')
   }
 
   return (

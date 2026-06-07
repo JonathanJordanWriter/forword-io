@@ -2,24 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
 export async function POST(request: NextRequest) {
-  // Create the redirect response first so we can attach cookie deletions to it.
-  // The previous approach used createClient() which writes cookies via next/headers
-  // but those changes don't carry over to a new NextResponse object.
   const response = NextResponse.redirect(
     new URL('/login', process.env.NEXT_PUBLIC_APP_URL ?? 'https://forword.io'),
     { status: 302 }
   )
 
-  // Wire the Supabase client directly to the response's cookie jar so that
-  // signOut()'s cookie deletions are written onto the redirect response itself.
+  // Invalidate the session on Supabase's servers
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
+        getAll() { return request.cookies.getAll() },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
@@ -28,8 +22,13 @@ export async function POST(request: NextRequest) {
       },
     }
   )
-
   await supabase.auth.signOut()
+
+  // Explicitly delete every Supabase cookie from the response so the
+  // browser removes them regardless of how signOut() handled them.
+  request.cookies.getAll()
+    .filter(c => c.name.startsWith('sb-'))
+    .forEach(c => response.cookies.delete(c.name))
 
   return response
 }
