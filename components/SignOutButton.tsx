@@ -1,14 +1,10 @@
 'use client'
 
-import { createClient } from '@/lib/supabase/client'
-
 export default function SignOutButton() {
-
   async function handleSignOut() {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    // Use window.location for a hard redirect so all auth cookies
-    // are fully cleared and the server session is reset
+    await fetch('/api/auth/signout', { method: 'POST' })
+    // Hard reload after the server has cleared cookies so the middleware
+    // sees the session as gone and doesn't bounce back to /dashboard
     window.location.href = '/login'
   }
 
