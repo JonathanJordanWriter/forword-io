@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -9,36 +10,24 @@ export default function ForgotPasswordPage() {
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('error') === 'expired') {
-      setError('That reset link has expired. Please request a new one.')
-    }
-  }, [])
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     setLoading(true)
 
-    try {
-      const res = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
+    const supabase = createClient()
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://forword.io/auth/callback',
+    })
 
-      if (!res.ok) {
-        setError('Something went wrong. Please try again.')
-        return
-      }
+    setLoading(false)
 
-      setSent(true)
-    } catch {
-      setError('Network error. Please try again.')
-    } finally {
-      setLoading(false)
+    if (error) {
+      setError(error.message)
+      return
     }
+
+    setSent(true)
   }
 
   if (sent) {
