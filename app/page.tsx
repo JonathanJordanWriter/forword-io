@@ -9,8 +9,7 @@ export default function Home() {
       </div>
       <p className="text-xl text-gray-500 mb-10">Move your book forward.</p>
       <p className="text-gray-600 max-w-md mb-10 leading-relaxed">
-        Generate a personalized 90-day marketing plan for your book — built around your genre,
-        goals, platforms, and the time you actually have.
+        Draft a personalized 90-day marketing plan for your book, built around your genre, goals, platforms, and time.
       </p>
       <div className="flex gap-4">
         <Link
