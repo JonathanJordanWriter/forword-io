@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import PasswordInput from '@/components/PasswordInput'
 
 // useSearchParams() requires a Suspense boundary in Next.js 14.
 // We isolate it here so the rest of the page renders normally.
@@ -76,13 +77,7 @@ export default function LoginPage() {
               Forgot password?
             </Link>
           </div>
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-button focus:border-transparent"
-          />
+          <PasswordInput required value={password} onChange={e => setPassword(e.target.value)} />
         </div>
         {error && (
           <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>
