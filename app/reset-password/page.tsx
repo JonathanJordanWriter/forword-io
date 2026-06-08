@@ -15,10 +15,31 @@ export default function ResetPasswordPage() {
   const [checking, setChecking] = useState(true)
 
   useEffect(() => {
-    // The session was already established server-side via /auth/callback.
-    // Just verify the user is authenticated before showing the form.
-    async function check() {
+    async function init() {
       const supabase = createClient()
+
+      // Read tokens from the URL hash fragment (#access_token=...&refresh_token=...)
+      // This approach bypasses Supabase's verify endpoint entirely.
+      const hash = window.location.hash.substring(1)
+      const params = new URLSearchParams(hash)
+      const accessToken = params.get('access_token')
+      const refreshToken = params.get('refresh_token')
+
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        })
+        if (error) {
+          setError('This reset link has expired or already been used.')
+        } else {
+          setReady(true)
+        }
+        setChecking(false)
+        return
+      }
+
+      // Fallback: check if user is already authenticated (e.g. came via auth/callback)
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         setReady(true)
@@ -27,7 +48,8 @@ export default function ResetPasswordPage() {
       }
       setChecking(false)
     }
-    check()
+
+    init()
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
@@ -73,7 +95,7 @@ export default function ResetPasswordPage() {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
               </svg>
-              <p className="text-sm text-gray-500">Loading…</p>
+              <p className="text-sm text-gray-500">Verifying reset link…</p>
             </div>
           ) : !ready ? (
             <div className="text-center py-4">

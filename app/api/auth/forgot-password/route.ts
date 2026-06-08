@@ -20,19 +20,21 @@ export async function POST(req: NextRequest) {
   const { data, error } = await service.auth.admin.generateLink({
     type: 'recovery',
     email,
-    options: {
-      redirectTo: 'https://forword.io/auth/callback',
-    },
   })
 
   if (error) {
-    // Don't reveal whether the email exists — always return success to the client
     console.error('generateLink error:', error.message)
     return NextResponse.json({ success: true })
   }
 
-  const resetLink = data.properties?.action_link
-  if (!resetLink) return NextResponse.json({ success: true })
+  // Build the reset link directly using the tokens from generateLink.
+  // This bypasses Supabase's /auth/v1/verify endpoint entirely — which kept
+  // showing about:blank regardless of redirect URL configuration.
+  // The reset-password page reads the hash fragment and calls setSession().
+  const { access_token, refresh_token } = data.properties ?? {}
+  if (!access_token || !refresh_token) return NextResponse.json({ success: true })
+
+  const resetLink = `https://forword.io/reset-password#access_token=${access_token}&refresh_token=${refresh_token}&type=recovery`
 
   // Send the email via Resend directly
   const resendRes = await fetch('https://api.resend.com/emails', {
