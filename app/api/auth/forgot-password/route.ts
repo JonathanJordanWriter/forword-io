@@ -31,11 +31,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true })
   }
 
-  const resetLink = data.properties?.action_link
-  if (!resetLink) {
-    console.error('No action_link in generateLink response')
+  // Use the hashed_token directly — this lets our reset-password page call
+  // verifyOtp({ token_hash, type: 'recovery' }) without ever going through
+  // Supabase's /auth/v1/verify endpoint (which kept showing about:blank).
+  const tokenHash = data.properties?.hashed_token
+  if (!tokenHash) {
+    console.error('No hashed_token in generateLink response')
     return NextResponse.json({ success: true })
   }
+
+  const resetLink = `https://forword.io/reset-password?token_hash=${tokenHash}&type=recovery`
 
   // Send the reset email via Resend
   const resendRes = await fetch('https://api.resend.com/emails', {
