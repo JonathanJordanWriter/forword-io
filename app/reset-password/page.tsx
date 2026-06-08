@@ -51,7 +51,8 @@ export default function ResetPasswordPage() {
       }
 
       setDone(true)
-      router.push('/login?reset=success')
+      // Small delay so the success state is visible, then go to login
+      setTimeout(() => router.push('/login?reset=success'), 1500)
     } catch {
       setError('Network error. Please try again.')
     } finally {

@@ -25,15 +25,16 @@ export async function POST(req: NextRequest) {
 
   const service = getServiceClient()
 
-  // Look up the user — if they don't exist, return success silently
-  const { data: { users }, error: listError } = await service.auth.admin.listUsers()
-  if (listError) {
-    console.error('listUsers error:', listError.message)
-    return NextResponse.json({ success: true })
-  }
+  // Look up the user by email in our users table — much faster than listUsers()
+  const { data: userData } = await service
+    .from('users')
+    .select('id')
+    .eq('email', email.toLowerCase())
+    .single()
 
-  const user = users.find(u => u.email?.toLowerCase() === email.toLowerCase())
-  if (!user) return NextResponse.json({ success: true }) // don't reveal if email exists
+  if (!userData) return NextResponse.json({ success: true }) // don't reveal if email exists
+
+  const user = { id: userData.id }
 
   // Build a signed token: { userId, exp } — expires in 1 hour
   const payload = { userId: user.id, exp: Math.floor(Date.now() / 1000) + 3600 }
