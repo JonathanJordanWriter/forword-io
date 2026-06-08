@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true })
   }
 
-  const resetLink = `https://forword.io/reset-password?token_hash=${tokenHash}&type=recovery`
+  const resetLink = `https://forword.io/api/auth/verify-reset?token_hash=${tokenHash}`
 
   // Send the reset email via Resend
   const resendRes = await fetch('https://api.resend.com/emails', {

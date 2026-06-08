@@ -17,26 +17,8 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     async function init() {
       const supabase = createClient()
-      const params = new URLSearchParams(window.location.search)
-      const tokenHash = params.get('token_hash')
-      const type = params.get('type')
-
-      if (tokenHash && type === 'recovery') {
-        // Verify the token hash directly — no Supabase verify endpoint involved
-        const { error } = await supabase.auth.verifyOtp({
-          token_hash: tokenHash,
-          type: 'recovery',
-        })
-        if (error) {
-          setError('This reset link has expired or already been used.')
-        } else {
-          setReady(true)
-        }
-        setChecking(false)
-        return
-      }
-
-      // Fallback: check if already authenticated (came via auth/callback)
+      // Session was established server-side by /api/auth/verify-reset
+      // before redirecting here — just confirm the user is authenticated.
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         setReady(true)
