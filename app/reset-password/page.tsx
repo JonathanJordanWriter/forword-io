@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { createClient } from '@/lib/supabase/client'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -52,11 +51,6 @@ export default function ResetPasswordPage() {
       }
 
       setDone(true)
-
-      // Sign them in with their new password then redirect
-      const supabase = createClient()
-      const params = new URLSearchParams(window.location.search)
-      // We don't have their email here, so just go to login
       router.push('/login?reset=success')
     } catch {
       setError('Network error. Please try again.')
