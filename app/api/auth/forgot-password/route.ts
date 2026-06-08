@@ -34,12 +34,16 @@ export async function POST(req: NextRequest) {
   const resetLink = data.properties?.action_link
   if (!resetLink) return NextResponse.json({ success: true })
 
+  // Debug: log first 8 chars of key so we can verify it's being read correctly
+  const apiKey = process.env.RESEND_API_KEY ?? ''
+  console.log('RESEND_API_KEY starts with:', apiKey.substring(0, 8), '| length:', apiKey.length)
+
   // Send the email via Resend directly
   const resendRes = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      Authorization: `Bearer ${apiKey.trim()}`,
     },
     body: JSON.stringify({
       from: 'forword.io <noreply@forword.io>',
