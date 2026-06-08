@@ -31,7 +31,8 @@ export async function POST(req: NextRequest) {
   // This bypasses Supabase's /auth/v1/verify endpoint entirely — which kept
   // showing about:blank regardless of redirect URL configuration.
   // The reset-password page reads the hash fragment and calls setSession().
-  const { access_token, refresh_token } = data.properties ?? {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { access_token, refresh_token } = (data.properties ?? {}) as any
   if (!access_token || !refresh_token) return NextResponse.json({ success: true })
 
   const resetLink = `https://forword.io/reset-password#access_token=${access_token}&refresh_token=${refresh_token}&type=recovery`
