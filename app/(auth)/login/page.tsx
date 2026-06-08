@@ -7,13 +7,16 @@ import { createClient } from '@/lib/supabase/client'
 
 // useSearchParams() requires a Suspense boundary in Next.js 14.
 // We isolate it here so the rest of the page renders normally.
-function VerificationErrorBanner({ onError }: { onError: (msg: string) => void }) {
+function VerificationErrorBanner({ onError, onSuccess }: { onError: (msg: string) => void; onSuccess: (msg: string) => void }) {
   const searchParams = useSearchParams()
   useEffect(() => {
     if (searchParams.get('error') === 'verification_failed') {
       onError('Email verification failed or the link has expired. Please sign up again or contact support.')
     }
-  }, [searchParams, onError])
+    if (searchParams.get('reset') === 'success') {
+      onSuccess('Password updated! Log in with your new password.')
+    }
+  }, [searchParams, onError, onSuccess])
   return null
 }
 
@@ -22,6 +25,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -46,8 +50,11 @@ export default function LoginPage() {
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
       {/* Reads ?error= from the URL without blocking the rest of the page */}
       <Suspense fallback={null}>
-        <VerificationErrorBanner onError={setError} />
+        <VerificationErrorBanner onError={setError} onSuccess={setSuccess} />
       </Suspense>
+      {success && (
+        <p className="text-sm text-green-700 bg-green-50 rounded-lg px-3 py-2 mb-4">{success}</p>
+      )}
 
       <h2 className="text-xl font-semibold text-brand-coal mb-6">Welcome back</h2>
       <form onSubmit={handleSubmit} className="space-y-4">

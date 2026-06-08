@@ -7,28 +7,21 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
+  const [token, setToken] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [ready, setReady] = useState(false)
-  const [checking, setChecking] = useState(true)
+  const [done, setDone] = useState(false)
 
   useEffect(() => {
-    async function init() {
-      const supabase = createClient()
-      // Session was established server-side by /api/auth/verify-reset
-      // before redirecting here — just confirm the user is authenticated.
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setReady(true)
-      } else {
-        setError('This reset link has expired or already been used.')
-      }
-      setChecking(false)
+    const params = new URLSearchParams(window.location.search)
+    const t = params.get('t')
+    if (t) {
+      setToken(t)
+    } else {
+      setError('Invalid reset link. Please request a new one.')
     }
-
-    init()
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
@@ -45,17 +38,31 @@ export default function ResetPasswordPage() {
     }
 
     setLoading(true)
-    const supabase = createClient()
-    const { error } = await supabase.auth.updateUser({ password })
+    try {
+      const res = await fetch('/api/auth/update-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password }),
+      })
+      const data = await res.json()
 
-    if (error) {
-      setError(error.message)
+      if (!res.ok) {
+        setError(data.error ?? 'Something went wrong. Please try again.')
+        return
+      }
+
+      setDone(true)
+
+      // Sign them in with their new password then redirect
+      const supabase = createClient()
+      const params = new URLSearchParams(window.location.search)
+      // We don't have their email here, so just go to login
+      router.push('/login?reset=success')
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
       setLoading(false)
-      return
     }
-
-    router.push('/dashboard')
-    router.refresh()
   }
 
   return (
@@ -68,15 +75,17 @@ export default function ResetPasswordPage() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <h2 className="text-xl font-semibold text-brand-coal mb-2">Set a new password</h2>
 
-          {checking ? (
-            <div className="text-center py-6">
-              <svg className="animate-spin w-6 h-6 text-brand-button mx-auto mb-3" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-              </svg>
-              <p className="text-sm text-gray-500">Verifying reset link…</p>
+          {done ? (
+            <div className="text-center py-4">
+              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p className="text-sm font-medium text-gray-800 mb-1">Password updated!</p>
+              <p className="text-sm text-gray-500">Redirecting you to log in…</p>
             </div>
-          ) : !ready ? (
+          ) : error && !token ? (
             <div className="text-center py-4">
               <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2 mb-4">{error}</p>
               <a href="/forgot-password" className="text-sm text-brand-button hover:underline font-medium">
@@ -115,7 +124,7 @@ export default function ResetPasswordPage() {
                 )}
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !token}
                   className="w-full py-2.5 px-4 bg-brand-button text-white text-sm font-medium rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
                 >
                   {loading ? 'Updating…' : 'Update password'}

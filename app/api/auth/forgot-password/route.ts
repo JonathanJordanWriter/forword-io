@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createHmac } from 'node:crypto'
 
 function getServiceClient() {
   return createClient(
@@ -8,41 +9,39 @@ function getServiceClient() {
   )
 }
 
+// Sign a payload with HMAC-SHA256 using the service role key as secret
+function signToken(payload: object): string {
+  const data = JSON.stringify(payload)
+  const b64 = Buffer.from(data).toString('base64url')
+  const sig = createHmac('sha256', process.env.SUPABASE_SERVICE_ROLE_KEY!)
+    .update(b64)
+    .digest('base64url')
+  return `${b64}.${sig}`
+}
+
 export async function POST(req: NextRequest) {
   const { email } = await req.json()
   if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 })
 
   const service = getServiceClient()
 
-  // admin.generateLink bypasses the redirect URL allowlist entirely.
-  // Supabase will append tokens as a hash fragment when it redirects:
-  // https://forword.io/reset-password#access_token=...&type=recovery
-  // Our reset-password page reads the hash and calls setSession().
-  const { data, error } = await service.auth.admin.generateLink({
-    type: 'recovery',
-    email,
-    options: {
-      redirectTo: 'https://forword.io/reset-password',
-    },
-  })
-
-  if (error) {
-    console.error('generateLink error:', error.message)
+  // Look up the user — if they don't exist, return success silently
+  const { data: { users }, error: listError } = await service.auth.admin.listUsers()
+  if (listError) {
+    console.error('listUsers error:', listError.message)
     return NextResponse.json({ success: true })
   }
 
-  // Use the hashed_token directly — this lets our reset-password page call
-  // verifyOtp({ token_hash, type: 'recovery' }) without ever going through
-  // Supabase's /auth/v1/verify endpoint (which kept showing about:blank).
-  const tokenHash = data.properties?.hashed_token
-  if (!tokenHash) {
-    console.error('No hashed_token in generateLink response')
-    return NextResponse.json({ success: true })
-  }
+  const user = users.find(u => u.email?.toLowerCase() === email.toLowerCase())
+  if (!user) return NextResponse.json({ success: true }) // don't reveal if email exists
 
-  const resetLink = `https://forword.io/api/auth/verify-reset?token_hash=${tokenHash}`
+  // Build a signed token: { userId, exp } — expires in 1 hour
+  const payload = { userId: user.id, exp: Math.floor(Date.now() / 1000) + 3600 }
+  const token = signToken(payload)
 
-  // Send the reset email via Resend
+  const resetLink = `https://forword.io/reset-password?t=${token}`
+
+  // Send via Resend
   const resendRes = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -75,8 +74,7 @@ export async function POST(req: NextRequest) {
   })
 
   if (!resendRes.ok) {
-    const err = await resendRes.text()
-    console.error('Resend error:', err)
+    console.error('Resend error:', await resendRes.text())
   }
 
   return NextResponse.json({ success: true })
