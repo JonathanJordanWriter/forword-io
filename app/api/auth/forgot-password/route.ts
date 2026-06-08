@@ -14,12 +14,16 @@ export async function POST(req: NextRequest) {
 
   const service = getServiceClient()
 
-  // Generate a recovery link server-side — the admin API does NOT validate
-  // redirectTo against the allowlist, which is why the client-side approach
-  // kept falling back to the Site URL.
+  // admin.generateLink bypasses the redirect URL allowlist entirely.
+  // Supabase will append tokens as a hash fragment when it redirects:
+  // https://forword.io/reset-password#access_token=...&type=recovery
+  // Our reset-password page reads the hash and calls setSession().
   const { data, error } = await service.auth.admin.generateLink({
     type: 'recovery',
     email,
+    options: {
+      redirectTo: 'https://forword.io/reset-password',
+    },
   })
 
   if (error) {
@@ -27,17 +31,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true })
   }
 
-  // Build the reset link directly using the tokens from generateLink.
-  // This bypasses Supabase's /auth/v1/verify endpoint entirely — which kept
-  // showing about:blank regardless of redirect URL configuration.
-  // The reset-password page reads the hash fragment and calls setSession().
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { access_token, refresh_token } = (data.properties ?? {}) as any
-  if (!access_token || !refresh_token) return NextResponse.json({ success: true })
+  const resetLink = data.properties?.action_link
+  if (!resetLink) {
+    console.error('No action_link in generateLink response')
+    return NextResponse.json({ success: true })
+  }
 
-  const resetLink = `https://forword.io/reset-password#access_token=${access_token}&refresh_token=${refresh_token}&type=recovery`
-
-  // Send the email via Resend directly
+  // Send the reset email via Resend
   const resendRes = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -74,6 +74,5 @@ export async function POST(req: NextRequest) {
     console.error('Resend error:', err)
   }
 
-  // Always return success — never confirm whether an email address is registered
   return NextResponse.json({ success: true })
 }
