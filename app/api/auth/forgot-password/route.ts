@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     type: 'recovery',
     email,
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      redirectTo: 'https://forword.io/auth/callback',
     },
   })
 
@@ -34,16 +34,12 @@ export async function POST(req: NextRequest) {
   const resetLink = data.properties?.action_link
   if (!resetLink) return NextResponse.json({ success: true })
 
-  // Debug: log first 8 chars of key so we can verify it's being read correctly
-  const apiKey = process.env.RESEND_API_KEY ?? ''
-  console.log('RESEND_API_KEY starts with:', apiKey.substring(0, 8), '| length:', apiKey.length)
-
   // Send the email via Resend directly
   const resendRes = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey.trim()}`,
+      Authorization: `Bearer ${(process.env.RESEND_API_KEY ?? '').trim()}`,
     },
     body: JSON.stringify({
       from: 'forword.io <noreply@forword.io>',
