@@ -4,6 +4,27 @@ import { useState, useEffect } from 'react'
 
 interface Props {
   bookId: string
+  /** The book's time_per_week setting — used to show an approximate task count. */
+  timePerWeek?: string
+  /** True if the user is on the free Starter tier. */
+  isStarterTier?: boolean
+}
+
+// Approximate task counts, matching the estimates shown during onboarding.
+const TASK_ESTIMATES_30: Record<string, string> = {
+  '1_2hrs': '~12–15 focused tasks',
+  '3_5hrs': '~18–22 focused tasks',
+  '6_10hrs': '~25–30 focused tasks',
+}
+const TASK_ESTIMATES_90: Record<string, string> = {
+  '1_2hrs': '~35–45 tasks',
+  '3_5hrs': '~55–65 tasks',
+  '6_10hrs': '~75–90 tasks',
+}
+const TIME_LABELS: Record<string, string> = {
+  '1_2hrs': '1–2 hrs/week',
+  '3_5hrs': '3–5 hrs/week',
+  '6_10hrs': '6–10 hrs/week',
 }
 
 // Rotating status messages to reassure the user during the wait
@@ -15,7 +36,7 @@ const MESSAGES = [
   'Almost there…',
 ]
 
-export default function GeneratePlanButton({ bookId }: Props) {
+export default function GeneratePlanButton({ bookId, timePerWeek, isStarterTier }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [messageIndex, setMessageIndex] = useState(0)
@@ -85,15 +106,27 @@ export default function GeneratePlanButton({ bookId }: Props) {
           </div>
         </div>
       ) : (
-        <button
-          onClick={handleGenerate}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-brand-button text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity shadow-sm"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          Draft my 90-day plan
-        </button>
+        <div className="flex flex-col items-center gap-3">
+          <button
+            onClick={handleGenerate}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-brand-button text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity shadow-sm"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Draft my {isStarterTier ? '30-day' : '90-day'} plan
+          </button>
+          {/* Option B: one-line task-count context, so users know what to expect before the 1–2 min wait */}
+          {timePerWeek && (
+            <p className="text-xs text-gray-400 max-w-xs text-center">
+              Based on {TIME_LABELS[timePerWeek] ?? timePerWeek}, your plan will include approximately{' '}
+              {isStarterTier
+                ? <>{TASK_ESTIMATES_30[timePerWeek] ?? 'a focused set of tasks'} across 30 days</>
+                : <>{TASK_ESTIMATES_90[timePerWeek] ?? 'a full task set'} across 90 days</>
+              }, paced to your schedule.
+            </p>
+          )}
+        </div>
       )}
     </div>
   )

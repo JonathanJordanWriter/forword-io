@@ -7,6 +7,14 @@ interface Props {
   onBack: () => void
 }
 
+// Approximate task counts shown next to the time selector — keeps expectations honest.
+// These reflect the updated prompt rules that split compound tasks at lower time settings.
+const TASK_ESTIMATES: Record<string, string> = {
+  '1_2hrs': '~12–15 focused tasks',
+  '3_5hrs': '~18–22 focused tasks',
+  '6_10hrs': '~25–30 focused tasks',
+}
+
 // Reusable chip-row for single-select options
 function OptionRow<T extends string>({
   label, sublabel, options, value, onChange,
@@ -53,16 +61,37 @@ export default function Step5Capacity({ data, onChange, onNext, onBack }: Props)
         This shapes how demanding your plan is. Be honest — a realistic plan beats an ambitious one you abandon.
       </p>
 
-      <OptionRow<TimePerWeek>
-        label="Time available per week for marketing"
-        options={[
-          { value: '1_2hrs', label: '1–2 hours' },
-          { value: '3_5hrs', label: '3–5 hours' },
-          { value: '6_10hrs', label: '6–10 hours' },
-        ]}
-        value={data.time_per_week}
-        onChange={v => onChange({ time_per_week: v })}
-      />
+      {/* Time per week — inline so we can show the live task-count estimate */}
+      <div className="mb-6">
+        <p className="text-sm font-medium text-gray-700 mb-2">
+          Time available per week for marketing
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {(['1_2hrs', '3_5hrs', '6_10hrs'] as TimePerWeek[]).map(val => {
+            const labels: Record<string, string> = {
+              '1_2hrs': '1–2 hours', '3_5hrs': '3–5 hours', '6_10hrs': '6–10 hours',
+            }
+            return (
+              <button key={val} type="button" onClick={() => onChange({ time_per_week: val })}
+                className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
+                  data.time_per_week === val
+                    ? 'border-brand-button bg-brand-accent/30 text-brand-button font-medium'
+                    : 'border-gray-200 text-gray-600 hover:border-brand-accent'
+                }`}>
+                {labels[val]}
+              </button>
+            )
+          })}
+        </div>
+        {/* Live task-count estimate — appears as soon as a tier is selected */}
+        {data.time_per_week && (
+          <p className="text-xs text-brand-button mt-2.5">
+            At this pace your free 30-day plan will include{' '}
+            <span className="font-medium">{TASK_ESTIMATES[data.time_per_week]}</span>
+            , paced to your schedule.
+          </p>
+        )}
+      </div>
 
       <OptionRow<MonthlyBudget>
         label="Monthly marketing budget"

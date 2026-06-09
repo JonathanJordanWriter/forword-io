@@ -62,7 +62,7 @@ export default function Step6Review({ data, onSubmit, onBack, onEditStep, loadin
     <div>
       <h2 className="text-xl font-semibold text-brand-coal mb-1">Review your profile</h2>
       <p className="text-gray-500 text-sm mb-6">
-        Check everything looks right, then generate your 90-day plan.
+        Check everything looks right. We&apos;ll generate your personalized plan paced to your schedule — your first 30 days are free.
       </p>
 
       <div className="bg-gray-50 rounded-xl px-4 mb-6">
@@ -101,7 +101,7 @@ export default function Step6Review({ data, onSubmit, onBack, onEditStep, loadin
         </button>
         <button type="button" onClick={onSubmit} disabled={loading}
           className="flex-1 py-2.5 px-4 bg-brand-button text-white text-sm font-medium rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity">
-          {loading ? 'Saving…' : 'Create book profile →'}
+          {loading ? 'Saving…' : 'Save & go to my plan →'}
         </button>
       </div>
     </div>

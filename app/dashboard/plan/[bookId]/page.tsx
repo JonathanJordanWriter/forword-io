@@ -233,7 +233,7 @@ export default async function PlanPage({ params }: { params: { bookId: string } 
           <div className="mb-10">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-semibold text-brand-coal">
-                Your 90-day plan
+                {isStarterTier ? 'Your 30-day plan' : 'Your 90-day plan'}
               </h2>
               <span className="text-xs px-2.5 py-1 rounded-full bg-green-50 text-green-700 font-medium border border-green-200">
                 Active
@@ -260,11 +260,16 @@ export default async function PlanPage({ params }: { params: { bookId: string } 
               </div>
               <p className="text-brand-coal font-semibold mb-1">Ready to draft your plan?</p>
               <p className="text-gray-500 text-sm max-w-md mx-auto">
-                We&apos;ll draft a personalized 90-day marketing plan based on your book profile above.
-                {isStarterTier && ' Free plan includes the first 30 days.'}
+                {isStarterTier
+                  ? "We'll build a personalized 30-day plan paced to your schedule — completely free. Upgrade any time to unlock the full 90-day roadmap."
+                  : "We'll build a personalized 90-day marketing roadmap paced to your schedule and goals."}
               </p>
             </div>
-            <GeneratePlanButton bookId={params.bookId} />
+            <GeneratePlanButton
+              bookId={params.bookId}
+              timePerWeek={(book.time_per_week as string) ?? undefined}
+              isStarterTier={isStarterTier}
+            />
           </div>
         )}
       </div>
