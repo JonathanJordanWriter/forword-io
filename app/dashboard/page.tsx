@@ -45,7 +45,11 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .single()
 
-  const isAuthorTier = profile?.tier === 'author'
+  const userTier = profile?.tier ?? 'starter'
+  const isAuthorTier = userTier === 'author'
+  const bookCount = (books ?? []).length
+  // Free tier: max 2 books. Author/Pro: unlimited.
+  const atBookLimit = userTier === 'starter' && bookCount >= 2
 
   // For Author tier: find which book (if any) has unlocked day-31+ tasks —
   // that's the "active" book whose deletion would trigger a subscription transfer.
@@ -137,12 +141,22 @@ export default async function DashboardPage() {
               {(books ?? []).length === 0 ? 'No projects yet' : (books ?? []).length === 1 ? '1 book' : `${(books ?? []).length} books`}
             </p>
           </div>
-          <Link
-            href="/onboarding/book"
-            className="px-4 py-2 bg-brand-button text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
-          >
-            + Add another book
-          </Link>
+          {atBookLimit ? (
+            // Free tier at 2-book cap — nudge to upgrade
+            <Link
+              href="/dashboard/settings"
+              className="px-4 py-2 border border-brand-button text-brand-button text-sm font-medium rounded-lg hover:bg-brand-accent/10 transition-colors"
+            >
+              Upgrade to add more books
+            </Link>
+          ) : (
+            <Link
+              href="/onboarding/book"
+              className="px-4 py-2 bg-brand-button text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+            >
+              + Add another book
+            </Link>
+          )}
         </div>
 
         {/* Empty state — shown before the user adds their first book */}

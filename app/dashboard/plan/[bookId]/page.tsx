@@ -64,10 +64,12 @@ export default async function PlanPage({ params }: { params: { bookId: string } 
             .update({ tier: syncedTier, stripe_subscription_id: sub.id })
             .eq('id', user.id)
 
-          // Unlock tasks: author gets 1 plan, pro gets all plans
+          // Unlock tasks: author unlocks the specific book they upgraded from,
+          // falling back to most recent if somehow this book has no plan yet.
+          // Pro unlocks all plans across all books.
           const plansRes = await supabase
             .from('plans')
-            .select('id')
+            .select('id, book_id')
             .eq('user_id', user.id)
             .eq('status', 'active')
             .order('generated_at', { ascending: false })
@@ -75,9 +77,12 @@ export default async function PlanPage({ params }: { params: { bookId: string } 
           const activePlans = plansRes.data ?? []
 
           if (activePlans.length > 0) {
-            const plansToUnlock = syncedTier === 'author'
-              ? [activePlans[0]]   // only the most recent plan for Author
-              : activePlans        // all plans for Pro
+            let plansToUnlock = activePlans
+            if (syncedTier === 'author') {
+              // Prefer the plan for the book the user is currently viewing
+              const thisBookPlan = activePlans.find(p => p.book_id === params.bookId)
+              plansToUnlock = [thisBookPlan ?? activePlans[0]]
+            }
 
             await supabase
               .from('tasks')

@@ -60,41 +60,42 @@ export async function POST(req: NextRequest) {
         .eq('id', userId)
 
       // Unlock tasks based on tier:
-      // - author: full 90 days but only 1 book (the most recently generated plan)
+      // - author: full 90 days for 1 book (the one they upgraded from, if known)
       // - pro: full 90 days across all books
       if (isActive) {
-        // Author tier gets only their most recent plan; Pro gets all plans.
-        // Note: query builder is immutable — .limit() must be chained on the
-        // same expression that gets awaited, not called as a side-effect.
-        const plansQuery = supabase
+        const { data: allPlans } = await supabase
           .from('plans')
-          .select('id')
+          .select('id, book_id')
           .eq('user_id', userId)
           .eq('status', 'active')
           .order('generated_at', { ascending: false })
 
-        const { data: plans } = await (tier === 'author' ? plansQuery.limit(1) : plansQuery)
+        const plans = allPlans ?? []
 
-        if (plans && plans.length > 0) {
+        let plansToUnlock = plans
+        if (tier === 'author') {
+          // Prefer the specific book recorded in subscription metadata (set at checkout).
+          // Fall back to most recently generated plan if metadata is absent.
+          const bookId = sub.metadata?.book_id
+          const targetPlan = bookId
+            ? plans.find(p => p.book_id === bookId)
+            : null
+          plansToUnlock = [targetPlan ?? plans[0]].filter(Boolean)
+        }
+
+        if (plansToUnlock.length > 0) {
           await supabase
             .from('tasks')
             .update({ is_locked: false })
-            .in('plan_id', plans.map(p => p.id))
+            .in('plan_id', plansToUnlock.map(p => p.id))
             .eq('is_locked', true)
             .eq('is_completed', false) // never touch already-completed tasks
         }
 
-        // For author tier: re-lock any tasks on older plans beyond day 30
-        if (tier === 'author' && plans && plans.length > 0) {
-          const { data: allPlans } = await supabase
-            .from('plans')
-            .select('id')
-            .eq('user_id', userId)
-            .eq('status', 'active')
-            .order('generated_at', { ascending: false })
-
-          const unlockedPlanId = plans[0].id
-          const plansToRelock = (allPlans ?? []).filter(p => p.id !== unlockedPlanId)
+        // For author tier: re-lock day 31+ tasks on all other books
+        if (tier === 'author' && plansToUnlock.length > 0) {
+          const unlockedPlanId = plansToUnlock[0].id
+          const plansToRelock = plans.filter(p => p.id !== unlockedPlanId)
 
           if (plansToRelock.length > 0) {
             await supabase

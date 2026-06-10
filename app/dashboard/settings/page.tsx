@@ -227,7 +227,7 @@ export default function SettingsPage() {
                       <span className="text-xs px-2 py-0.5 rounded-full bg-brand-button text-white font-medium">Current plan</span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">First 30 days of your plan for 1 active book.</p>
+                  <p className="text-xs text-gray-500">30-day marketing plans for up to 2 books.</p>
                 </div>
                 <p className="text-sm font-bold text-brand-coal shrink-0">$0</p>
               </div>
@@ -252,7 +252,7 @@ export default function SettingsPage() {
                       <span className="text-xs px-2 py-0.5 rounded-full bg-brand-button text-white font-medium">Current plan</span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">Full 90-day plans for 1 active book.</p>
+                  <p className="text-xs text-gray-500">90-day plan for 1 book of your choice. Unlimited 30-day plans for all other books.</p>
                 </div>
                 <p className="text-sm font-bold text-brand-coal shrink-0">$9/mo</p>
               </div>
@@ -286,7 +286,7 @@ export default function SettingsPage() {
                       <span className="text-xs px-2 py-0.5 rounded-full bg-brand-button text-white font-medium">Current plan</span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">Everything in Author plus unlimited active books.</p>
+                  <p className="text-xs text-gray-500">Full 90-day plans for unlimited books. No restrictions.</p>
                 </div>
                 <p className="text-sm font-bold text-brand-coal shrink-0">$19/mo</p>
               </div>

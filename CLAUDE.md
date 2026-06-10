@@ -43,8 +43,8 @@ Aspiring and published authors know they need to market their books but feel ove
 - Genre advisor with conflict warnings  
 - Comp title checker (3 checks maximum)  
 - Platform recommendation engine  
-- 1 active book  
-- First 30 days of generated plan (tasks beyond day 30 are blurred)  
+- **Up to 2 books** (enforced at book creation)  
+- First 30 days of each generated plan (tasks beyond day 30 are blurred)  
 - **3 post prompts per week** (resets every Monday — 12 total over the free period)  
 - No .ics calendar export  
 - No adaptive plan / burnout guard
@@ -52,20 +52,22 @@ Aspiring and published authors know they need to market their books but feel ove
 ### Author ($9/month)
 
 - Everything in Starter  
-- Full 90-day personalized plan  
+- **Unlimited books**  
+- **1 book of their choice gets a full 90-day plan** (user selects by upgrading from that book's page)  
+- All other books get 30-day plans (same as Starter)  
+- User can switch which book has the 90-day plan **once per calendar month**  
 - Unlimited comp title checks  
 - .ics calendar export of full plan  
 - Adaptive plan with burnout guard and weekly check-ins  
 - Recurring 90-day cycles (post-launch, evergreen, book 2\)  
 - Full post prompt library (200+ prompts)  
 - Platform-specific prompt packs  
-- Done-for-you outreach templates (podcast pitch, ARC, book club kit)  
-- 1 active book
+- Done-for-you outreach templates (podcast pitch, ARC, book club kit)
 
 ### Launch Pro ($19/month)
 
 - Everything in Author  
-- Unlimited active books  
+- **All books get full 90-day plans — no restrictions**  
 - 1 VA / collaborator seat  
 - Series marketing planner  
 - Backlist relaunch plans  

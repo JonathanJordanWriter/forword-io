@@ -109,7 +109,8 @@ export async function POST(req: NextRequest) {
     cancel_url: cancelUrl,
     metadata: { supabase_user_id: user.id, plan },
     subscription_data: {
-      metadata: { supabase_user_id: user.id, plan },
+      // Include book_id so the webhook knows which book's plan to unlock for Author tier
+      metadata: { supabase_user_id: user.id, plan, ...(bookId ? { book_id: bookId } : {}) },
     },
   })
 

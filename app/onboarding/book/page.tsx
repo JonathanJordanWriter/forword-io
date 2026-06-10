@@ -42,6 +42,28 @@ export default function BookOnboardingPage() {
       return
     }
 
+    // Enforce book limits by tier before inserting
+    const { data: profileData } = await supabase
+      .from('users')
+      .select('tier')
+      .eq('id', user.id)
+      .single()
+
+    const userTier = profileData?.tier ?? 'starter'
+
+    if (userTier === 'starter') {
+      const { count } = await supabase
+        .from('books')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+
+      if ((count ?? 0) >= 2) {
+        setError('You\'ve reached the 2-book limit on the free plan. Upgrade to Author to add more books.')
+        setSaving(false)
+        return
+      }
+    }
+
     const { error: insertError } = await supabase.from('books').insert({
       user_id: user.id,
       title: data.title || null,
