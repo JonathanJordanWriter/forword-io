@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import SignOutButton from '@/components/SignOutButton'
+import ProfileEditor from '@/components/settings/ProfileEditor'
 
 
 export default function SettingsPage() {
@@ -209,6 +210,17 @@ export default function SettingsPage() {
       <div className="max-w-2xl mx-auto px-8 py-10">
         <h1 className="text-2xl font-bold text-brand-coal mb-1">Account settings</h1>
         <p className="text-gray-500 text-sm mb-10">Manage your subscription, email address, and password.</p>
+
+        {/* Profile section */}
+        <div className="mb-10">
+          <h2 className="text-base font-semibold text-brand-coal mb-1">Author profile</h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Update your display name, photo, and profile details.
+          </p>
+          <ProfileEditor />
+        </div>
+
+        <div className="border-t border-gray-100 mb-10" />
 
         {/* Billing section */}
         <div className="mb-10">
