@@ -103,6 +103,7 @@ function ChipToggle({
 export default function ProfileEditor() {
   const [profile, setProfile]       = useState<UserProfileData>(EMPTY_USER_PROFILE)
   const [loading, setLoading]       = useState(true)
+  const [expanded, setExpanded]     = useState(false)
   const [saving, setSaving]         = useState(false)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [photoError, setPhotoError] = useState<string | null>(null)
@@ -217,6 +218,8 @@ export default function ProfileEditor() {
 
       if (error) throw error
       setSaveMessage({ type: 'success', text: 'Profile updated successfully.' })
+      // Collapse back to summary after a short delay so user sees the success message
+      setTimeout(() => setExpanded(false), 1200)
     } catch {
       setSaveMessage({ type: 'error', text: 'Something went wrong. Please try again.' })
     } finally {
@@ -227,14 +230,65 @@ export default function ProfileEditor() {
   // ── Render ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="h-24 flex items-center justify-center">
+      <div className="h-16 flex items-center">
         <p className="text-sm text-gray-400">Loading profile…</p>
       </div>
     )
   }
 
+  // Collapsed summary — photo + name + Edit button
+  if (!expanded) {
+    return (
+      <div className="flex items-center justify-between py-1">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full border border-gray-200 overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
+            {profile.profile_photo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={profile.profile_photo_url} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <svg className="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+            )}
+          </div>
+          <div>
+            <p className="text-sm font-medium text-brand-coal">
+              {profile.display_name || <span className="text-gray-400 font-normal">No display name set</span>}
+            </p>
+            {profile.identities.length > 0 && (
+              <p className="text-xs text-gray-400">{profile.identities.slice(0, 3).join(' · ')}</p>
+            )}
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="text-sm text-brand-button font-medium hover:opacity-75 transition-opacity"
+        >
+          Edit profile
+        </button>
+      </div>
+    )
+  }
+
+  // Expanded form
   return (
     <div className="space-y-6">
+
+      {/* Collapse header */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-gray-700">Edit author profile</p>
+        <button
+          type="button"
+          onClick={() => setExpanded(false)}
+          className="text-sm text-gray-400 hover:text-gray-600 transition-colors flex items-center gap-1"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+          </svg>
+          Hide
+        </button>
+      </div>
 
       {/* Profile photo */}
       <div>
