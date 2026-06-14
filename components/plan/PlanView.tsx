@@ -472,6 +472,36 @@ function firstIncompleteWeek(weeksList: number[], tasksList: Task[]): number {
   return w ?? weeksList[0]
 }
 
+// ─── Helper: find the phase + week to resume on load / after upgrade ──────────
+// Scans ALL tasks (not just current_phase) so the user always lands on their
+// actual first unfinished task rather than the top of Phase 1.
+
+function findResumePoint(tasksList: Task[]): { phase: number; week: number } {
+  // First incomplete unlocked task, sorted by day so we get the earliest
+  const firstIncomplete = [...tasksList]
+    .filter(t => !t.is_locked && !t.is_completed)
+    .sort((a, b) => a.day_number - b.day_number)[0]
+
+  if (firstIncomplete) {
+    return { phase: firstIncomplete.phase, week: firstIncomplete.week_number }
+  }
+
+  // All tasks complete — land on the last unlocked task's phase/week
+  const lastUnlocked = [...tasksList]
+    .filter(t => !t.is_locked)
+    .sort((a, b) => b.day_number - a.day_number)[0]
+
+  if (lastUnlocked) {
+    return { phase: lastUnlocked.phase, week: lastUnlocked.week_number }
+  }
+
+  // Fallback: phase 1, week 1
+  const phase1Weeks = Array.from(
+    new Set(tasksList.filter(t => t.phase === 1).map(t => t.week_number))
+  ).sort((a, b) => a - b)
+  return { phase: 1, week: phase1Weeks[0] ?? 1 }
+}
+
 export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _isStarterTier, userTier = 'starter', bookId, initialTimePerWeek = '3_5hrs', initialTotalPoints = 0 }: Props) {
   void _isStarterTier // retained in props for potential future use
   const [tasks, setTasks] = useState(initialTasks)
@@ -480,20 +510,17 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
   const [phaseComplete, setPhaseComplete] = useState<{ phase: number; bonus: number } | null>(null)
   // Track phases already celebrated so we don't re-trigger on re-renders
   const awardedPhasesRef = useRef<Set<number>>(new Set())
-  const [activePhase, setActivePhase] = useState(plan.current_phase)
+  // ── Resume point — scan ALL tasks to find where the user left off ───────────
+  // This handles both normal login and post-upgrade reload correctly,
+  // since window.location.reload() re-fetches tasks fresh from the server.
+  const [activePhase, setActivePhase] = useState(() => findResumePoint(initialTasks).phase)
+  const [activeWeek,  setActiveWeek]  = useState(() => findResumePoint(initialTasks).week)
   const [currentTime, setCurrentTime] = useState(initialTimePerWeek)
   const [timeChanged, setTimeChanged] = useState(false)
   const [regenerating, setRegenerating] = useState(false)
   const [regenError, setRegenError] = useState<string | null>(null)
   const [confirmReset, setConfirmReset] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-
-  // ── Active week — start on the first week with incomplete work ─────────────
-  const [activeWeek, setActiveWeek] = useState(() => {
-    const startTasks = initialTasks.filter(t => t.phase === plan.current_phase)
-    const startWeeks = Array.from(new Set(startTasks.map(t => t.week_number))).sort((a, b) => a - b)
-    return firstIncompleteWeek(startWeeks, startTasks)
-  })
 
   // Pre-populate awardedPhasesRef with any phases already complete on load
   // so we never show the celebration modal for work done in a previous session.
