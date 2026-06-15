@@ -84,6 +84,7 @@ export default function BookOnboardingPage() {
       monthly_budget: data.monthly_budget || null,
       experience_level: data.experience_level || null,
       existing_audience: data.existing_audience || null,
+      kdp_select: data.kdp_select,  // null for non-published stages; true/false for published
     })
 
     if (insertError) {

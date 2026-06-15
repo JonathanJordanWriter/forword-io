@@ -20,7 +20,8 @@ const STAGES: { value: BookStage; label: string; description: string }[] = [
 ]
 
 export default function Step1BookStage({ data, onChange, onNext, onBack }: Props) {
-  const canProceed = data.book_stage !== ''
+  const isPublished = data.book_stage === 'published'
+  const canProceed = data.book_stage !== '' && (!isPublished || data.kdp_select !== null)
 
   return (
     <div>
@@ -48,7 +49,7 @@ export default function Step1BookStage({ data, onChange, onNext, onBack }: Props
           <button
             key={stage.value}
             type="button"
-            onClick={() => onChange({ book_stage: stage.value })}
+            onClick={() => onChange({ book_stage: stage.value, kdp_select: null })}
             className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all ${
               data.book_stage === stage.value
                 ? 'border-brand-button bg-brand-accent/20'
@@ -60,6 +61,42 @@ export default function Step1BookStage({ data, onChange, onNext, onBack }: Props
           </button>
         ))}
       </div>
+
+      {/* KDP Select follow-up — only shown when "Already published" is selected */}
+      {isPublished && (
+        <div className="mb-6 px-4 py-4 bg-brand-accent/15 border border-brand-accent/40 rounded-xl">
+          <p className="text-sm font-medium text-gray-800 mb-1">
+            Is your title enrolled in KDP Select?
+          </p>
+          <p className="text-xs text-gray-500 mb-3">
+            KDP Select is Amazon&apos;s program for self-published ebooks that enables Countdown Deals, free promotions, and Kindle Unlimited access. Your answer helps us include the right tasks in your plan.
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => onChange({ kdp_select: true })}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium border-2 transition-all ${
+                data.kdp_select === true
+                  ? 'border-brand-button bg-brand-button text-white'
+                  : 'border-gray-200 bg-white text-gray-700 hover:border-brand-accent'
+              }`}
+            >
+              Yes, enrolled
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange({ kdp_select: false })}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium border-2 transition-all ${
+                data.kdp_select === false
+                  ? 'border-brand-button bg-brand-button text-white'
+                  : 'border-gray-200 bg-white text-gray-700 hover:border-brand-accent'
+              }`}
+            >
+              No, not enrolled
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-3">
         {onBack && (

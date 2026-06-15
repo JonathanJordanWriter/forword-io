@@ -87,6 +87,7 @@ export interface OnboardingData {
   existing_audience: ExistingAudience | ''
   publishing_path: PublishingPath | ''
   launch_timeframe: LaunchTimeframe | ''
+  kdp_select: boolean | null  // null = not asked (non-published stages); true/false = user answered
 }
 
 export const EMPTY_ONBOARDING: OnboardingData = {
@@ -105,4 +106,5 @@ export const EMPTY_ONBOARDING: OnboardingData = {
   existing_audience: '',
   publishing_path: '',
   launch_timeframe: '',
+  kdp_select: null,
 }

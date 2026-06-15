@@ -33,6 +33,8 @@ export function buildAuthorProfile(book: Record<string, unknown>): string {
     monthly_budget: book.monthly_budget || '0_50',
     experience_level: book.experience_level || 'first_time',
     existing_audience: book.existing_audience || 'under_500',
+    // null = not a published title (question was not asked); true/false = user's answer
+    kdp_select: book.kdp_select ?? null,
   }
 
   return JSON.stringify(profile, null, 2)
