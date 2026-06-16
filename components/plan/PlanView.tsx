@@ -705,6 +705,88 @@ function TaskMoveActions({
   )
 }
 
+// ─── TaskReplaceAction — swap a task with a fresh AI suggestion ───────────────
+
+function TaskReplaceAction({
+  task,
+  onReplaced,
+}: {
+  task: Task
+  onReplaced: (updatedTask: Task) => void
+}) {
+  const [open, setOpen]       = useState(false)
+  const [replacing, setReplacing] = useState(false)
+  const [error, setError]     = useState<string | null>(null)
+
+  // Don't render for locked or completed tasks
+  if (task.is_locked || task.is_completed) return null
+
+  async function handleReplace() {
+    setReplacing(true)
+    setError(null)
+    try {
+      const res = await fetch(`/api/tasks/${task.id}/replace`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error ?? 'Could not generate a replacement. Try again.')
+        setOpen(false)
+      } else {
+        onReplaced(data.task as Task)
+        setOpen(false)
+      }
+    } catch {
+      setError('Network error. Please try again.')
+      setOpen(false)
+    } finally {
+      setReplacing(false)
+    }
+  }
+
+  return (
+    <div className="pl-8 flex items-center gap-2 flex-wrap -mt-0.5 mb-1">
+      {replacing ? (
+        <span className="text-xs text-brand-button flex items-center gap-1.5">
+          <svg className="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          Generating replacement…
+        </span>
+      ) : !open ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="text-xs text-gray-400 hover:text-brand-button transition-colors"
+        >
+          Replace this task
+        </button>
+      ) : (
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-500">Replace with a new AI suggestion?</span>
+          <button
+            type="button"
+            onClick={handleReplace}
+            className="text-xs px-2.5 py-1 rounded-full bg-brand-button text-white hover:opacity-90 transition-opacity"
+          >
+            Yes, replace it
+          </button>
+          <button
+            type="button"
+            onClick={() => { setOpen(false); setError(null) }}
+            className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
+      {error && (
+        <p className="text-xs text-red-600 w-full mt-0.5">{error}</p>
+      )}
+    </div>
+  )
+}
+
 // ─── Main PlanView ─────────────────────────────────────────────────────────────
 
 // ─── Helper: first week in a list that has an incomplete unlocked task ────────
@@ -982,6 +1064,11 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
     ))
   }
 
+  // ── Task replaced handler ─────────────────────────────────────────────────
+  function handleTaskReplaced(updatedTask: Task) {
+    setTasks(prev => prev.map(t => t.id === updatedTask.id ? { ...t, ...updatedTask } : t))
+  }
+
   // ── Custom task added handler ──────────────────────────────────────────────
   function handleTaskAdded(newTask: Task) {
     setTasks(prev => [...prev, newTask])
@@ -1177,6 +1264,10 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
                   prevWeekInPhase={prevWeekInPhase}
                   nextWeekInPhase={nextWeekInPhase}
                   onMoved={handleTaskMoved}
+                />
+                <TaskReplaceAction
+                  task={task}
+                  onReplaced={handleTaskReplaced}
                 />
               </div>
             ))}
