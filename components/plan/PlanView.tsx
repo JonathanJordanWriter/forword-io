@@ -625,7 +625,7 @@ function TaskMoveActions({
   const [moving, setMoving]   = useState(false)
   const [message, setMessage] = useState<string | null>(null)
 
-  if (task.is_locked) return null
+  if (task.is_locked || task.is_completed) return null
 
   async function handleMove(direction: 'prev' | 'next') {
     setMoving(true)
