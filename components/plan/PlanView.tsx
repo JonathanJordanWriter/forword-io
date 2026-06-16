@@ -762,7 +762,7 @@ function TaskReplaceAction({
         </button>
       ) : (
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">Replace with a new AI suggestion?</span>
+          <span className="text-xs text-gray-500">Replace with a different suggestion?</span>
           <button
             type="button"
             onClick={handleReplace}
