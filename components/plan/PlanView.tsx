@@ -951,10 +951,10 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
     }
 
     // Assign decimal labels within each base group
-    for (const [base, group] of customByBase) {
+    customByBase.forEach((group, base) => {
       group.sort((a, b) => a.day_number - b.day_number)
       group.forEach((t, i) => map.set(t.id, `${base}.${i + 1}`))
-    }
+    })
 
     return map
   })()
