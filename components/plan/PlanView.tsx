@@ -82,7 +82,7 @@ function TaskCard({
   onUpgradeClick,
 }: {
   task: Task
-  taskNumber: number
+  taskNumber: string
   onToggle: (id: string, val: boolean) => Promise<void>
   onUpgradeClick: () => void
 }) {
@@ -929,8 +929,35 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
 
   // Build a global task index across the entire plan (sorted by day_number)
   // so Task 1, Task 2… are consistent regardless of which phase/week you're viewing
-  const allTasksSorted = [...initialTasks].sort((a, b) => a.day_number - b.day_number)
-  const taskNumberMap = new Map(allTasksSorted.map((t, i) => [t.id, i + 1]))
+  // Build task label map from live state so newly-added custom tasks are included.
+  // Non-custom tasks get sequential labels ("1", "2"…).
+  // Custom tasks get decimal labels based on the last non-custom task before them
+  // by day_number ("9.1", "9.2"…) so original numbering is never disrupted.
+  const taskNumberMap = (() => {
+    const allSorted   = [...tasks].sort((a, b) => a.day_number - b.day_number)
+    const nonCustom   = allSorted.filter(t => !t.is_custom)
+    const map         = new Map<string, string>()
+
+    // Assign sequential numbers to non-custom tasks
+    nonCustom.forEach((t, i) => map.set(t.id, String(i + 1)))
+
+    // Group custom tasks by the number of the last non-custom task before them
+    const customByBase = new Map<number, Task[]>()
+    for (const t of allSorted.filter(t => t.is_custom)) {
+      const preceding = nonCustom.filter(nc => nc.day_number < t.day_number)
+      const baseNum   = preceding.length > 0 ? (preceding.length) : 0
+      if (!customByBase.has(baseNum)) customByBase.set(baseNum, [])
+      customByBase.get(baseNum)!.push(t)
+    }
+
+    // Assign decimal labels within each base group
+    for (const [base, group] of customByBase) {
+      group.sort((a, b) => a.day_number - b.day_number)
+      group.forEach((t, i) => map.set(t.id, `${base}.${i + 1}`))
+    }
+
+    return map
+  })()
 
   // ── Completion toggle ──────────────────────────────────────────────────────
   async function handleToggle(taskId: string, newValue: boolean) {
@@ -1255,7 +1282,7 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
               <div key={task.id}>
                 <TaskCard
                   task={task}
-                  taskNumber={taskNumberMap.get(task.id) ?? 0}
+                  taskNumber={taskNumberMap.get(task.id) ?? '?'}
                   onToggle={handleToggle}
                   onUpgradeClick={() => setShowUpgradeModal(true)}
                 />
