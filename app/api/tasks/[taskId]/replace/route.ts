@@ -124,8 +124,9 @@ Generate one fresh, specific, actionable replacement task.`
       throw new Error('Incomplete task returned from Claude')
     }
   } catch (err) {
-    console.error('Task replacement Claude error:', err)
-    return NextResponse.json({ error: 'Failed to generate replacement task' }, { status: 500 })
+    const detail = err instanceof Error ? err.message : String(err)
+    console.error('Task replacement Claude error:', detail)
+    return NextResponse.json({ error: 'Failed to generate replacement task', detail }, { status: 500 })
   }
 
   // ── 6. Update the task row in place ───────────────────────────────────────

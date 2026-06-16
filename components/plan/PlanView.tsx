@@ -728,7 +728,7 @@ function TaskReplaceAction({
       const res = await fetch(`/api/tasks/${task.id}/replace`, { method: 'POST' })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.error ?? 'Could not generate a replacement. Try again.')
+        setError(`${data.error ?? 'Could not generate a replacement.'}${data.detail ? ` (${data.detail})` : ''}`)
         setOpen(false)
       } else {
         onReplaced(data.task as Task)
