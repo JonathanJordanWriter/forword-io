@@ -3,7 +3,10 @@ import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import { buildAuthorProfile } from '@/lib/prompts/build-profile'
 
-const anthropic = new Anthropic()
+const anthropic = new Anthropic({
+  apiKey: process.env.FORWORD_ANTHROPIC_KEY,
+  baseURL: 'https://api.anthropic.com',
+})
 
 export async function POST(
   req: NextRequest,
