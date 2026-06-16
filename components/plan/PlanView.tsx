@@ -513,7 +513,7 @@ function AddTaskForm({
         body: JSON.stringify({ title, description, estimated_mins: estimatedMins, category, week_number: weekNumber, phase }),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error ?? 'Failed to add task.'); return }
+      if (!res.ok) { setError(`${data.error ?? 'Failed to add task.'}${data.detail ? ` (${data.detail})` : ''}`); return }
       onAdd(data.task as Task)
     } catch {
       setError('Network error. Please try again.')

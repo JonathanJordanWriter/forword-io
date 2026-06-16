@@ -67,7 +67,11 @@ export async function POST(
 
   if (error || !newTask) {
     console.error('Custom task insert error:', error)
-    return NextResponse.json({ error: 'Failed to create task' }, { status: 500 })
+    return NextResponse.json({
+      error: 'Failed to create task',
+      detail: error?.message ?? 'No task returned',
+      code: error?.code,
+    }, { status: 500 })
   }
 
   return NextResponse.json({ success: true, task: newTask })
