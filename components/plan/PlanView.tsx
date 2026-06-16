@@ -18,6 +18,7 @@ interface Task {
   estimated_mins: number
   is_completed: boolean
   is_locked: boolean
+  is_custom?: boolean
 }
 
 interface Phase {
@@ -461,6 +462,249 @@ function WeekHeader({
   )
 }
 
+// ─── Time and category options for custom tasks ───────────────────────────────
+
+const CUSTOM_TIME_OPTIONS = [
+  { label: 'Under 15 min', value: 10 },
+  { label: '15–30 min',    value: 20 },
+  { label: '30–60 min',    value: 45 },
+  { label: '1–2 hours',    value: 90 },
+  { label: '2+ hours',     value: 120 },
+]
+
+const CUSTOM_CATEGORY_OPTIONS = [
+  { value: 'planning',   label: 'Planning',      pts: 75  },
+  { value: 'foundation', label: 'Foundation',    pts: 75  },
+  { value: 'social',     label: 'Social',        pts: 100 },
+  { value: 'email',      label: 'Email',         pts: 100 },
+  { value: 'pr',         label: 'PR / Outreach', pts: 150 },
+  { value: 'publishing', label: 'Publishing',    pts: 150 },
+]
+
+// ─── AddTaskForm ──────────────────────────────────────────────────────────────
+
+function AddTaskForm({
+  planId, weekNumber, phase, onAdd, onCancel,
+}: {
+  planId: string
+  weekNumber: number
+  phase: number
+  onAdd: (task: Task) => void
+  onCancel: () => void
+}) {
+  const [title, setTitle]               = useState('')
+  const [description, setDescription]   = useState('')
+  const [estimatedMins, setEstimatedMins] = useState<number | null>(null)
+  const [category, setCategory]         = useState('')
+  const [saving, setSaving]             = useState(false)
+  const [error, setError]               = useState<string | null>(null)
+
+  async function handleSubmit() {
+    if (!title.trim())        { setError('Please enter a task title.');         return }
+    if (estimatedMins === null){ setError('Please select an estimated time.');  return }
+    if (!category)            { setError('Please select a category.');          return }
+
+    setSaving(true)
+    setError(null)
+    try {
+      const res = await fetch(`/api/plans/${planId}/tasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description, estimated_mins: estimatedMins, category, week_number: weekNumber, phase }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error ?? 'Failed to add task.'); return }
+      onAdd(data.task as Task)
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="mt-3 p-4 bg-gray-50 border border-dashed border-gray-300 rounded-xl space-y-4">
+      <p className="text-sm font-semibold text-brand-coal">Add your own task</p>
+
+      {/* Title */}
+      <input
+        type="text"
+        value={title}
+        onChange={e => setTitle(e.target.value)}
+        placeholder="What do you want to do?"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-button focus:border-transparent"
+      />
+
+      {/* Estimated time chips */}
+      <div>
+        <p className="text-xs font-medium text-gray-500 mb-2">Estimated time</p>
+        <div className="flex flex-wrap gap-2">
+          {CUSTOM_TIME_OPTIONS.map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setEstimatedMins(opt.value)}
+              className={`px-3 py-1.5 rounded-full text-xs border transition-all ${
+                estimatedMins === opt.value
+                  ? 'border-brand-button bg-brand-accent/30 text-brand-button font-medium'
+                  : 'border-gray-200 text-gray-600 hover:border-brand-accent'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Description */}
+      <textarea
+        value={description}
+        onChange={e => setDescription(e.target.value)}
+        placeholder="Add details (optional)"
+        rows={2}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-button focus:border-transparent resize-none"
+      />
+
+      {/* Category chips */}
+      <div>
+        <p className="text-xs font-medium text-gray-500 mb-2">
+          Category <span className="text-gray-400 font-normal">(determines points earned)</span>
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {CUSTOM_CATEGORY_OPTIONS.map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setCategory(opt.value)}
+              className={`px-3 py-1.5 rounded-full text-xs border transition-all ${
+                category === opt.value
+                  ? 'border-brand-button bg-brand-accent/30 text-brand-button font-medium'
+                  : 'border-gray-200 text-gray-600 hover:border-brand-accent'
+              }`}
+            >
+              {opt.label} <span className="opacity-60">+{opt.pts}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {error && <p className="text-xs text-red-600">{error}</p>}
+
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={saving}
+          className="flex-1 py-2 bg-brand-button text-white text-sm font-medium rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
+        >
+          {saving ? 'Adding…' : 'Add task'}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 text-sm border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── TaskMoveActions — move-to-prev/next week controls shown below each task ──
+
+function TaskMoveActions({
+  task, prevWeekInPhase, nextWeekInPhase, onMoved,
+}: {
+  task: Task
+  prevWeekInPhase: number | null
+  nextWeekInPhase: number | null
+  onMoved: (taskId: string, newWeek: number, newDay: number) => void
+}) {
+  const [open, setOpen]       = useState(false)
+  const [moving, setMoving]   = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+
+  if (task.is_locked) return null
+
+  async function handleMove(direction: 'prev' | 'next') {
+    setMoving(true)
+    setMessage(null)
+    try {
+      const res = await fetch(`/api/tasks/${task.id}/move`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ direction }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setMessage(data.message ?? 'Could not move task. Please try again.')
+        setOpen(false)
+      } else {
+        onMoved(task.id, data.week_number, data.day_number)
+      }
+    } catch {
+      setMessage('Network error. Please try again.')
+      setOpen(false)
+    } finally {
+      setMoving(false)
+    }
+  }
+
+  return (
+    <div className="mt-1 pl-8 flex items-center gap-2 flex-wrap">
+      {!open && !message && (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="text-xs text-gray-400 hover:text-brand-button transition-colors"
+        >
+          Move task
+        </button>
+      )}
+
+      {open && (
+        <>
+          {prevWeekInPhase !== null && (
+            <button
+              type="button"
+              onClick={() => handleMove('prev')}
+              disabled={moving}
+              className="text-xs px-2.5 py-1 rounded-full border border-gray-200 text-gray-600 hover:border-brand-button hover:text-brand-button disabled:opacity-40 transition-all"
+            >
+              ← Week {prevWeekInPhase}
+            </button>
+          )}
+          {nextWeekInPhase !== null && (
+            <button
+              type="button"
+              onClick={() => handleMove('next')}
+              disabled={moving}
+              className="text-xs px-2.5 py-1 rounded-full border border-gray-200 text-gray-600 hover:border-brand-button hover:text-brand-button disabled:opacity-40 transition-all"
+            >
+              Week {nextWeekInPhase} →
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => { setOpen(false); setMessage(null) }}
+            className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            Cancel
+          </button>
+          {moving && <span className="text-xs text-gray-400">Moving…</span>}
+        </>
+      )}
+
+      {message && (
+        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 mt-1 w-full">
+          {message}
+        </p>
+      )}
+    </div>
+  )
+}
+
 // ─── Main PlanView ─────────────────────────────────────────────────────────────
 
 // ─── Helper: first week in a list that has an incomplete unlocked task ────────
@@ -521,6 +765,7 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
   const [regenError, setRegenError] = useState<string | null>(null)
   const [confirmReset, setConfirmReset] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [showAddForm, setShowAddForm] = useState(false)
 
   // Pre-populate awardedPhasesRef with any phases already complete on load
   // so we never show the celebration modal for work done in a previous session.
@@ -707,6 +952,7 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
     : null
 
   function goToPrev() {
+    setShowAddForm(false)
     if (activeWeekIndex > 0) {
       setActiveWeek(weeks[activeWeekIndex - 1])
     } else if (prevPhaseWeeks.length > 0) {
@@ -716,12 +962,30 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
   }
 
   function goToNext() {
+    setShowAddForm(false)
     if (activeWeekIndex < weeks.length - 1) {
       setActiveWeek(weeks[activeWeekIndex + 1])
     } else if (nextPhaseWeeks.length > 0) {
       setActivePhase(nextPhaseNum)
       setActiveWeek(nextPhaseWeeks[0])
     }
+  }
+
+  // Within-phase prev/next weeks (used by TaskMoveActions — cross-phase moves not allowed)
+  const prevWeekInPhase = activeWeekIndex > 0 ? weeks[activeWeekIndex - 1] : null
+  const nextWeekInPhase = activeWeekIndex < weeks.length - 1 ? weeks[activeWeekIndex + 1] : null
+
+  // ── Task moved handler ─────────────────────────────────────────────────────
+  function handleTaskMoved(taskId: string, newWeek: number, newDay: number) {
+    setTasks(prev => prev.map(t =>
+      t.id === taskId ? { ...t, week_number: newWeek, day_number: newDay } : t
+    ))
+  }
+
+  // ── Custom task added handler ──────────────────────────────────────────────
+  function handleTaskAdded(newTask: Task) {
+    setTasks(prev => [...prev, newTask])
+    setShowAddForm(false)
   }
 
   // Tasks visible in the currently selected week
@@ -847,7 +1111,7 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
             <button
               key={phase.phase_number}
               type="button"
-              onClick={() => setActivePhase(phase.phase_number)}
+              onClick={() => { setActivePhase(phase.phase_number); setShowAddForm(false) }}
               className={`shrink-0 w-[130px] px-3 py-2.5 rounded-xl text-sm font-medium transition-all border text-center ${
                 activePhase === phase.phase_number
                   ? 'bg-brand-button text-white border-brand-button'
@@ -901,15 +1165,44 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
           {/* Task list for the active week */}
           <div className="space-y-2">
             {weekTasks.map(task => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                taskNumber={taskNumberMap.get(task.id) ?? 0}
-                onToggle={handleToggle}
-                onUpgradeClick={() => setShowUpgradeModal(true)}
-              />
+              <div key={task.id}>
+                <TaskCard
+                  task={task}
+                  taskNumber={taskNumberMap.get(task.id) ?? 0}
+                  onToggle={handleToggle}
+                  onUpgradeClick={() => setShowUpgradeModal(true)}
+                />
+                <TaskMoveActions
+                  task={task}
+                  prevWeekInPhase={prevWeekInPhase}
+                  nextWeekInPhase={nextWeekInPhase}
+                  onMoved={handleTaskMoved}
+                />
+              </div>
             ))}
           </div>
+
+          {/* Add custom task */}
+          {showAddForm ? (
+            <AddTaskForm
+              planId={plan.id}
+              weekNumber={activeWeek}
+              phase={activePhase}
+              onAdd={handleTaskAdded}
+              onCancel={() => setShowAddForm(false)}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowAddForm(true)}
+              className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 border border-dashed border-gray-300 rounded-xl text-sm text-gray-400 hover:border-brand-button hover:text-brand-button transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Add your own task
+            </button>
+          )}
 
           {/* "All done this week" nudge */}
           {weekAllDone && canGoNext && (

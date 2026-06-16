@@ -69,11 +69,19 @@ export async function POST(req: NextRequest) {
     .eq('user_id', user.id)
     .eq('status', 'active')
 
-  // Collect completed tasks to preserve (unless the user explicitly wants a hard reset)
+  // Collect tasks to preserve (unless the user explicitly wants a hard reset)
   let completedTasksToPreserve: {
     title: string; description: string; category: string;
     platform_tag: string; estimated_mins: number;
     week_number: number; day_number: number; phase: number;
+  }[] = []
+
+  // Custom tasks are always preserved across regenerations (never wiped, even on hardReset)
+  let customTasksToPreserve: {
+    title: string; description: string; category: string;
+    platform_tag: string; estimated_mins: number;
+    week_number: number; day_number: number; phase: number;
+    is_completed: boolean; completed_at: string | null; points_awarded: boolean;
   }[] = []
 
   if (existingPlans && existingPlans.length > 0) {
@@ -81,13 +89,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'A plan already exists for this book' }, { status: 409 })
     }
 
+    // Always save custom tasks before wiping — they survive even a hard reset
+    const { data: customTasks } = await supabase
+      .from('tasks')
+      .select('title, description, category, platform_tag, estimated_mins, week_number, day_number, phase, is_completed, completed_at, points_awarded')
+      .in('plan_id', existingPlans.map(p => p.id))
+      .eq('is_custom', true)
+    customTasksToPreserve = customTasks ?? []
+
     if (!hardReset) {
-      // Save completed tasks before wiping so we can restore them after generation
+      // Save completed AI-generated tasks before wiping so we can restore them after generation
       const { data: completedTasks } = await supabase
         .from('tasks')
         .select('title, description, category, platform_tag, estimated_mins, week_number, day_number, phase')
         .in('plan_id', existingPlans.map(p => p.id))
         .eq('is_completed', true)
+        .eq('is_custom', false)   // exclude custom tasks — they're handled separately
       completedTasksToPreserve = completedTasks ?? []
     }
 
@@ -367,9 +384,56 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // 12. Re-insert custom tasks, clamping week numbers to the new plan's phase structure
+  if (customTasksToPreserve.length > 0) {
+    // Build a phase → max week map from the newly inserted AI tasks
+    const phaseMaxWeekMap = new Map<number, number>()
+    for (const row of taskRows) {
+      const current = phaseMaxWeekMap.get(row.phase) ?? 0
+      if (row.week_number > current) phaseMaxWeekMap.set(row.phase, row.week_number)
+    }
+    const globalMaxWeek = phaseMaxWeekMap.size > 0
+      ? Math.max(...Array.from(phaseMaxWeekMap.values()))
+      : 1
+
+    for (const customTask of customTasksToPreserve) {
+      // Clamp to the max week in the task's original phase; fall back to global max
+      const maxWeekInPhase = phaseMaxWeekMap.get(customTask.phase) ?? globalMaxWeek
+      const clampedWeek = Math.min(customTask.week_number, maxWeekInPhase)
+
+      // Slot at the end of the clamped week (after all newly inserted AI tasks)
+      const tasksInTargetWeek = taskRows.filter(t => t.week_number === clampedWeek)
+      const maxDay =
+        tasksInTargetWeek.length > 0
+          ? Math.max(...tasksInTargetWeek.map(t => t.day_number))
+          : (clampedWeek - 1) * 7
+
+      const { error: customInsertErr } = await supabase.from('tasks').insert({
+        plan_id: plan.id,
+        user_id: user.id,
+        phase: customTask.phase,
+        week_number: clampedWeek,
+        day_number: maxDay + 1,
+        title: customTask.title,
+        description: customTask.description,
+        category: customTask.category,
+        platform_tag: customTask.platform_tag,
+        estimated_mins: customTask.estimated_mins,
+        is_completed: customTask.is_completed,
+        completed_at: customTask.completed_at,
+        points_awarded: customTask.points_awarded ?? false,
+        is_locked: false,
+        is_custom: true,
+      })
+
+      if (customInsertErr) console.error('Failed to restore custom task:', customTask.title, customInsertErr)
+    }
+  }
+
   return NextResponse.json({
     planId: plan.id,
     success: true,
     preservedTasks: completedTasksToPreserve.length,
+    preservedCustomTasks: customTasksToPreserve.length,
   })
 }
