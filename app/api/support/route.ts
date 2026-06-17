@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 
   const { error } = await resend.emails.send({
     from:    'forword.io Support <support@forword.io>',
-    to:      'support@forword.io',
+    to:      'jonathan@wordrobemedia.com',
     replyTo: userEmail !== 'Unknown (not logged in)' ? userEmail : undefined,
     subject: `[Support] New issue report from ${userEmail}`,
     html: `
