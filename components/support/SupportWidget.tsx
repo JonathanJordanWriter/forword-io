@@ -100,7 +100,7 @@ export default function SupportWidget() {
               <div className="px-5 py-4 space-y-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1.5">
-                    What&apos;s happening?
+                    Oh no! What&apos;s wrong?
                   </label>
                   <textarea
                     value={message}
@@ -177,7 +177,7 @@ export default function SupportWidget() {
                 </button>
 
                 <p className="text-xs text-gray-400 text-center">
-                  Reports go to our support team. We&apos;ll follow up by email if needed.
+                  Reports go to our support team. We&apos;ll review the email and follow up for more info if needed.
                 </p>
               </div>
             )}
