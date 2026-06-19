@@ -1,5 +1,20 @@
 // ── User profile (collected in onboarding Step 1) ────────────────────────────
 
+// Tools an author may already have — shared between user profile and book onboarding
+export const AUTHOR_TOOLS: { value: string; label: string }[] = [
+  { value: 'canva',                   label: 'Canva' },
+  { value: 'buffer',                  label: 'Buffer' },
+  { value: 'later',                   label: 'Later' },
+  { value: 'mailchimp',               label: 'Mailchimp' },
+  { value: 'kit',                     label: 'Kit (ConvertKit)' },
+  { value: 'hootsuite',               label: 'Hootsuite' },
+  { value: 'bookfunnel',              label: 'BookFunnel' },
+  { value: 'substack',                label: 'Substack' },
+  { value: 'arc_service',             label: 'ARC service (NetGalley, BookSirens, etc.)' },
+  { value: 'querytracker',            label: 'QueryTracker' },
+  { value: 'publishers_marketplace',  label: 'Publishers Marketplace' },
+]
+
 export interface UserProfileData {
   display_name: string        // required — pen name / display name
   identities: string[]        // required — at least one chip selected
@@ -11,6 +26,7 @@ export interface UserProfileData {
   publishing_goals: string[]  // optional
   heard_from: string          // optional
   profile_photo_url: string   // optional — set after storage upload
+  existing_tools: string[]    // optional — tools already in use across all books
 }
 
 export const EMPTY_USER_PROFILE: UserProfileData = {
@@ -24,6 +40,7 @@ export const EMPTY_USER_PROFILE: UserProfileData = {
   publishing_goals: [],
   heard_from: '',
   profile_photo_url: '',
+  existing_tools: [],
 }
 
 // ── Book types ────────────────────────────────────────────────────────────────
@@ -73,6 +90,7 @@ export interface OnboardingData {
   book_type: BookType | ''
   genres: string[]      // array — user can select multiple
   subgenre: string      // free-text custom entry
+  writes_multiple_genres: boolean  // true = author spans multiple genres; avoids genre-specific bio tasks
   // Step 3
   title: string
   comp_titles: CompTitle[]
@@ -88,6 +106,7 @@ export interface OnboardingData {
   publishing_path: PublishingPath | ''
   launch_timeframe: LaunchTimeframe | ''
   kdp_select: boolean | null  // null = not asked (non-published stages); true/false = user answered
+  book_tools: string[]        // tools in use for this specific book (pre-seeded from user existing_tools)
 }
 
 export const EMPTY_ONBOARDING: OnboardingData = {
@@ -95,6 +114,7 @@ export const EMPTY_ONBOARDING: OnboardingData = {
   book_type: '',
   genres: [],
   subgenre: '',
+  writes_multiple_genres: false,
   title: '',
   comp_titles: [],
   goals_ranked: [],
@@ -107,4 +127,5 @@ export const EMPTY_ONBOARDING: OnboardingData = {
   publishing_path: '',
   launch_timeframe: '',
   kdp_select: null,
+  book_tools: [],
 }

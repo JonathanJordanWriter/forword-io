@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { UserProfileData, EMPTY_USER_PROFILE } from '@/lib/types'
+import { UserProfileData, EMPTY_USER_PROFILE, AUTHOR_TOOLS } from '@/lib/types'
 
 // ── Option lists (mirrors StepProfile) ───────────────────────────────────────
 
@@ -120,7 +120,7 @@ export default function ProfileEditor() {
 
       const { data } = await supabase
         .from('users')
-        .select('display_name, identities, birthdate, gender, nationality, location, writing_experience, publishing_goals, heard_from, profile_photo_url')
+        .select('display_name, identities, birthdate, gender, nationality, location, writing_experience, publishing_goals, heard_from, profile_photo_url, existing_tools')
         .eq('id', user.id)
         .single()
 
@@ -136,6 +136,7 @@ export default function ProfileEditor() {
           publishing_goals:   (data.publishing_goals as string[]) ?? [],
           heard_from:         data.heard_from          ?? '',
           profile_photo_url:  data.profile_photo_url   ?? '',
+          existing_tools:     (data.existing_tools as string[]) ?? [],
         })
       }
       setLoading(false)
@@ -214,6 +215,7 @@ export default function ProfileEditor() {
         publishing_goals:   profile.publishing_goals.length ? profile.publishing_goals : null,
         heard_from:         profile.heard_from      || null,
         profile_photo_url:  profile.profile_photo_url || null,
+        existing_tools:     profile.existing_tools.length ? profile.existing_tools : null,
       }).eq('id', user.id)
 
       if (error) throw error
@@ -444,6 +446,28 @@ export default function ProfileEditor() {
           onToggle={v => update({ heard_from: profile.heard_from === v ? '' : v })}
           single
         />
+      </div>
+
+      {/* Tools already in use */}
+      <div className="space-y-3 pt-2 border-t border-gray-100">
+        <div className="pt-2">
+          <p className="text-sm font-medium text-gray-700 mb-0.5">
+            Tools you already use <span className="text-gray-400 font-normal">(optional)</span>
+          </p>
+          <p className="text-xs text-gray-400 mb-3">
+            We&apos;ll skip &ldquo;sign up for X&rdquo; tasks and give you more useful suggestions instead — like setting up templates or connecting your accounts.
+          </p>
+          <ChipToggle
+            options={AUTHOR_TOOLS}
+            selected={profile.existing_tools}
+            onToggle={v => {
+              const next = profile.existing_tools.includes(v)
+                ? profile.existing_tools.filter(t => t !== v)
+                : [...profile.existing_tools, v]
+              update({ existing_tools: next })
+            }}
+          />
+        </div>
       </div>
 
       {/* Validation / save feedback */}

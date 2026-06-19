@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { OnboardingData, EMPTY_ONBOARDING } from '@/lib/types'
@@ -21,6 +21,23 @@ export default function BookOnboardingPage() {
   const [data, setData] = useState<OnboardingData>(EMPTY_ONBOARDING)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Pre-populate book_tools from the user's saved existing_tools so Step 5 starts pre-filled
+  useEffect(() => {
+    async function seedTools() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data } = await supabase
+        .from('users')
+        .select('existing_tools')
+        .eq('id', user.id)
+        .single()
+      const tools = (data?.existing_tools as string[] | null) ?? []
+      if (tools.length) setData(prev => ({ ...prev, book_tools: tools }))
+    }
+    seedTools()
+  }, [])
 
   function update(updates: Partial<OnboardingData>) {
     setData(prev => ({ ...prev, ...updates }))
@@ -85,6 +102,8 @@ export default function BookOnboardingPage() {
       experience_level: data.experience_level || null,
       existing_audience: data.existing_audience || null,
       kdp_select: data.kdp_select,  // null for non-published stages; true/false for published
+      writes_multiple_genres: data.writes_multiple_genres,
+      book_tools: data.book_tools.length ? data.book_tools : null,
     })
 
     if (insertError) {

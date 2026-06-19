@@ -1,4 +1,4 @@
-import { OnboardingData, TimePerWeek, MonthlyBudget, ExperienceLevel, ExistingAudience, PublishingPath, LaunchTimeframe } from '@/lib/types'
+import { OnboardingData, TimePerWeek, MonthlyBudget, ExperienceLevel, ExistingAudience, PublishingPath, LaunchTimeframe, AUTHOR_TOOLS } from '@/lib/types'
 
 interface Props {
   data: OnboardingData
@@ -169,6 +169,39 @@ export default function Step5Capacity({ data, onChange, onNext, onBack }: Props)
               }`}
             >
               {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Tools already in use for this book */}
+      <div className="mb-6">
+        <p className="text-sm font-medium text-gray-700 mb-0.5">
+          Tools you already have for this book{' '}
+          <span className="text-gray-400 font-normal">(optional)</span>
+        </p>
+        <p className="text-xs text-gray-400 mb-3">
+          We&apos;ll skip &ldquo;sign up for X&rdquo; tasks and replace them with more useful suggestions — like setting up templates or connecting your accounts. Already set in your author profile? We&apos;ve pre-selected those below. Adjust as needed for this book.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {AUTHOR_TOOLS.map(tool => (
+            <button
+              key={tool.value}
+              type="button"
+              onClick={() => {
+                const next = data.book_tools.includes(tool.value)
+                  ? data.book_tools.filter(t => t !== tool.value)
+                  : [...data.book_tools, tool.value]
+                onChange({ book_tools: next })
+              }}
+              className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
+                data.book_tools.includes(tool.value)
+                  ? 'border-brand-button bg-brand-accent/30 text-brand-button font-medium'
+                  : 'border-gray-200 text-gray-600 hover:border-brand-accent'
+              }`}
+            >
+              {data.book_tools.includes(tool.value) && <span className="mr-1 text-xs">✓</span>}
+              {tool.label}
             </button>
           ))}
         </div>

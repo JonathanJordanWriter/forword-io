@@ -35,6 +35,10 @@ export function buildAuthorProfile(book: Record<string, unknown>): string {
     existing_audience: book.existing_audience || 'under_500',
     // null = not a published title (question was not asked); true/false = user's answer
     kdp_select: book.kdp_select ?? null,
+    // true = author spans multiple genres; suppress genre-specific identity tasks
+    writes_multiple_genres: book.writes_multiple_genres ?? false,
+    // tools the author already has for this book — skip sign-up tasks, generate usage tasks instead
+    existing_tools: (book.book_tools as string[] | null) ?? [],
   }
 
   return JSON.stringify(profile, null, 2)

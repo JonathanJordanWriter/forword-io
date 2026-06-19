@@ -159,6 +159,34 @@ export default function Step2Genre({ data, onChange, onNext, onBack }: Props) {
         </div>
       )}
 
+      {/* Multi-genre question */}
+      {data.genres.length > 0 && (
+        <div className="mb-6">
+          <p className="text-sm font-medium text-gray-700 mb-1">
+            Do you write in more than one genre?
+          </p>
+          <p className="text-xs text-gray-400 mb-2">
+            This helps us avoid suggesting things like "add Thriller Author to your bio" if you also write Fantasy and How-To.
+          </p>
+          <div className="flex gap-2">
+            {([false, true] as const).map(val => (
+              <button
+                key={String(val)}
+                type="button"
+                onClick={() => onChange({ writes_multiple_genres: val })}
+                className={`px-4 py-1.5 rounded-full text-sm border transition-all ${
+                  data.writes_multiple_genres === val
+                    ? 'border-brand-button bg-brand-accent/30 text-brand-button font-medium'
+                    : 'border-gray-200 text-gray-600 hover:border-brand-accent'
+                }`}
+              >
+                {val ? 'Yes' : 'No'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Subgenre / keywords */}
       {data.genres.length > 0 && (
         <div className="mb-6">
