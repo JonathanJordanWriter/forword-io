@@ -166,7 +166,7 @@ export default function Step2Genre({ data, onChange, onNext, onBack }: Props) {
             Do you write in more than one genre?
           </p>
           <p className="text-xs text-gray-400 mb-2">
-            This helps us avoid suggesting things like "add Thriller Author to your bio" if you also write Fantasy and How-To.
+            This helps us avoid suggesting things like &ldquo;add Thriller Author to your bio&rdquo; if you also write Fantasy and How-To.
           </p>
           <div className="flex gap-2">
             {([false, true] as const).map(val => (
