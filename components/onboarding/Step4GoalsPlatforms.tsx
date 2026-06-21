@@ -23,7 +23,7 @@ const AGE_RANGES = ['Under 18', '18–25', '26–35', '36–45', '46–55', '55+
 const FICTION_INTERESTS = [
   'Book clubs', 'Cozy reads', 'Dark fiction', 'Fast-paced plots', 'Character-driven',
   'Strong female leads', 'LGBTQ+ stories', 'Own voices', 'Historical settings',
-  'Romantasy fans', 'Series readers', 'Literary fiction', 'Debut authors',
+  'Romantasy', 'Book series', 'Literary fiction', 'Debut authors',
   'Clean romance', 'Religious fiction',
 ]
 
@@ -31,7 +31,7 @@ const NONFICTION_INTERESTS = [
   'Entrepreneurship', 'Public speaking', 'Personal finance', 'Leadership',
   'Productivity', 'Career development', 'Wellness & self-care', 'Mindfulness',
   'Parenting', 'Faith & spirituality', 'DIY & crafts', 'Food & cooking',
-  'Travel', 'History buffs', 'True crime fans', 'Science & nature',
+  'Travel', 'History', 'True crime', 'Science & nature',
 ]
 
 const PLATFORMS = [
