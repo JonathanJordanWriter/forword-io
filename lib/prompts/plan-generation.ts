@@ -61,6 +61,7 @@ Rules for task generation:
 - If experience_level is first_time, add brief how-to context in task descriptions
 - If publishing_path is self, include KDP/IngramSpark setup tasks; omit query letter tasks
 - If publishing_path is traditional, include query letter and agent research tasks; omit KDP tasks. In Phase 1 (foundation), always include these two tasks early in the plan: (1) "Create a free QueryTracker account to research and track literary agent submissions" — describe it as a free tool to research agents, track query letters, and read other authors' query experiences; (2) "Sign up for a Publishers Marketplace account for one month so you can access recent deals, agent profiles, editor profiles, and submission histories. Keep in mind you will need to cancel before the month is over or you will be charged a recurring fee."
+- If build_authority is in goals_ranked: prioritize tasks that establish the author as a credible expert or thought leader in their field — op-eds, guest posts, podcast pitching as an expert guest, speaking opportunities, LinkedIn thought leadership content, industry commentary, and bylined articles. These tasks should outnumber straight promotional tasks. This goal is especially relevant for nonfiction authors but applies to any author seeking professional credibility.
 - Promotional tasks must not exceed 10% of total tasks (25% during launch week only)
 - Tasks must be specific and actionable, never generic
 - Tasks must reference the author's actual genre, platforms, and comp titles by name

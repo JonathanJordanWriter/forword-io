@@ -44,6 +44,7 @@ const GOALS = [
   { value: 'build_readership', label: 'Build my readership' },
   { value: 'sell_copies', label: 'Sell more copies' },
   { value: 'attract_agent', label: 'Attract a literary agent' },
+  { value: 'build_authority', label: 'Build authority' },
   { value: 'relaunch', label: 'Relaunch backlist' },
   { value: 'audiobook', label: 'Market an audiobook' },
 ]

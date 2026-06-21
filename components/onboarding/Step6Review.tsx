@@ -19,8 +19,8 @@ const STAGE_LABELS: Record<string, string> = {
 
 const GOAL_LABELS: Record<string, string> = {
   build_readership: 'Build my readership', sell_copies: 'Sell more copies',
-  attract_agent: 'Attract a literary agent', relaunch: 'Relaunch backlist',
-  audiobook: 'Market an audiobook',
+  attract_agent: 'Attract a literary agent', build_authority: 'Build authority',
+  relaunch: 'Relaunch backlist', audiobook: 'Market an audiobook',
 }
 
 const TIME_LABELS: Record<string, string> = {

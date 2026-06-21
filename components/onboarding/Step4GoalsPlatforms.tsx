@@ -14,6 +14,7 @@ const GOALS: { value: PrimaryGoal; label: string; description: string }[] = [
   { value: 'build_readership', label: 'Build my readership', description: 'Grow an audience before or after launch' },
   { value: 'sell_copies', label: 'Sell more copies', description: 'Drive direct book sales' },
   { value: 'attract_agent', label: 'Attract a literary agent', description: 'Build platform to support a query' },
+  { value: 'build_authority', label: 'Build authority', description: 'Establish expertise and credibility in my field' },
   { value: 'relaunch', label: 'Relaunch a backlist title', description: 'Revive interest in an existing book' },
   { value: 'audiobook', label: 'Market an audiobook', description: 'Promote a new audio edition' },
 ]

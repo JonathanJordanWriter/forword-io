@@ -55,7 +55,7 @@ export type BookStage =
 
 export type PublishingPath = 'self' | 'traditional' | 'hybrid' | 'undecided'
 
-export type PrimaryGoal = 'build_readership' | 'sell_copies' | 'attract_agent' | 'relaunch' | 'audiobook'
+export type PrimaryGoal = 'build_readership' | 'sell_copies' | 'attract_agent' | 'relaunch' | 'audiobook' | 'build_authority'
 
 export type TimePerWeek = '1_2hrs' | '3_5hrs' | '6_10hrs'
 
