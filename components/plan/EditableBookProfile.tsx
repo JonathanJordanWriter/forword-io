@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 
 // ─── Option sets (mirrors onboarding) ────────────────────────────────────────
 
@@ -90,6 +90,7 @@ interface BookProfile {
   monthly_budget?: string
   experience_level?: string
   existing_audience?: string
+  cover_image_url?: string
 }
 
 interface Props {
@@ -146,6 +147,35 @@ export default function EditableBookProfile({ bookId, book, defaultCollapsed = f
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
+
+  // Cover image state
+  const [coverUrl, setCoverUrl] = useState(book.cover_image_url ?? '')
+  const [coverUploading, setCoverUploading] = useState(false)
+  const [coverError, setCoverError] = useState<string | null>(null)
+  const coverInputRef = useRef<HTMLInputElement>(null)
+
+  const handleCoverChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setCoverUploading(true)
+    setCoverError(null)
+    const formData = new FormData()
+    formData.append('cover', file)
+    try {
+      const res = await fetch(`/api/books/${bookId}/cover`, { method: 'POST', body: formData })
+      const data = await res.json()
+      if (res.ok) {
+        setCoverUrl(data.url)
+      } else {
+        setCoverError(data.error ?? 'Upload failed')
+      }
+    } catch {
+      setCoverError('Network error — please try again')
+    } finally {
+      setCoverUploading(false)
+      if (coverInputRef.current) coverInputRef.current.value = ''
+    }
+  }, [bookId])
 
   // Local edit state — initialised from book prop
   const [bookType, setBookType] = useState(book.book_type ?? '')
@@ -254,40 +284,87 @@ export default function EditableBookProfile({ bookId, book, defaultCollapsed = f
 
   return (
     <div className="mb-8">
-      <div className="flex items-center justify-between mb-4">
-        <button
-          type="button"
-          onClick={() => { setCollapsed(c => !c); if (editing) setEditing(false) }}
-          className="flex items-center gap-2 group"
-        >
-          <h2 className="text-base font-semibold text-brand-coal group-hover:text-brand-button transition-colors">
-            Book profile
-          </h2>
-          <span className="text-xs text-brand-button font-medium group-hover:opacity-70 transition-opacity">
-            {collapsed ? 'View profile' : 'Hide'}
-          </span>
-          <svg
-            className={`w-4 h-4 text-brand-button transition-all ${collapsed ? '-rotate-90' : ''}`}
-            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-
-        {!collapsed && !editing && (
+      {/* Cover image — always visible above the profile */}
+      <div className="flex items-start gap-5 mb-4">
+        <div className="shrink-0">
+          <input
+            ref={coverInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleCoverChange}
+          />
           <button
             type="button"
-            onClick={() => setEditing(true)}
-            className="flex items-center gap-1.5 text-xs text-brand-button hover:opacity-80 transition-opacity font-medium"
+            onClick={() => coverInputRef.current?.click()}
+            disabled={coverUploading}
+            title={coverUrl ? 'Change cover image' : 'Upload cover image'}
+            className="group relative w-20 h-28 rounded-lg border-2 border-dashed border-gray-200 hover:border-brand-button overflow-hidden transition-colors flex items-center justify-center bg-gray-50 disabled:opacity-60"
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            Edit profile
+            {coverUrl ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={coverUrl} alt="Book cover" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span className="text-white text-[10px] font-semibold">Change</span>
+                </div>
+              </>
+            ) : coverUploading ? (
+              <svg className="animate-spin w-5 h-5 text-brand-button" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+            ) : (
+              <div className="flex flex-col items-center gap-1 px-2 text-center">
+                <svg className="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M13.5 12h.008v.008H13.5V12zm3.75 0a6 6 0 11-12 0 6 6 0 0112 0z" />
+                </svg>
+                <span className="text-[9px] text-gray-400 leading-tight">Add cover</span>
+              </div>
+            )}
           </button>
-        )}
-        {saved && <p className="text-xs text-green-600 font-medium">✓ Profile saved</p>}
+          {coverError && (
+            <p className="text-[10px] text-red-500 mt-1 w-20 text-center">{coverError}</p>
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => { setCollapsed(c => !c); if (editing) setEditing(false) }}
+              className="flex items-center gap-2 group"
+            >
+              <h2 className="text-base font-semibold text-brand-coal group-hover:text-brand-button transition-colors">
+                Book profile
+              </h2>
+              <span className="text-xs text-brand-button font-medium group-hover:opacity-70 transition-opacity">
+                {collapsed ? 'View profile' : 'Hide'}
+              </span>
+              <svg
+                className={`w-4 h-4 text-brand-button transition-all ${collapsed ? '-rotate-90' : ''}`}
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {!collapsed && !editing && (
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                className="flex items-center gap-1.5 text-xs text-brand-button hover:opacity-80 transition-opacity font-medium"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit profile
+              </button>
+            )}
+            {saved && <p className="text-xs text-green-600 font-medium">✓ Profile saved</p>}
+          </div>
+        </div>
       </div>
 
       {!collapsed && editing ? (

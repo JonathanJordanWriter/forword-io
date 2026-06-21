@@ -220,6 +220,7 @@ export default async function PlanPage({ params }: { params: { bookId: string } 
             monthly_budget: book.monthly_budget as string | undefined,
             experience_level: book.experience_level as string | undefined,
             existing_audience: book.existing_audience as string | undefined,
+            cover_image_url: book.cover_image_url as string | undefined,
           }}
         />
 
