@@ -49,6 +49,7 @@ const NONFICTION_GENRES = [
   'Finance / Investing',
   'Cookbooks / Food',
   'Education / Academic',
+  'Textbook',
   'Travel',
   'Humor / Essay',
   'Poetry',

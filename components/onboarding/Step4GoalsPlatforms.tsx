@@ -24,6 +24,7 @@ const FICTION_INTERESTS = [
   'Book clubs', 'Cozy reads', 'Dark fiction', 'Fast-paced plots', 'Character-driven',
   'Strong female leads', 'LGBTQ+ stories', 'Own voices', 'Historical settings',
   'Romantasy fans', 'Series readers', 'Literary fiction', 'Debut authors',
+  'Clean romance', 'Religious fiction',
 ]
 
 const NONFICTION_INTERESTS = [
