@@ -167,7 +167,7 @@ export default function EditableBookProfile({ bookId, book, defaultCollapsed = f
       if (res.ok) {
         setCoverUrl(data.url)
       } else {
-        setCoverError(data.error ?? 'Upload failed')
+        setCoverError(data.detail ?? data.error ?? 'Upload failed')
       }
     } catch {
       setCoverError('Network error — please try again')
