@@ -10,10 +10,11 @@ interface Props {
 }
 
 const STAGE_LABELS: Record<string, string> = {
-  idea: 'Just an idea', still_writing: 'Still writing',
+  idea: 'Just an idea', outlining: 'Outlining', still_writing: 'Writing',
   finished_manuscript: 'Finished manuscript', beta_reading: 'Beta reading',
-  revision: 'In revision', editing: 'Editing',
-  cover_design: 'Cover & production', published: 'Already published',
+  revision: 'In revision', querying: 'Querying', editing: 'Developmental edit',
+  line_edit: 'Line edit', cover_design: 'Cover & production',
+  proofreading: 'Proofreading', published: 'Already published',
 }
 
 const GOAL_LABELS: Record<string, string> = {
