@@ -221,7 +221,7 @@ export default function Step4GoalsPlatforms({ data, onChange, onNext, onBack }: 
           value={customInterest}
           onChange={e => setCustomInterest(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustomInterest())}
-          placeholder={isNonfiction ? 'Add your own, e.g. financial literacy…' : 'Add your own, e.g. cosy mysteries…'}
+          placeholder={isNonfiction ? 'Add your own, e.g. financial literacy…' : 'Add your own, e.g. cozy mysteries…'}
           className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-button"
         />
         <button type="button" onClick={addCustomInterest}
