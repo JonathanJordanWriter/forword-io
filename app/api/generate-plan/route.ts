@@ -193,13 +193,15 @@ export async function POST(req: NextRequest) {
 
   // Normalise plan_type to the values allowed by the DB check constraint.
   // Claude may return variations (e.g. "audience-build", "launch_prep") — map them.
-  const VALID_PLAN_TYPES = ['foundation', 'audience_build', 'launch_countdown', 'relaunch', 'evergreen']
+  const VALID_PLAN_TYPES = ['foundation', 'writing', 'audience_build', 'pre_launch', 'launch_countdown', 'relaunch', 'evergreen']
   function normalizePlanType(raw: string): string {
     const lower = (raw ?? '').toLowerCase().replace(/[-\s]/g, '_')
     if (VALID_PLAN_TYPES.includes(lower)) return lower
-    if (lower.includes('foundation'))   return 'foundation'
-    if (lower.includes('audience'))     return 'audience_build'
-    if (lower.includes('launch'))       return 'launch_countdown'
+    if (lower.includes('foundation'))              return 'foundation'
+    if (lower.includes('writing'))                 return 'writing'
+    if (lower.includes('audience'))                return 'audience_build'
+    if (lower.includes('pre_launch') || lower.includes('pre-launch')) return 'pre_launch'
+    if (lower.includes('launch'))                  return 'launch_countdown'
     if (lower.includes('relaunch') || lower.includes('evergreen')) return lower.includes('evergreen') ? 'evergreen' : 'relaunch'
     // Fall back to stage-derived type
     return planTypeFromStage(book.book_stage as string)
