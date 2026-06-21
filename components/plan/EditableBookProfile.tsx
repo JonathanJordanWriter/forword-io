@@ -500,7 +500,7 @@ export default function EditableBookProfile({ bookId, book, defaultCollapsed = f
             <p className="text-xs font-medium text-gray-600 mb-1">Open to exploring</p>
             <p className="text-[10px] text-gray-400 mb-2">Tap to rank in order of preference.</p>
             {openToPlatforms.length > 0 && (
-              <p className="text-[10px] text-brand-blue mb-2">
+              <p className="text-[10px] text-brand-button mb-2">
                 {openToPlatforms.map((p, i) => `${i + 1}. ${p}`).join('  ·  ')}
               </p>
             )}
@@ -512,11 +512,11 @@ export default function EditableBookProfile({ bookId, book, defaultCollapsed = f
                   <button key={p} type="button" onClick={() => handleOpenToPlatformClick(p)}
                     className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs border transition-all ${
                       isRanked
-                        ? 'border-brand-accent bg-brand-accent/20 text-brand-blue font-medium'
+                        ? 'border-brand-button bg-brand-accent/30 text-brand-button font-medium'
                         : 'border-gray-200 text-gray-600 hover:border-brand-accent'
                     }`}>
                     {isRanked && (
-                      <span className="w-3.5 h-3.5 rounded-full bg-brand-accent text-brand-blue text-[9px] font-bold flex items-center justify-center shrink-0">
+                      <span className="w-3.5 h-3.5 rounded-full bg-brand-button text-white text-[9px] font-bold flex items-center justify-center shrink-0">
                         {rank + 1}
                       </span>
                     )}

@@ -290,11 +290,11 @@ export default function Step4GoalsPlatforms({ data, onChange, onNext, onBack }: 
             <button key={platform} type="button" onClick={() => handleOpenToPlatformClick(platform)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border transition-all ${
                 isRanked
-                  ? 'border-brand-accent bg-brand-accent/20 text-brand-blue font-medium'
+                  ? 'border-brand-button bg-brand-accent/30 text-brand-button font-medium'
                   : 'border-gray-200 text-gray-600 hover:border-brand-accent'
               }`}>
               {isRanked && (
-                <span className="w-4 h-4 rounded-full bg-brand-accent text-brand-blue text-[10px] font-bold flex items-center justify-center shrink-0">
+                <span className="w-4 h-4 rounded-full bg-brand-button text-white text-[10px] font-bold flex items-center justify-center shrink-0">
                   {rank}
                 </span>
               )}
