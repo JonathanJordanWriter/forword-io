@@ -26,15 +26,18 @@ const TIMEFRAMES = [
 ]
 
 const BOOK_STAGES = [
-  { value: 'idea', label: 'Just an idea' },
-  { value: 'still_writing', label: 'Still writing' },
+  { value: 'idea',                label: 'Just an idea' },
+  { value: 'outlining',           label: 'Outlining' },
+  { value: 'still_writing',       label: 'Writing' },
   { value: 'finished_manuscript', label: 'Finished manuscript' },
-  { value: 'beta_reading', label: 'Beta reading' },
-  { value: 'revision', label: 'In revision' },
-  { value: 'querying', label: 'Querying' },
-  { value: 'editing', label: 'Editing' },
-  { value: 'cover_design', label: 'Cover & production' },
-  { value: 'published', label: 'Published' },
+  { value: 'beta_reading',        label: 'Beta reading' },
+  { value: 'revision',            label: 'In revision' },
+  { value: 'querying',            label: 'Querying' },
+  { value: 'editing',             label: 'Developmental edit' },
+  { value: 'line_edit',           label: 'Line edit' },
+  { value: 'cover_design',        label: 'Cover & production' },
+  { value: 'proofreading',        label: 'Proofreading' },
+  { value: 'published',           label: 'Published' },
 ]
 
 const GOALS = [

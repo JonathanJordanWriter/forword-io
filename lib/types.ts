@@ -50,8 +50,8 @@ export const EMPTY_USER_PROFILE: UserProfileData = {
 export type BookType = 'fiction' | 'nonfiction'
 
 export type BookStage =
-  | 'idea' | 'still_writing' | 'finished_manuscript' | 'beta_reading'
-  | 'revision' | 'querying' | 'editing' | 'cover_design' | 'published'
+  | 'idea' | 'outlining' | 'still_writing' | 'finished_manuscript' | 'beta_reading'
+  | 'revision' | 'querying' | 'editing' | 'line_edit' | 'cover_design' | 'proofreading' | 'published'
 
 export type PublishingPath = 'self' | 'traditional' | 'hybrid' | 'undecided'
 

@@ -8,15 +8,18 @@ interface Props {
 }
 
 const STAGES: { value: BookStage; label: string; description: string }[] = [
-  { value: 'idea', label: 'Just an idea', description: "I have a concept but haven't started writing yet" },
-  { value: 'still_writing', label: 'Still writing', description: "I'm actively working on the manuscript" },
-  { value: 'finished_manuscript', label: 'Finished manuscript', description: "I've completed the first draft" },
-  { value: 'beta_reading', label: 'Beta reading', description: "My book is out with beta readers" },
-  { value: 'revision', label: 'In revision', description: "I'm revising based on feedback" },
-  { value: 'querying', label: 'Querying', description: "I'm actively querying literary agents or publishers" },
-  { value: 'editing', label: 'Editing', description: "I'm working with an editor or in final edits" },
-  { value: 'cover_design', label: 'Cover & production', description: "I'm in the final pre-launch stage" },
-  { value: 'published', label: 'Already published', description: "My book is live and I want to grow readership" },
+  { value: 'idea',                label: 'Just an idea',         description: "I have a concept but haven't started writing yet" },
+  { value: 'outlining',           label: 'Outlining',            description: "I'm mapping out structure, chapters, or story beats" },
+  { value: 'still_writing',       label: 'Writing',              description: "I'm actively working on the manuscript" },
+  { value: 'finished_manuscript', label: 'Finished manuscript',  description: "I've completed the first draft" },
+  { value: 'beta_reading',        label: 'Beta reading',         description: "My book is out with beta readers" },
+  { value: 'revision',            label: 'In revision',          description: "I'm revising based on feedback" },
+  { value: 'querying',            label: 'Querying',             description: "I'm actively querying literary agents or publishers" },
+  { value: 'editing',             label: 'Developmental edit',   description: "I'm working with a developmental editor on structure and content" },
+  { value: 'line_edit',           label: 'Line edit',            description: "I'm in line editing or copy editing" },
+  { value: 'cover_design',        label: 'Cover & production',   description: "I'm in the final pre-launch stage" },
+  { value: 'proofreading',        label: 'Proofreading',         description: "I'm doing final proofreading before publication" },
+  { value: 'published',           label: 'Already published',    description: "My book is live and I want to grow readership" },
 ]
 
 export default function Step1BookStage({ data, onChange, onNext, onBack }: Props) {

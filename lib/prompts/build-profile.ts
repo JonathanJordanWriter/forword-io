@@ -52,14 +52,17 @@ export function buildAuthorProfile(book: Record<string, unknown>): string {
  */
 export function planTypeFromStage(bookStage: string): string {
   const map: Record<string, string> = {
-    idea: 'foundation',
-    still_writing: 'foundation',
+    idea:                'foundation',
+    outlining:           'foundation',
+    still_writing:       'foundation',
     finished_manuscript: 'audience_build',
-    beta_reading: 'audience_build',
-    revision: 'audience_build',
-    editing: 'audience_build',
-    cover_design: 'launch_countdown',
-    published: 'relaunch',
+    beta_reading:        'audience_build',
+    revision:            'audience_build',
+    editing:             'audience_build',
+    line_edit:           'audience_build',
+    cover_design:        'launch_countdown',
+    proofreading:        'launch_countdown',
+    published:           'relaunch',
   }
   return map[bookStage] ?? 'foundation'
 }
