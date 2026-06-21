@@ -24,6 +24,7 @@ const GOAL_OPTIONS = [
   { value: 'side',             label: 'Side project / hobby' },
   { value: 'personal',         label: 'Personal fulfillment' },
   { value: 'business_booster', label: 'Business Booster' },
+  { value: 'build_authority',  label: 'Build authority' },
   { value: 'legacy',           label: 'Legacy' },
 ]
 
