@@ -50,7 +50,7 @@ const GOALS = [
 
 const PLATFORMS_LIST = [
   'Instagram', 'TikTok / BookTok', 'Substack', 'Facebook', 'Goodreads',
-  'Threads', 'YouTube', 'Pinterest', 'LinkedIn', 'Twitter / X', 'Podcast guest appearances',
+  'Threads', 'YouTube', 'Pinterest', 'LinkedIn', 'Twitter / X', 'Bluesky', 'Podcast guest appearances',
 ]
 
 const TIME_OPTIONS = [
@@ -205,18 +205,22 @@ export default function EditableBookProfile({ bookId, book, defaultCollapsed = f
     }
   }
 
-  function toggleActivePlatform(p: string) {
-    setActivePlatforms(prev =>
-      prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]
-    )
-    setOpenToPlatforms(prev => prev.filter(x => x !== p))
+  function handleActivePlatformClick(p: string) {
+    if (activePlatforms.includes(p)) {
+      setActivePlatforms(prev => prev.filter(x => x !== p))
+    } else {
+      setActivePlatforms(prev => [...prev, p])
+      setOpenToPlatforms(prev => prev.filter(x => x !== p))
+    }
   }
 
-  function toggleOpenToPlatform(p: string) {
-    setOpenToPlatforms(prev =>
-      prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]
-    )
-    setActivePlatforms(prev => prev.filter(x => x !== p))
+  function handleOpenToPlatformClick(p: string) {
+    if (openToPlatforms.includes(p)) {
+      setOpenToPlatforms(prev => prev.filter(x => x !== p))
+    } else {
+      setOpenToPlatforms(prev => [...prev, p])
+      setActivePlatforms(prev => prev.filter(x => x !== p))
+    }
   }
 
   async function handleSave() {
@@ -462,34 +466,64 @@ export default function EditableBookProfile({ bookId, book, defaultCollapsed = f
           </div>
 
           <div>
-            <p className="text-xs font-medium text-gray-600 mb-2">Active platforms</p>
+            <p className="text-xs font-medium text-gray-600 mb-1">Active platforms</p>
+            <p className="text-[10px] text-gray-400 mb-2">Tap to rank in order of preference.</p>
+            {activePlatforms.length > 0 && (
+              <p className="text-[10px] text-brand-button mb-2">
+                {activePlatforms.map((p, i) => `${i + 1}. ${p}`).join('  ·  ')}
+              </p>
+            )}
             <div className="flex flex-wrap gap-1.5">
-              {PLATFORMS_LIST.map(p => (
-                <button key={p} type="button" onClick={() => toggleActivePlatform(p)}
-                  className={`px-3 py-1 rounded-full text-xs border transition-all ${
-                    activePlatforms.includes(p)
-                      ? 'border-brand-button bg-brand-accent/30 text-brand-button font-medium'
-                      : 'border-gray-200 text-gray-600 hover:border-brand-accent'
-                  }`}>
-                  {p}
-                </button>
-              ))}
+              {PLATFORMS_LIST.map(p => {
+                const rank = activePlatforms.indexOf(p)
+                const isRanked = rank !== -1
+                return (
+                  <button key={p} type="button" onClick={() => handleActivePlatformClick(p)}
+                    className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs border transition-all ${
+                      isRanked
+                        ? 'border-brand-button bg-brand-accent/30 text-brand-button font-medium'
+                        : 'border-gray-200 text-gray-600 hover:border-brand-accent'
+                    }`}>
+                    {isRanked && (
+                      <span className="w-3.5 h-3.5 rounded-full bg-brand-button text-white text-[9px] font-bold flex items-center justify-center shrink-0">
+                        {rank + 1}
+                      </span>
+                    )}
+                    {p}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
           <div>
-            <p className="text-xs font-medium text-gray-600 mb-2">Open to exploring</p>
+            <p className="text-xs font-medium text-gray-600 mb-1">Open to exploring</p>
+            <p className="text-[10px] text-gray-400 mb-2">Tap to rank in order of preference.</p>
+            {openToPlatforms.length > 0 && (
+              <p className="text-[10px] text-brand-blue mb-2">
+                {openToPlatforms.map((p, i) => `${i + 1}. ${p}`).join('  ·  ')}
+              </p>
+            )}
             <div className="flex flex-wrap gap-1.5">
-              {PLATFORMS_LIST.filter(p => !activePlatforms.includes(p)).map(p => (
-                <button key={p} type="button" onClick={() => toggleOpenToPlatform(p)}
-                  className={`px-3 py-1 rounded-full text-xs border transition-all ${
-                    openToPlatforms.includes(p)
-                      ? 'border-brand-accent bg-brand-accent/20 text-brand-blue font-medium'
-                      : 'border-gray-200 text-gray-600 hover:border-brand-accent'
-                  }`}>
-                  {p}
-                </button>
-              ))}
+              {PLATFORMS_LIST.filter(p => !activePlatforms.includes(p)).map(p => {
+                const rank = openToPlatforms.indexOf(p)
+                const isRanked = rank !== -1
+                return (
+                  <button key={p} type="button" onClick={() => handleOpenToPlatformClick(p)}
+                    className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs border transition-all ${
+                      isRanked
+                        ? 'border-brand-accent bg-brand-accent/20 text-brand-blue font-medium'
+                        : 'border-gray-200 text-gray-600 hover:border-brand-accent'
+                    }`}>
+                    {isRanked && (
+                      <span className="w-3.5 h-3.5 rounded-full bg-brand-accent text-brand-blue text-[9px] font-bold flex items-center justify-center shrink-0">
+                        {rank + 1}
+                      </span>
+                    )}
+                    {p}
+                  </button>
+                )
+              })}
             </div>
           </div>
 

@@ -35,7 +35,7 @@ const NONFICTION_INTERESTS = [
 
 const PLATFORMS = [
   'Instagram', 'TikTok / BookTok', 'Substack', 'Facebook', 'Goodreads',
-  'Threads', 'YouTube', 'Pinterest', 'LinkedIn', 'Twitter / X', 'Podcast guest appearances',
+  'Threads', 'YouTube', 'Pinterest', 'LinkedIn', 'Twitter / X', 'Bluesky', 'Podcast guest appearances',
 ]
 
 export default function Step4GoalsPlatforms({ data, onChange, onNext, onBack }: Props) {
@@ -87,23 +87,33 @@ export default function Step4GoalsPlatforms({ data, onChange, onNext, onBack }: 
     })
   }
 
-  // --- Platform toggles ---
-  function toggleActive(platform: string) {
+  // --- Ranked platform logic ---
+  function handleActivePlatformClick(platform: string) {
     const current = data.platforms.active
-    const next = current.includes(platform)
-      ? current.filter(p => p !== platform)
-      : [...current, platform]
-    const openTo = data.platforms.open_to.filter(p => p !== platform)
-    onChange({ platforms: { ...data.platforms, active: next, open_to: openTo } })
+    if (current.includes(platform)) {
+      onChange({ platforms: { ...data.platforms, active: current.filter(p => p !== platform) } })
+    } else {
+      onChange({ platforms: { ...data.platforms, active: [...current, platform], open_to: data.platforms.open_to.filter(p => p !== platform) } })
+    }
   }
 
-  function toggleOpenTo(platform: string) {
+  function getActivePlatformRank(platform: string): number | null {
+    const idx = data.platforms.active.indexOf(platform)
+    return idx === -1 ? null : idx + 1
+  }
+
+  function handleOpenToPlatformClick(platform: string) {
     const current = data.platforms.open_to
-    const next = current.includes(platform)
-      ? current.filter(p => p !== platform)
-      : [...current, platform]
-    const active = data.platforms.active.filter(p => p !== platform)
-    onChange({ platforms: { ...data.platforms, open_to: next, active } })
+    if (current.includes(platform)) {
+      onChange({ platforms: { ...data.platforms, open_to: current.filter(p => p !== platform) } })
+    } else {
+      onChange({ platforms: { ...data.platforms, open_to: [...current, platform], active: data.platforms.active.filter(p => p !== platform) } })
+    }
+  }
+
+  function getOpenToPlatformRank(platform: string): number | null {
+    const idx = data.platforms.open_to.indexOf(platform)
+    return idx === -1 ? null : idx + 1
   }
 
   function toggleAgeRange(range: string) {
@@ -231,38 +241,66 @@ export default function Step4GoalsPlatforms({ data, onChange, onNext, onBack }: 
         </button>
       </div>
 
-      {/* Active platforms */}
+      {/* Active platforms — ranked */}
       <p className="text-sm font-medium text-gray-700 mb-1">Platforms you&apos;re active on</p>
-      <p className="text-xs text-gray-400 mb-2">Your plan will prioritize these.</p>
+      <p className="text-xs text-gray-400 mb-2">Tap to rank in order of preference — your plan prioritizes the top-ranked platforms.</p>
+      {data.platforms.active.length > 0 && (
+        <p className="text-xs text-brand-blue mb-2">
+          {data.platforms.active.map((p, i) => `${i + 1}. ${p}`).join('  ·  ')}
+        </p>
+      )}
       <div className="flex flex-wrap gap-2 mb-5">
-        {PLATFORMS.map(platform => (
-          <button key={platform} type="button" onClick={() => toggleActive(platform)}
-            className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
-              data.platforms.active.includes(platform)
-                ? 'border-brand-button bg-brand-accent/30 text-brand-button font-medium'
-                : 'border-gray-200 text-gray-600 hover:border-brand-accent'
-            }`}>
-            {platform}
-          </button>
-        ))}
+        {PLATFORMS.map(platform => {
+          const rank = getActivePlatformRank(platform)
+          const isRanked = rank !== null
+          return (
+            <button key={platform} type="button" onClick={() => handleActivePlatformClick(platform)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border transition-all ${
+                isRanked
+                  ? 'border-brand-button bg-brand-accent/30 text-brand-button font-medium'
+                  : 'border-gray-200 text-gray-600 hover:border-brand-accent'
+              }`}>
+              {isRanked && (
+                <span className="w-4 h-4 rounded-full bg-brand-button text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                  {rank}
+                </span>
+              )}
+              {platform}
+            </button>
+          )
+        })}
       </div>
 
-      {/* Open to exploring platforms */}
+      {/* Open to exploring platforms — ranked */}
       <p className="text-sm font-medium text-gray-700 mb-1">Platforms you&apos;re open to exploring</p>
       <p className="text-xs text-gray-400 mb-2">
-        We&apos;ll include beginner tasks for these so you can ease in without overwhelm.
+        Tap to rank — we&apos;ll include beginner tasks for these, prioritized by your order.
       </p>
+      {data.platforms.open_to.length > 0 && (
+        <p className="text-xs text-brand-blue mb-2">
+          {data.platforms.open_to.map((p, i) => `${i + 1}. ${p}`).join('  ·  ')}
+        </p>
+      )}
       <div className="flex flex-wrap gap-2 mb-6">
-        {PLATFORMS.filter(p => !data.platforms.active.includes(p)).map(platform => (
-          <button key={platform} type="button" onClick={() => toggleOpenTo(platform)}
-            className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
-              data.platforms.open_to.includes(platform)
-                ? 'border-brand-accent bg-brand-accent/20 text-brand-blue font-medium'
-                : 'border-gray-200 text-gray-600 hover:border-brand-accent'
-            }`}>
-            {platform}
-          </button>
-        ))}
+        {PLATFORMS.filter(p => !data.platforms.active.includes(p)).map(platform => {
+          const rank = getOpenToPlatformRank(platform)
+          const isRanked = rank !== null
+          return (
+            <button key={platform} type="button" onClick={() => handleOpenToPlatformClick(platform)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border transition-all ${
+                isRanked
+                  ? 'border-brand-accent bg-brand-accent/20 text-brand-blue font-medium'
+                  : 'border-gray-200 text-gray-600 hover:border-brand-accent'
+              }`}>
+              {isRanked && (
+                <span className="w-4 h-4 rounded-full bg-brand-accent text-brand-blue text-[10px] font-bold flex items-center justify-center shrink-0">
+                  {rank}
+                </span>
+              )}
+              {platform}
+            </button>
+          )
+        })}
         {PLATFORMS.filter(p => !data.platforms.active.includes(p)).length === 0 && (
           <p className="text-xs text-gray-400">All platforms are already marked as active.</p>
         )}
