@@ -200,7 +200,7 @@ export default function Step2Genre({ data, onChange, onNext, onBack }: Props) {
             onChange={e => onChange({ subgenre: e.target.value })}
             placeholder={
               data.book_type === 'nonfiction'
-                ? 'e.g. hobbies, business building, speaking, financial literacy…'
+                ? 'e.g. technology, social justice, theology, fashion, financial literacy…'
                 : 'e.g. small-town, dark academia, slow burn, found family…'
             }
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-button"

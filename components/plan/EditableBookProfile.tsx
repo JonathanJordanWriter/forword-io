@@ -393,7 +393,7 @@ export default function EditableBookProfile({ bookId, book, defaultCollapsed = f
               type="text"
               value={subgenre}
               onChange={e => setSubgenre(e.target.value)}
-              placeholder="e.g. slow burn, dark academia, financial literacy…"
+              placeholder={bookType === 'nonfiction' ? 'e.g. technology, social justice, theology, fashion…' : 'e.g. slow burn, dark academia, found family…'}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-button"
             />
           </div>
