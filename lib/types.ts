@@ -27,6 +27,7 @@ export interface UserProfileData {
   heard_from: string          // optional
   profile_photo_url: string   // optional — set after storage upload
   existing_tools: string[]    // optional — tools already in use across all books
+  has_agent: boolean | null   // null = not answered; true = has representation; false = no agent
 }
 
 export const EMPTY_USER_PROFILE: UserProfileData = {
@@ -41,6 +42,7 @@ export const EMPTY_USER_PROFILE: UserProfileData = {
   heard_from: '',
   profile_photo_url: '',
   existing_tools: [],
+  has_agent: null,
 }
 
 // ── Book types ────────────────────────────────────────────────────────────────

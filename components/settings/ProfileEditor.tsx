@@ -120,7 +120,7 @@ export default function ProfileEditor() {
 
       const { data } = await supabase
         .from('users')
-        .select('display_name, identities, birthdate, gender, nationality, location, writing_experience, publishing_goals, heard_from, profile_photo_url, existing_tools')
+        .select('display_name, identities, birthdate, gender, nationality, location, writing_experience, publishing_goals, heard_from, profile_photo_url, existing_tools, has_agent')
         .eq('id', user.id)
         .single()
 
@@ -137,6 +137,7 @@ export default function ProfileEditor() {
           heard_from:         data.heard_from          ?? '',
           profile_photo_url:  data.profile_photo_url   ?? '',
           existing_tools:     (data.existing_tools as string[]) ?? [],
+          has_agent:          data.has_agent ?? null,
         })
       }
       setLoading(false)
@@ -216,6 +217,7 @@ export default function ProfileEditor() {
         heard_from:         profile.heard_from      || null,
         profile_photo_url:  profile.profile_photo_url || null,
         existing_tools:     profile.existing_tools.length ? profile.existing_tools : null,
+        has_agent:          profile.has_agent,
       }).eq('id', user.id)
 
       if (error) throw error
@@ -434,6 +436,34 @@ export default function ProfileEditor() {
               update({ publishing_goals: next })
             }}
           />
+        </div>
+
+        <div>
+          <p className="text-sm font-medium text-gray-700 mb-0.5">
+            Do you have a literary agent or representation?
+          </p>
+          <p className="text-xs text-gray-400 mb-2">
+            If yes, we&apos;ll skip tasks about querying and finding an agent in your plans.
+          </p>
+          <div className="flex gap-2">
+            {([
+              { value: true,  label: 'Yes' },
+              { value: false, label: 'No' },
+            ] as const).map(opt => (
+              <button
+                key={String(opt.value)}
+                type="button"
+                onClick={() => update({ has_agent: profile.has_agent === opt.value ? null : opt.value })}
+                className={`px-4 py-1.5 rounded-full text-sm border transition-all ${
+                  profile.has_agent === opt.value
+                    ? 'border-brand-button bg-brand-accent/30 text-brand-button font-medium'
+                    : 'border-gray-200 text-gray-600 hover:border-brand-accent'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

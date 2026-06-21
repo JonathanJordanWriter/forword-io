@@ -131,7 +131,13 @@ export async function POST(req: NextRequest) {
     baseURL: 'https://api.anthropic.com', // explicit — avoid inheriting ANTHROPIC_BASE_URL
   })
 
-  const userProfileJson = buildAuthorProfile(book as Record<string, unknown>)
+  // Merge user-level profile flags into the book record before building the profile JSON.
+  // has_agent comes from the users table (author-level, not book-specific).
+  const bookWithUserFlags = {
+    ...(book as Record<string, unknown>),
+    has_agent: profile?.has_agent ?? null,
+  }
+  const userProfileJson = buildAuthorProfile(bookWithUserFlags)
 
   let rawOutput: string
   try {
@@ -215,10 +221,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to save plan' }, { status: 500 })
   }
 
-  // 9. Fetch the user's tier to determine which tasks should be locked
+  // 9. Fetch the user's tier + profile flags to determine locking and plan personalisation
   const { data: profile } = await supabase
     .from('users')
-    .select('tier')
+    .select('tier, has_agent')
     .eq('id', user.id)
     .single()
   const isStarterTier = !profile?.tier || profile.tier === 'starter'

@@ -37,6 +37,8 @@ export function buildAuthorProfile(book: Record<string, unknown>): string {
     kdp_select: book.kdp_select ?? null,
     // true = author spans multiple genres; suppress genre-specific identity tasks
     writes_multiple_genres: book.writes_multiple_genres ?? false,
+    // true = author already has an agent; suppress all querying/agent-finding tasks
+    has_agent: book.has_agent ?? null,
     // tools the author already has for this book — skip sign-up tasks, generate usage tasks instead
     existing_tools: (book.book_tools as string[] | null) ?? [],
   }
