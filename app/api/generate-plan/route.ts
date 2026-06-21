@@ -115,7 +115,14 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 5. Build the author profile and call Claude
+  // 5. Fetch user profile flags needed for both plan personalisation and task locking
+  const { data: profile } = await supabase
+    .from('users')
+    .select('tier, has_agent')
+    .eq('id', user.id)
+    .single()
+
+  // Build the author profile and call Claude
   // Note: using FORWORD_ANTHROPIC_KEY (not ANTHROPIC_API_KEY) to avoid conflicts
   // with Claude Code's own environment which sets ANTHROPIC_API_KEY to an empty string.
   const apiKey = process.env.FORWORD_ANTHROPIC_KEY
@@ -221,12 +228,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to save plan' }, { status: 500 })
   }
 
-  // 9. Fetch the user's tier + profile flags to determine locking and plan personalisation
-  const { data: profile } = await supabase
-    .from('users')
-    .select('tier, has_agent')
-    .eq('id', user.id)
-    .single()
+  // 9. Use the already-fetched profile to determine task locking
   const isStarterTier = !profile?.tier || profile.tier === 'starter'
   const isAuthorTier = profile?.tier === 'author'
 
