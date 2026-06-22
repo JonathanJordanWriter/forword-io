@@ -432,7 +432,7 @@ function WeekHeader({
       {/* Inline redraft prompt — appears right below the stepper when time has changed */}
       {timeChanged && (
         <div className="mt-3 flex items-center justify-center gap-2 bg-brand-accent/20 border border-brand-accent/40 rounded-lg px-3 py-2">
-          <p className="text-xs text-brand-coal">Time updated —</p>
+          <p className="text-xs text-brand-coal">Profile updated —</p>
           <button
             type="button"
             onClick={onRegenerate}
@@ -1186,9 +1186,9 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
           ) : (
             /* Normal state — two options */
             <div>
-              <p className="text-sm font-medium text-brand-coal">Time preference updated</p>
+              <p className="text-sm font-medium text-brand-coal">Book profile updated</p>
               <p className="text-xs text-gray-500 mt-0.5 mb-3">
-                Regenerate to get tasks matched to your new capacity.
+                Redraft your plan to apply the latest changes to your tasks.
                 {completedCount_total > 0 && ` Your ${completedCount_total} completed task${completedCount_total !== 1 ? 's' : ''} will be carried over.`}
               </p>
               {regenError && <p className="text-xs text-red-500 mb-2">{regenError}</p>}

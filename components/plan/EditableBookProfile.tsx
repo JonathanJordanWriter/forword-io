@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 
 // ─── Option sets (mirrors onboarding) ────────────────────────────────────────
 
@@ -195,11 +195,17 @@ export default function EditableBookProfile({ bookId, book, defaultCollapsed = f
   const [activePlatforms, setActivePlatforms] = useState<string[]>(book.platforms?.active ?? [])
   const [openToPlatforms, setOpenToPlatforms] = useState<string[]>(book.platforms?.open_to ?? [])
   const [timePerWeek, setTimePerWeek] = useState(book.time_per_week ?? '')
-  // Track the last-saved time so we can detect a change after the user edits
-  const savedTimePerWeek = useRef(book.time_per_week ?? '')
   const [monthlyBudget, setMonthlyBudget] = useState(book.monthly_budget ?? '')
   const [experienceLevel, setExperienceLevel] = useState(book.experience_level ?? '')
   const [existingAudience, setExistingAudience] = useState(book.existing_audience ?? '')
+
+  // Restore redraft banner after a page refresh if the user saved but hasn't redrafted yet
+  useEffect(() => {
+    if (sessionStorage.getItem(`plan-needs-regen-${bookId}`)) {
+      setProfileSaved(true)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function toggleGoal(goal: string) {
     if (goalsRanked.includes(goal)) {
@@ -259,7 +265,6 @@ export default function EditableBookProfile({ bookId, book, defaultCollapsed = f
       const storageKey = `plan-needs-regen-${bookId}`
       sessionStorage.setItem(storageKey, '1')
       window.dispatchEvent(new CustomEvent('plan-needs-regen'))
-      savedTimePerWeek.current = timePerWeek
 
       setSaved(true)
       setProfileSaved(true)
