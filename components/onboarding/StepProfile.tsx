@@ -35,7 +35,7 @@ const HEARD_FROM_OPTIONS = [
   { value: 'other',      label: 'Other' },
 ]
 
-const GENDER_OPTIONS = ['Male', 'Female', 'Non-binary']
+const GENDER_OPTIONS = ['Male', 'Female', 'Non-binary', 'Prefer not to answer']
 
 const COUNTRIES = [
   'United States', 'United Kingdom', 'Canada', 'Australia', 'New Zealand',
