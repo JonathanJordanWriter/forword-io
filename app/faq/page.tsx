@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import FAQAccordion from '@/components/support/FAQAccordion'
 
 type FAQItem = { q: string; a: React.ReactNode }
 type Section = { title: string; items: FAQItem[] }
@@ -233,23 +234,7 @@ export default function FAQPage() {
         <h1 className="text-3xl font-bold text-brand-coal mb-2">Support FAQ</h1>
         <p className="text-gray-500 mb-10">Common questions and troubleshooting for authors.</p>
 
-        <div className="space-y-12">
-          {sections.map(section => (
-            <div key={section.title}>
-              <h2 className="text-lg font-bold text-brand-coal mb-4 pb-2 border-b border-gray-100">
-                {section.title}
-              </h2>
-              <div className="space-y-6">
-                {section.items.map(item => (
-                  <div key={item.q}>
-                    <h3 className="text-sm font-semibold text-brand-coal mb-1.5">{item.q}</h3>
-                    <div className="text-sm text-gray-600 leading-relaxed">{item.a}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+        <FAQAccordion sections={sections} />
 
         {/* Footer CTA */}
         <div className="mt-14 pt-8 border-t border-gray-100 text-center">
