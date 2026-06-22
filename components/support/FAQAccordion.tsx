@@ -16,7 +16,7 @@ export default function FAQAccordion({ sections }: { sections: Section[] }) {
     <div className="space-y-10">
       {sections.map(section => (
         <div key={section.title}>
-          <h2 className="text-lg font-bold text-brand-coal mb-3 pb-2 border-b border-gray-100">
+          <h2 className="text-lg font-bold text-brand-button mb-3 pb-2 border-b border-gray-100">
             {section.title}
           </h2>
           <div className="divide-y divide-gray-100">

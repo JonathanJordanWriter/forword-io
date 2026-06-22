@@ -6,27 +6,27 @@ type Section = { title: string; items: FAQItem[] }
 
 const sections: Section[] = [
   {
-    title: 'About forword.io',
+    title: 'About ForWord.io',
     items: [
       {
-        q: 'What is forword.io?',
-        a: <>forword.io is designed to reduce the confusion and overwhelm around marketing your book. With so much conflicting advice online, it can be difficult to know what to do for your specific book within your specific preferences. forword.io drafts a customized book marketing plan based on your genre, goals, book stage, time availability, and platform preferences. The suggestions are based on proven strategies that have worked for other authors — both fiction and nonfiction — and across all publishing paths.</>,
+        q: 'What is ForWord.io?',
+        a: <>ForWord.io is designed to reduce the confusion and overwhelm around marketing your book. With so much conflicting advice online, it can be difficult to know what to do for your specific book within your specific preferences. ForWord.io drafts a customized book marketing plan based on your genre, goals, book stage, time availability, and platform preferences. The suggestions are based on proven strategies that have worked for other authors — both fiction and nonfiction — and across all publishing paths.</>,
       },
       {
         q: 'How does the plan get created for my book?',
         a: <>First, you fill out an author profile during setup so we know a bit about you. Then you complete a book profile for whichever title you want a plan for. Our system is preloaded with suggestions based on what has worked for other authors, then modified to fit the information you gave us. AI is used to make the task selections customized for your book. We&apos;re aware that the A-word makes many writers nervous — but the same thing happens when Spotify or Netflix make recommendations for you based on your personal taste. We&apos;re constantly adding new task ideas based on feedback and what we see working so that everyone can win.</>,
       },
       {
-        q: "I don't want AI taking my book. Does using forword.io compromise my book in any way?",
-        a: <>We&apos;re 100% on the same page with you. forword.io is designed in a way that does not feed any of your info to an LLM (Large Language Model), and we will never ask you to upload your manuscript to an LLM. In fact, we actively discourage all authors from ever doing so. Any info about your book from your profile is private in your account and is not shared or accessible by other users. The only function the AI interface serves is to select from our task list so that you receive a customized plan instead of cookie-cutter advice. Think of it like how Spotify or Netflix makes personalized recommendations — that&apos;s how forword.io works.</>,
+        q: "I don't want AI taking my book. Does using ForWord.io compromise my book in any way?",
+        a: <>We&apos;re 100% on the same page with you. ForWord.io is designed in a way that does not feed any of your info to an LLM (Large Language Model), and we will never ask you to upload your manuscript to an LLM. In fact, we actively discourage all authors from ever doing so. Any info about your book from your profile is private in your account and is not shared or accessible by other users. The only function the AI interface serves is to select from our task list so that you receive a customized plan instead of cookie-cutter advice. Think of it like how Spotify or Netflix makes personalized recommendations — that&apos;s how ForWord.io works.</>,
       },
       {
-        q: 'Does forword.io sell my book for me?',
+        q: 'Does ForWord.io sell my book for me?',
         a: <>As an author, you are your book&apos;s best evangelist. If you&apos;re looking for someone else to sell your book for you, you might want to reconsider whether you really want to be an author. We help by cutting through the noise and contradictory advice, tailoring a practical plan for you, your goals, and your schedule. Follow the steps and you will gain visibility and traction, which inevitably leads to more book sales. You can draft a 30-day plan totally free, no risk.</>,
       },
       {
-        q: 'Does forword.io draft social media posts for me?',
-        a: <>No — because we believe the best writing comes from humans, specifically you. The tasks will give you prompts to build off of based around proven strategies. We&apos;re considering a future feature that would build a customized prompt list so you spend less time staring at a blank page and more time gaining visibility. However, we will never draft writing for you. We draw a hard line there. If you want a platform that &quot;writes&quot; for you, forword.io is definitely not for you.</>,
+        q: 'Does ForWord.io draft social media posts for me?',
+        a: <>No — because we believe the best writing comes from humans, specifically you. The tasks will give you prompts to build off of based around proven strategies. We&apos;re considering a future feature that would build a customized prompt list so you spend less time staring at a blank page and more time gaining visibility. However, we will never draft writing for you. We draw a hard line there. If you want a platform that &quot;writes&quot; for you, ForWord.io is definitely not for you.</>,
       },
     ],
   },
@@ -35,7 +35,7 @@ const sections: Section[] = [
     items: [
       {
         q: 'How do I create an account?',
-        a: <>Click <strong>Sign Up</strong> on the forword.io homepage and enter your email address and a password. You&apos;ll receive a confirmation email — open it and click the link inside to activate your account. If you don&apos;t see it within a few minutes, check your spam or junk folder.</>,
+        a: <>Click <strong>Sign Up</strong> on the ForWord.io homepage and enter your email address and a password. You&apos;ll receive a confirmation email — open it and click the link inside to activate your account. If you don&apos;t see it within a few minutes, check your spam or junk folder.</>,
       },
       {
         q: 'I never received my confirmation email.',
@@ -49,7 +49,7 @@ const sections: Section[] = [
         q: "The site isn't loading. I just see a blank screen.",
         a: (
           <>
-            <p className="mb-2">This is most often caused by a network-level security filter (common on work or school networks, or if you use a VPN or DNS filter like Pi-hole or NextDNS) blocking the forword.io domain. Try the following:</p>
+            <p className="mb-2">This is most often caused by a network-level security filter (common on work or school networks, or if you use a VPN or DNS filter like Pi-hole or NextDNS) blocking the ForWord.io domain. Try the following:</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>Switch from your WiFi to your phone&apos;s mobile hotspot and try again. If it loads, the block is on your network, not your device.</li>
               <li>Disable your VPN temporarily and reload.</li>
@@ -104,7 +104,7 @@ const sections: Section[] = [
       },
       {
         q: 'What is the "Comp titles" section for?',
-        a: <>&quot;Comp titles&quot; (comparison titles) are recently published books similar to yours in genre, tone, or audience. They help forword.io draft tasks that reference the right reader communities, platforms, and marketing angles for your specific book. Add up to three comp titles. If you&apos;re not sure what your comp titles are yet, you can skip this section — your plan will still be personalized based on your genre and goals.</>,
+        a: <>&quot;Comp titles&quot; (comparison titles) are recently published books similar to yours in genre, tone, or audience. They help ForWord.io draft tasks that reference the right reader communities, platforms, and marketing angles for your specific book. Add up to three comp titles. If you&apos;re not sure what your comp titles are yet, you can skip this section — your plan will still be personalized based on your genre and goals.</>,
       },
       {
         q: 'Can I upload a cover image?',
@@ -129,7 +129,7 @@ const sections: Section[] = [
       },
       {
         q: 'What happens to my completed tasks when I redraft?',
-        a: <>Your completed tasks are preserved. When you redraft, forword.io adds new uncompleted tasks matched to your updated profile, while keeping a record of everything you&apos;ve already finished. You&apos;ll also see an option to <strong>Start completely fresh</strong> if you&apos;d prefer to reset everything.</>,
+        a: <>Your completed tasks are preserved. When you redraft, ForWord.io adds new uncompleted tasks matched to your updated profile, while keeping a record of everything you&apos;ve already finished. You&apos;ll also see an option to <strong>Start completely fresh</strong> if you&apos;d prefer to reset everything.</>,
       },
       {
         q: 'Can I change my time availability after drafting my plan?',
@@ -146,7 +146,7 @@ const sections: Section[] = [
       },
       {
         q: 'Can I add my own tasks?',
-        a: <>Yes. At the bottom of any week&apos;s task list, click <strong>Add your own task</strong>. Enter a title, estimated time, optional description, and a category (which determines the reward points earned). Custom tasks appear in your plan alongside the tasks suggested by forword.io.</>,
+        a: <>Yes. At the bottom of any week&apos;s task list, click <strong>Add your own task</strong>. Enter a title, estimated time, optional description, and a category (which determines the reward points earned). Custom tasks appear in your plan alongside the tasks suggested by ForWord.io.</>,
       },
       {
         q: 'Can I move a task to a different week?',
@@ -154,7 +154,7 @@ const sections: Section[] = [
       },
       {
         q: "Can I replace a task I don't want to do?",
-        a: <>Yes. Below any incomplete, unlocked task, click <strong>Replace this task</strong>. forword.io will suggest a new task for the same week and phase. You can also scroll to the bottom of each week&apos;s task list and click <strong>Add your own task</strong> to create a custom one and assign it to the right category to earn points.</>,
+        a: <>Yes. Below any incomplete, unlocked task, click <strong>Replace this task</strong>. ForWord.io will suggest a new task for the same week and phase. You can also scroll to the bottom of each week&apos;s task list and click <strong>Add your own task</strong> to create a custom one and assign it to the right category to earn points.</>,
       },
       {
         q: 'Why are some of my tasks blurred?',
