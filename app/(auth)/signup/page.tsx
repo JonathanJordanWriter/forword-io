@@ -1,17 +1,18 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import PasswordInput from '@/components/PasswordInput'
 
 export default function SignupPage() {
+  const router = useRouter()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [confirmed, setConfirmed] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -31,27 +32,7 @@ export default function SignupPage() {
       return
     }
 
-    setConfirmed(true)
-  }
-
-  // ── Check-your-email screen ───────────────────────────────────────────────
-  if (confirmed) {
-    return (
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
-        <div className="w-12 h-12 rounded-full bg-brand-accent/30 flex items-center justify-center mx-auto mb-4">
-          <svg className="w-6 h-6 text-brand-button" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
-        </div>
-        <h2 className="text-xl font-semibold text-brand-coal mb-2">Check your email</h2>
-        <p className="text-sm text-gray-500 mb-1">We sent a confirmation link to</p>
-        <p className="text-sm font-semibold text-brand-coal mb-4">{email}</p>
-        <p className="text-sm text-gray-500 mb-6">Click the link in the email to activate your account and get started. If you don&apos;t see it within a few minutes, check your spam folder.</p>
-        <Link href="/login" className="text-sm text-brand-button font-medium hover:underline">
-          Back to log in
-        </Link>
-      </div>
-    )
+    router.push('/onboarding')
   }
 
   // ── Sign-up form ──────────────────────────────────────────────────────────

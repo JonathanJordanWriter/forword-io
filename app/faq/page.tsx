@@ -35,11 +35,7 @@ const sections: Section[] = [
     items: [
       {
         q: 'How do I create an account?',
-        a: <>Click <strong>Sign Up</strong> on the ForWord.io homepage and enter your email address and a password. You&apos;ll receive a confirmation email — open it and click the link inside to activate your account. If you don&apos;t see it within a few minutes, check your spam or junk folder.</>,
-      },
-      {
-        q: 'I never received my confirmation email.',
-        a: <>Double-check your spam or junk folder first. If it&apos;s still not there, add <strong>noreply@forword.io</strong> to your contacts and try signing up again. Some corporate or school email systems block automated emails from new senders — if that&apos;s the case, try signing up with a personal email address (Gmail, Outlook, etc.).</>,
+        a: <>Click <strong>Sign Up</strong> on the ForWord.io homepage and enter your name, email address, and a password. You&apos;ll be taken straight into your author profile setup — no confirmation step required.</>,
       },
       {
         q: 'Can I sign in with Google?',
