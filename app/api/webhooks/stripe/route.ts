@@ -50,6 +50,12 @@ export async function POST(req: NextRequest) {
       const periodEnd = (sub as unknown as { current_period_end?: number }).current_period_end
       const tierExpires = periodEnd ? new Date(periodEnd * 1000).toISOString() : null
 
+      // Don't downgrade beta users — is_beta overrides Stripe status
+      if (!isActive) {
+        const { data: u } = await supabase.from('users').select('is_beta').eq('id', userId).single()
+        if (u?.is_beta) break
+      }
+
       await supabase
         .from('users')
         .update({
@@ -114,6 +120,10 @@ export async function POST(req: NextRequest) {
       const sub = event.data.object as Stripe.Subscription
       const userId = sub.metadata?.supabase_user_id
       if (!userId) break
+
+      // Don't downgrade beta users — is_beta overrides Stripe status
+      const { data: betaCheck } = await supabase.from('users').select('is_beta').eq('id', userId).single()
+      if (betaCheck?.is_beta) break
 
       // Downgrade to starter and re-lock tasks beyond day 30
       await supabase
