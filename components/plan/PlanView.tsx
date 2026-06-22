@@ -1162,7 +1162,7 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
               </svg>
               <div>
                 <p className="text-sm font-medium text-brand-coal">Drafting your updated plan…</p>
-                <p className="text-xs text-gray-500">This takes 1–2 minutes. You can navigate away and come back.</p>
+                <p className="text-xs text-gray-500">This takes 3–5 minutes. You can navigate away and come back.</p>
               </div>
             </div>
           ) : confirmReset ? (

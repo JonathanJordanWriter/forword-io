@@ -113,7 +113,7 @@ const sections: Section[] = [
     items: [
       {
         q: 'How long does plan drafting take?',
-        a: <>Plan drafting typically takes 1–2 minutes, though it can sometimes take up to 5 minutes. A loading screen will appear while your plan is being created. Please don&apos;t close or refresh the tab during this time — you can navigate away and come back, and your plan will be ready when you return.</>,
+        a: <>Plan drafting typically takes 3–5 minutes. A loading screen will appear while your plan is being created. Please don&apos;t close or refresh the tab during this time — you can navigate away and come back, and your plan will be ready when you return.</>,
       },
       {
         q: 'My plan drafting failed. What do I do?',

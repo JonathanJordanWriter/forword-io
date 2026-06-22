@@ -98,7 +98,7 @@ export default function GeneratePlanButton({ bookId, timePerWeek, isStarterTier 
             </p>
           </div>
           <p className="text-xs text-gray-400">
-            This usually takes 1–2 minutes. Don&apos;t close this tab.
+            This usually takes 3–5 minutes. Don&apos;t close this tab.
           </p>
           {/* Progress bar animates over 90 seconds */}
           <div className="w-full max-w-xs mx-auto h-1.5 bg-gray-100 rounded-full overflow-hidden">
