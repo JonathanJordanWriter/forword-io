@@ -183,7 +183,7 @@ const sections: Section[] = [
       },
       {
         q: 'What do I get for my points?',
-        a: <>Go to the <strong>Rewards</strong> tab to see your total points. At the bottom, you&apos;ll see a leaderboard for both Fiction and Nonfiction categories — the top 3 in each category win bonus points. If you have an Author or Launch Pro account, you can spend 2,500 points to &quot;Flip the Book&quot; for a variety of prizes, including discounts on your plan.</>,
+        a: <>Go to the <strong>Rewards</strong> tab to see your total points. At the bottom, you&apos;ll see a leaderboard for both Fiction and Nonfiction categories. The top 3 in each category for the calendar week will win bonus points. (Week resets at 12 a.m. Eastern US time.) If you have an Author or Launch Pro account, you can spend 2,500 points to &quot;Flip the Book&quot; for a variety of prizes, including discounts on your plan.</>,
       },
     ],
   },
