@@ -264,7 +264,7 @@ function OpenBook({ prize, code }: { prize: string | null; code: string | null }
 
         {/* "You won!" written like a heading on the page */}
         <p style={{
-          fontSize: 10, fontWeight: 800, letterSpacing: 3,
+          fontSize: 12, fontWeight: 800, letterSpacing: 3,
           color: '#9ca3af', textTransform: 'uppercase',
         }}>
           You won!
@@ -272,7 +272,7 @@ function OpenBook({ prize, code }: { prize: string | null; code: string | null }
 
         {/* Prize name — styled like handwritten page text */}
         <p style={{
-          fontSize: 14, fontWeight: 700, color: '#1f2937',
+          fontSize: 17, fontWeight: 700, color: '#1f2937',
           textAlign: 'center', lineHeight: 1.5,
           fontFamily: 'Georgia, "Times New Roman", serif',
           borderBottom: '1px solid rgba(0,0,0,0.08)',
@@ -291,7 +291,7 @@ function OpenBook({ prize, code }: { prize: string | null; code: string | null }
             textAlign: 'center',
             width: '100%',
           }}>
-            <p style={{ fontSize: 9, color: '#9ca3af', marginBottom: 2 }}>Your code</p>
+            <p style={{ fontSize: 11, color: '#9ca3af', marginBottom: 2 }}>Your code</p>
             <p style={{
               fontSize: 15, fontWeight: 900, color: '#4f46e5',
               letterSpacing: 3, fontFamily: 'monospace',
@@ -302,7 +302,7 @@ function OpenBook({ prize, code }: { prize: string | null; code: string | null }
         )}
 
         <p style={{
-          fontSize: 9, color: '#b0aaa0',
+          fontSize: 11, color: '#b0aaa0',
           textAlign: 'center', lineHeight: 1.5, marginTop: 2,
         }}>
           Our team will apply<br />your reward within 2–3 days.
