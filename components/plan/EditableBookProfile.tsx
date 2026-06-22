@@ -51,7 +51,7 @@ const GOALS = [
 
 const PLATFORMS_LIST = [
   'Instagram', 'TikTok / BookTok', 'Substack', 'Facebook', 'Goodreads',
-  'Threads', 'YouTube', 'Pinterest', 'LinkedIn', 'Twitter / X', 'Bluesky', 'Podcast guest appearances',
+  'Threads', 'YouTube', 'Pinterest', 'LinkedIn', 'Twitter / X', 'Bluesky', 'Reddit', 'Podcast guest appearances',
 ]
 
 const TIME_OPTIONS = [

@@ -37,7 +37,7 @@ const NONFICTION_INTERESTS = [
 
 const PLATFORMS = [
   'Instagram', 'TikTok / BookTok', 'Substack', 'Facebook', 'Goodreads',
-  'Threads', 'YouTube', 'Pinterest', 'LinkedIn', 'Twitter / X', 'Bluesky', 'Podcast guest appearances',
+  'Threads', 'YouTube', 'Pinterest', 'LinkedIn', 'Twitter / X', 'Bluesky', 'Reddit', 'Podcast guest appearances',
 ]
 
 export default function Step4GoalsPlatforms({ data, onChange, onNext, onBack }: Props) {
