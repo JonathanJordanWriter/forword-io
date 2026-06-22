@@ -84,7 +84,7 @@ export default function DashboardBookList({ books }: Props) {
             className="flex items-center justify-between p-5 rounded-2xl border border-gray-200 hover:border-brand-button hover:bg-brand-accent/10 transition-all group cursor-pointer"
           >
             <div className="flex-1 min-w-0">
-              <p className="text-base font-semibold text-brand-coal group-hover:text-brand-button transition-colors truncate">
+              <p className="text-base font-semibold text-brand-coal group-hover:text-brand-button transition-colors line-clamp-2">
                 {book.title}
               </p>
               <div className="flex items-center gap-2 mt-1 flex-wrap">
