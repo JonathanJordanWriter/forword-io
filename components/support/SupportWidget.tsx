@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Link from 'next/link'
 
 type Status = 'idle' | 'open' | 'sending' | 'success' | 'error'
 
@@ -64,7 +65,7 @@ export default function SupportWidget() {
 
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <p className="text-sm font-semibold text-brand-coal">Report an issue</p>
+              <p className="text-sm font-semibold text-brand-coal">Support</p>
               <button
                 type="button"
                 onClick={close}
@@ -76,6 +77,22 @@ export default function SupportWidget() {
                 </svg>
               </button>
             </div>
+
+            {/* FAQ link */}
+            {status !== 'success' && (
+              <div className="px-5 pt-3 pb-1">
+                <Link
+                  href="/faq"
+                  target="_blank"
+                  className="flex items-center gap-2 text-xs text-brand-button font-medium hover:opacity-75 transition-opacity"
+                >
+                  <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Browse the FAQ first
+                </Link>
+              </div>
+            )}
 
             {status === 'success' ? (
               /* Success state */
@@ -100,7 +117,7 @@ export default function SupportWidget() {
               <div className="px-5 py-4 space-y-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1.5">
-                    Oh no! What&apos;s wrong?
+                    Can&apos;t find what you need? Tell us what&apos;s wrong.
                   </label>
                   <textarea
                     value={message}
