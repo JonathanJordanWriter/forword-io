@@ -18,10 +18,6 @@ function tierFromPriceId(priceId: string): 'author' | 'pro' | null {
   return null
 }
 
-export async function GET() {
-  return NextResponse.json({ ok: true })
-}
-
 export async function POST(req: NextRequest) {
   const body = await req.text()
   const sig = req.headers.get('stripe-signature')
