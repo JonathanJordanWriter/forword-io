@@ -113,7 +113,7 @@ export default function UpgradeModal({ onClose, bookId }: Props) {
           <div className="border border-gray-200 rounded-xl p-4">
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-semibold text-brand-coal">Launch Pro</p>
+                <p className="font-semibold text-brand-coal">Author Pro</p>
                 <p className="text-xs text-gray-500 mt-0.5">Everything in Author plus unlimited active books</p>
                 <ul className="mt-2 space-y-0.5">
                   {[
@@ -141,7 +141,7 @@ export default function UpgradeModal({ onClose, bookId }: Props) {
               disabled={loading !== null}
               className="mt-4 w-full py-2.5 border border-gray-300 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 disabled:opacity-50 transition-colors"
             >
-              {loading === 'pro' ? 'Redirecting to checkout…' : 'Get Launch Pro — $19/mo'}
+              {loading === 'pro' ? 'Redirecting to checkout…' : 'Get Author Pro — $19/mo'}
             </button>
           </div>
         </div>

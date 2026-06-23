@@ -97,7 +97,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           error: 'monthly_limit_reached',
-          message: `You've already switched your Author subscription to a new title this month. You can switch again on ${nextMonthFirstDay()}, or upgrade to Launch Pro for unlimited projects.`,
+          message: `You've already switched your Author subscription to a new title this month. You can switch again on ${nextMonthFirstDay()}, or upgrade to Author Pro for unlimited projects.`,
           nextSwitchDate: nextMonthFirstDay(),
         },
         { status: 429 }

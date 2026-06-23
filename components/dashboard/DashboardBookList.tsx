@@ -168,14 +168,14 @@ export default function DashboardBookList({ books }: Props) {
                   You&apos;ve already switched your Author subscription to a new title this month.
                 </p>
                 <p className="text-sm text-gray-500 text-center mb-6">
-                  You can switch again on <strong>{deletingBook.nextSwitchDate}</strong>, or upgrade to Launch Pro for unlimited projects with no switching limits.
+                  You can switch again on <strong>{deletingBook.nextSwitchDate}</strong>, or upgrade to Author Pro for unlimited projects with no switching limits.
                 </p>
                 <div className="flex gap-3">
                   <a
                     href="/dashboard/settings"
                     className="flex-1 py-2.5 bg-brand-button text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity text-center"
                   >
-                    Upgrade to Launch Pro
+                    Upgrade to Author Pro
                   </a>
                   <button
                     type="button"
@@ -205,7 +205,7 @@ export default function DashboardBookList({ books }: Props) {
                 </p>
                 <p className="text-sm text-center mb-6">
                   <a href="/dashboard/settings" className="text-brand-button font-medium underline hover:opacity-80">
-                    Upgrade to Launch Pro
+                    Upgrade to Author Pro
                   </a>
                   {' '}for unlimited projects with no switching limits.
                 </p>

@@ -64,7 +64,7 @@ Aspiring and published authors know they need to market their books but feel ove
 - Platform-specific prompt packs  
 - Done-for-you outreach templates (podcast pitch, ARC, book club kit)
 
-### Launch Pro ($19/month)
+### Author Pro ($19/month)
 
 - Everything in Author  
 - **All books get full 90-day plans — no restrictions**  

@@ -14,7 +14,7 @@ export const PLANS = {
   },
   pro: {
     priceId: process.env.STRIPE_PRO_PRICE_ID!,
-    name: 'Launch Pro',
+    name: 'Author Pro',
     price: '$19',
     period: 'month',
   },

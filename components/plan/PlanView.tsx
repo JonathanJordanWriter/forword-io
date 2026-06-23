@@ -1144,7 +1144,7 @@ export default function PlanView({ plan, tasks: initialTasks, isStarterTier: _is
         {tasks.some(t => t.is_locked) && (
           <p className="text-xs text-gray-400 mt-1.5">
             {userTier === 'author'
-              ? <>This book&apos;s plan is locked past day 30. <span className="text-brand-button font-medium cursor-pointer hover:underline" onClick={() => setShowUpgradeModal(true)}>Upgrade to Launch Pro</span> to unlock all your books.</>
+              ? <>This book&apos;s plan is locked past day 30. <span className="text-brand-button font-medium cursor-pointer hover:underline" onClick={() => setShowUpgradeModal(true)}>Upgrade to Author Pro</span> to unlock all your books.</>
               : <>Showing tasks 1–30 days. <span className="text-brand-button font-medium cursor-pointer hover:underline" onClick={() => setShowUpgradeModal(true)}>Upgrade to Author</span> to unlock all 90 days.</>
             }
           </p>

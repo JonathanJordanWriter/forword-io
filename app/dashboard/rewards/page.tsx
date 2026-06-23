@@ -238,7 +238,7 @@ export default function RewardsPage() {
                   '$2 off your next month',
                   '10% off at ForWord Writers Etsy shop',
                   '1 free month of Author',
-                  '50% off Launch Pro for one month',
+                  '50% off Author Pro for one month',
                 ].map(prize => (
                   <div key={prize} className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
                     <span className="text-brand-button text-xs">✦</span>

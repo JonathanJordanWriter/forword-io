@@ -288,12 +288,12 @@ export default function SettingsPage() {
               )}
             </div>
 
-            {/* Launch Pro tier */}
+            {/* Author Pro tier */}
             <div className={`rounded-xl border p-5 ${tier === 'pro' ? 'border-brand-button bg-brand-accent/10' : 'border-gray-200 bg-white'}`}>
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-0.5">
-                    <p className="text-sm font-semibold text-brand-coal">Launch Pro</p>
+                    <p className="text-sm font-semibold text-brand-coal">Author Pro</p>
                     {tier === 'pro' && (
                       <span className="text-xs px-2 py-0.5 rounded-full bg-brand-button text-white font-medium">Current plan</span>
                     )}
@@ -308,7 +308,7 @@ export default function SettingsPage() {
                   disabled={upgradeLoading}
                   className="mt-4 w-full py-2.5 border-2 border-brand-button text-brand-button text-sm font-semibold rounded-xl hover:bg-brand-accent/10 disabled:opacity-50 transition-colors"
                 >
-                  {upgradeLoading ? 'Loading…' : 'Upgrade to Launch Pro — $19/mo'}
+                  {upgradeLoading ? 'Loading…' : 'Upgrade to Author Pro — $19/mo'}
                 </button>
               )}
               {tier === 'pro' && (
@@ -517,11 +517,11 @@ export default function SettingsPage() {
             onClick={e => e.stopPropagation()}
           >
             <h2 className="text-lg font-bold text-brand-coal mb-2">
-              Upgrade to {confirmPlan === 'pro' ? 'Launch Pro' : 'Author'}?
+              Upgrade to {confirmPlan === 'pro' ? 'Author Pro' : 'Author'}?
             </h2>
             <p className="text-sm text-gray-500 mb-1">
               {confirmPlan === 'pro'
-                ? 'You\'ll be upgraded to Launch Pro at $19/month. Your card on file will be charged the prorated difference for the remainder of your current billing period.'
+                ? 'You\'ll be upgraded to Author Pro at $19/month. Your card on file will be charged the prorated difference for the remainder of your current billing period.'
                 : 'You\'ll be upgraded to Author at $9/month. Your card on file will be charged today.'}
             </p>
             <p className="text-xs text-gray-400 mb-6">You can cancel or downgrade anytime from Account Settings.</p>

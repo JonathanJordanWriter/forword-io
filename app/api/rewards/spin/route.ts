@@ -16,7 +16,7 @@ const PRIZES = [
   { label: '$2 off next month',              code: null,     weight: 25 },
   { label: '10% off at ForWord Writers',     code: 'WIN10',  weight: 20 },
   { label: '1 free month of Author',         code: null,     weight: 12 },
-  { label: '50% off Launch Pro for 1 month', code: null,     weight: 8  },
+  { label: '50% off Author Pro for 1 month', code: null,     weight: 8  },
 ]
 
 function pickPrize() {

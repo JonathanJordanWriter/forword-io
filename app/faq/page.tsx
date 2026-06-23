@@ -154,7 +154,7 @@ const sections: Section[] = [
       },
       {
         q: 'Why are some of my tasks blurred?',
-        a: <>Tasks beyond the Day 30 marker are locked on the free Starter plan. You can see their titles but not their descriptions. Upgrading to Author ($9/month) unlocks all 90 days of tasks for one book of your choice. Upgrading to Launch Pro ($19/month) gives you 90-day plans for as many books as you want.</>,
+        a: <>Tasks beyond the Day 30 marker are locked on the free Starter plan. You can see their titles but not their descriptions. Upgrading to Author ($9/month) unlocks all 90 days of tasks for one book of your choice. Upgrading to Author Pro ($19/month) gives you 90-day plans for as many books as you want.</>,
       },
       {
         q: "What if I don't finish the tasks in 30 days?",
@@ -179,7 +179,7 @@ const sections: Section[] = [
       },
       {
         q: 'What do I get for my points?',
-        a: <>Go to the <strong>Rewards</strong> tab to see your total points. At the bottom, you&apos;ll see a leaderboard for both Fiction and Nonfiction categories. The top 3 in each category for the calendar week will win bonus points. (Week resets at 12 a.m. Eastern US time.) If you have an Author or Launch Pro account, you can spend 2,500 points to &quot;Flip the Book&quot; for a variety of prizes, including discounts on your plan.</>,
+        a: <>Go to the <strong>Rewards</strong> tab to see your total points. At the bottom, you&apos;ll see a leaderboard for both Fiction and Nonfiction categories. The top 3 in each category for the calendar week will win bonus points. (Week resets at 12 a.m. Eastern US time.) If you have an Author or Author Pro account, you can spend 2,500 points to &quot;Flip the Book&quot; for a variety of prizes, including discounts on your plan.</>,
       },
     ],
   },
@@ -187,8 +187,8 @@ const sections: Section[] = [
     title: 'Account & Billing',
     items: [
       {
-        q: "What's the difference between the Starter, Author, and Launch Pro plans?",
-        a: <>The free <strong>Starter</strong> plan gives you up to 2 book profiles and 30 days of tasks per plan. The <strong>Author</strong> plan ($9/month) gives you a full 90-day plan for one book, plus 30-day plans for any other titles you add. <strong>Launch Pro</strong> ($19/month) gives you unlimited 90-day plans for as many titles as you want — perfect for the seasoned author with multiple books requiring ongoing marketing support.</>,
+        q: "What's the difference between the Starter, Author, and Author Pro plans?",
+        a: <>The free <strong>Starter</strong> plan gives you up to 2 book profiles and 30 days of tasks per plan. The <strong>Author</strong> plan ($9/month) gives you a full 90-day plan for one book, plus 30-day plans for any other titles you add. <strong>Author Pro</strong> ($19/month) gives you unlimited 90-day plans for as many titles as you want — perfect for the seasoned author with multiple books requiring ongoing marketing support.</>,
       },
       {
         q: 'How do I upgrade?',

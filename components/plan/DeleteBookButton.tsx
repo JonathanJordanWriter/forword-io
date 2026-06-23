@@ -74,7 +74,7 @@ export default function DeleteBookButton({
           </p>
           <p className="text-xs text-amber-700 mb-4">
             You&apos;ve already switched your Author subscription to a new title this month.
-            You can switch again on <strong>{nextSwitchDate}</strong>, or upgrade to Launch Pro
+            You can switch again on <strong>{nextSwitchDate}</strong>, or upgrade to Author Pro
             for unlimited projects with no switching limits.
           </p>
           <div className="flex gap-2 flex-wrap">
@@ -82,7 +82,7 @@ export default function DeleteBookButton({
               href="/dashboard/settings"
               className="px-3 py-1.5 bg-brand-button text-white text-xs font-medium rounded-lg hover:opacity-90 transition-opacity"
             >
-              Upgrade to Launch Pro
+              Upgrade to Author Pro
             </a>
             <button
               type="button"
@@ -111,7 +111,7 @@ export default function DeleteBookButton({
           <p className="text-xs text-amber-600 mb-4">
             Want unlimited projects with no switching limits?{' '}
             <a href="/dashboard/settings" className="font-medium underline hover:text-amber-800">
-              Upgrade to Launch Pro →
+              Upgrade to Author Pro →
             </a>
           </p>
           {error && (
