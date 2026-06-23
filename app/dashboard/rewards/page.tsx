@@ -234,10 +234,10 @@ export default function RewardsPage() {
               <h3 className="text-sm font-semibold text-brand-coal mb-3">Prize pool</h3>
               <div className="grid grid-cols-1 gap-2">
                 {[
-                  '$2 off your next month',
-                  '$3 off your next month',
-                  '10% off at ForWord Writers Etsy shop',
-                  '$9 off your next month',
+                  '$2 off your next month*',
+                  '$3 off your next month*',
+                  '$9 off your next month*',
+                  '10% off coupon code for ForWord Writers Etsy shop',
                 ].map(prize => (
                   <div key={prize} className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
                     <span className="text-brand-button text-xs">✦</span>
@@ -246,7 +246,7 @@ export default function RewardsPage() {
                 ))}
               </div>
               <p className="text-xs text-gray-400 mt-3">
-                Prizes are applied manually by the forword.io team within 2–3 business days of winning.
+                *$2, $3, and $9 off prizes are automatically applied to your Author or Author Pro subscription for the next billing cycle.
               </p>
             </div>
 
