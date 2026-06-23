@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+    event = stripe.webhooks.constructEvent(body, sig, (process.env.STRIPE_WEBHOOK_SECRET ?? '').trim())
   } catch (err) {
     console.error('Webhook signature verification failed:', err)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
 
   const supabase = getServiceClient()
 
+  try {
   switch (event.type) {
     case 'customer.subscription.created':
     case 'customer.subscription.updated': {
@@ -234,6 +235,11 @@ export async function POST(req: NextRequest) {
     default:
       // Ignore unhandled event types
       break
+  }
+  } catch (err) {
+    console.error('Webhook handler error:', err)
+    // Still return 200 so Stripe doesn't keep retrying
+    return NextResponse.json({ received: true, error: 'Handler error' })
   }
 
   return NextResponse.json({ received: true })
