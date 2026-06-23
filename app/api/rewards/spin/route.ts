@@ -132,7 +132,7 @@ export async function POST() {
     if (userProfile?.stripe_subscription_id) {
       try {
         await stripe.subscriptions.update(userProfile.stripe_subscription_id, {
-          coupon: prize.couponId,
+          discounts: [{ coupon: prize.couponId }],
         })
       } catch (err) {
         console.error('Failed to apply Stripe coupon:', err)
