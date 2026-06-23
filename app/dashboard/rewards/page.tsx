@@ -234,11 +234,10 @@ export default function RewardsPage() {
               <h3 className="text-sm font-semibold text-brand-coal mb-3">Prize pool</h3>
               <div className="grid grid-cols-1 gap-2">
                 {[
-                  '$1 off your next month',
                   '$2 off your next month',
+                  '$3 off your next month',
                   '10% off at ForWord Writers Etsy shop',
-                  '1 free month of Author',
-                  '50% off Author Pro for one month',
+                  '$9 off your next month',
                 ].map(prize => (
                   <div key={prize} className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
                     <span className="text-brand-button text-xs">✦</span>
