@@ -148,10 +148,86 @@ export async function POST(req: NextRequest) {
       break
     }
 
-    case 'invoice.payment_failed': {
-      // Log for now — Resend email reminders can be added later
+    case 'invoice.payment_succeeded': {
       const invoice = event.data.object as Stripe.Invoice
+      const customerEmail = invoice.customer_email
+      const amountPaid = ((invoice.amount_paid ?? 0) / 100).toFixed(2)
+      const invoiceUrl = invoice.hosted_invoice_url
+
+      if (customerEmail) {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${(process.env.RESEND_API_KEY ?? '').trim()}`,
+          },
+          body: JSON.stringify({
+            from: 'forword.io <noreply@forword.io>',
+            to: customerEmail,
+            subject: 'Your forword.io receipt',
+            html: `
+              <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px;">
+                <img src="https://forword.io/logo.png" alt="forword.io" style="height:36px;margin-bottom:24px;" />
+                <h2 style="color:#1a1a1a;margin-bottom:8px;">Payment confirmed</h2>
+                <p style="color:#6b7280;margin-bottom:8px;">
+                  Thanks for your forword.io subscription. Here's your receipt.
+                </p>
+                <p style="color:#1a1a1a;font-size:18px;font-weight:600;margin-bottom:24px;">
+                  $${amountPaid} paid
+                </p>
+                ${invoiceUrl ? `
+                <a href="${invoiceUrl}"
+                   style="display:inline-block;background:#0049ac;color:white;text-decoration:none;
+                          padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">
+                  View invoice
+                </a>` : ''}
+                <p style="color:#9ca3af;font-size:12px;margin-top:24px;">
+                  Questions? Reply to this email or contact us at support@forword.io.
+                </p>
+              </div>
+            `,
+          }),
+        })
+      }
+      break
+    }
+
+    case 'invoice.payment_failed': {
+      const invoice = event.data.object as Stripe.Invoice
+      const customerEmail = invoice.customer_email
       console.error('Payment failed for customer:', invoice.customer)
+
+      if (customerEmail) {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${(process.env.RESEND_API_KEY ?? '').trim()}`,
+          },
+          body: JSON.stringify({
+            from: 'forword.io <noreply@forword.io>',
+            to: customerEmail,
+            subject: 'Action needed: payment failed for your forword.io subscription',
+            html: `
+              <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px;">
+                <img src="https://forword.io/logo.png" alt="forword.io" style="height:36px;margin-bottom:24px;" />
+                <h2 style="color:#1a1a1a;margin-bottom:8px;">Payment failed</h2>
+                <p style="color:#6b7280;margin-bottom:24px;">
+                  We weren't able to process your forword.io subscription payment. Please update your billing information to keep your account active.
+                </p>
+                <a href="https://forword.io/dashboard/settings"
+                   style="display:inline-block;background:#0049ac;color:white;text-decoration:none;
+                          padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">
+                  Update billing info
+                </a>
+                <p style="color:#9ca3af;font-size:12px;margin-top:24px;">
+                  Questions? Contact us at support@forword.io.
+                </p>
+              </div>
+            `,
+          }),
+        })
+      }
       break
     }
 
