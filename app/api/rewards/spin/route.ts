@@ -12,11 +12,12 @@ const SPIN_LIMITS: Record<string, number> = {
 }
 
 // Prize pool with weighted probabilities (weights must sum to 100)
+// creditCents: negative invoice item applied to next billing cycle (in cents)
 const PRIZES = [
-  { label: '$2 off next month', couponId: 'Ty8QQR74', code: null, weight: 40 },
-  { label: '$3 off next month', couponId: 'AiB9bW6w', code: null, weight: 30 },
-  { label: '10% off at ForWord Writers', couponId: null, code: 'WIN10', weight: 25 },
-  { label: '$9 off next month', couponId: 'Ymq4wQmm', code: null, weight: 5  },
+  { label: '$2 off next month', creditCents: 200,  code: null,   weight: 40 },
+  { label: '$3 off next month', creditCents: 300,  code: null,   weight: 30 },
+  { label: '10% off at ForWord Writers', creditCents: null, code: 'WIN10', weight: 25 },
+  { label: '$9 off next month', creditCents: 900,  code: null,   weight: 5  },
 ]
 
 function pickPrize() {
@@ -121,21 +122,24 @@ export async function POST() {
       prize_code: prize.code,
     })
 
-  // Auto-apply Stripe coupon if the prize has one
-  if (prize.couponId) {
+  // Auto-apply credit to next invoice if the prize has a dollar value
+  if (prize.creditCents) {
     const { data: userProfile } = await service
       .from('users')
-      .select('stripe_customer_id, stripe_subscription_id')
+      .select('stripe_customer_id')
       .eq('id', user.id)
       .single()
 
-    if (userProfile?.stripe_subscription_id) {
+    if (userProfile?.stripe_customer_id) {
       try {
-        await stripe.subscriptions.update(userProfile.stripe_subscription_id, {
-          discounts: [{ coupon: prize.couponId }],
+        await stripe.invoiceItems.create({
+          customer: userProfile.stripe_customer_id,
+          amount: -prize.creditCents,
+          currency: 'usd',
+          description: `ForWord.io reward: ${prize.label}`,
         })
       } catch (err) {
-        console.error('Failed to apply Stripe coupon:', err)
+        console.error('Failed to apply reward credit:', err)
       }
     }
   }
