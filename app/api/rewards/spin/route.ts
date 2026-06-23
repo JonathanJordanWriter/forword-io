@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
+import { stripe } from '@/lib/stripe'
 
 const SPIN_COST = 2500
 
@@ -12,11 +13,10 @@ const SPIN_LIMITS: Record<string, number> = {
 
 // Prize pool with weighted probabilities (weights must sum to 100)
 const PRIZES = [
-  { label: '$1 off next month',              code: null,     weight: 35 },
-  { label: '$2 off next month',              code: null,     weight: 25 },
-  { label: '10% off at ForWord Writers',     code: 'WIN10',  weight: 20 },
-  { label: '1 free month of Author',         code: null,     weight: 12 },
-  { label: '50% off Author Pro for 1 month', code: null,     weight: 8  },
+  { label: '$2 off next month', couponId: 'Ty8QQR74', code: null, weight: 40 },
+  { label: '$3 off next month', couponId: 'AiB9bW6w', code: null, weight: 30 },
+  { label: '10% off at ForWord Writers', couponId: null, code: 'WIN10', weight: 25 },
+  { label: '$9 off next month', couponId: 'Ymq4wQmm', code: null, weight: 5  },
 ]
 
 function pickPrize() {
@@ -120,6 +120,25 @@ export async function POST() {
       prize: prize.label,
       prize_code: prize.code,
     })
+
+  // Auto-apply Stripe coupon if the prize has one
+  if (prize.couponId) {
+    const { data: userProfile } = await service
+      .from('users')
+      .select('stripe_customer_id, stripe_subscription_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userProfile?.stripe_subscription_id) {
+      try {
+        await stripe.subscriptions.update(userProfile.stripe_subscription_id, {
+          coupon: prize.couponId,
+        })
+      } catch (err) {
+        console.error('Failed to apply Stripe coupon:', err)
+      }
+    }
+  }
 
   return NextResponse.json({
     success: true,
