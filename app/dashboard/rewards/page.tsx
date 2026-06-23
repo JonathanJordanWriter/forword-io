@@ -185,7 +185,7 @@ export default function RewardsPage() {
         {/* Header + total points */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-brand-coal">Rewards</h1>
-          <p className="text-gray-500 text-sm mt-1">Earn points by completing tasks. Spend them to flip the book.</p>
+          <p className="text-gray-500 text-sm mt-1">Earn points by completing tasks. Spend them to flip the book (for Author and Author Pro accounts only).</p>
         </div>
 
         {loading ? (
