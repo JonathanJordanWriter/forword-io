@@ -26,7 +26,6 @@ const FICTION_GENRES = [
   'Contemporary fiction',
   'Paranormal',
   'Adventure / Action',
-  'Erotica / Dark romance',
   'Young Adult (YA)',
   'Middle Grade',
   'Early Readers',
