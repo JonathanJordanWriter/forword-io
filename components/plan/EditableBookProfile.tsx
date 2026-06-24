@@ -11,7 +11,7 @@ const BOOK_TYPE_LABELS: Record<string, string> = {
 }
 
 const PUBLISHING_PATHS = [
-  { value: 'self', label: 'Self-published' },
+  { value: 'self', label: 'Self-publish' },
   { value: 'traditional', label: 'Traditional' },
   { value: 'hybrid', label: 'Hybrid' },
   { value: 'undecided', label: 'Undecided' },
