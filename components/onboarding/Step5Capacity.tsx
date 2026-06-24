@@ -130,7 +130,7 @@ export default function Step5Capacity({ data, onChange, onNext, onBack }: Props)
       <OptionRow<PublishingPath>
         label="Publishing path"
         options={[
-          { value: 'self', label: 'Self-publishing' },
+          { value: 'self', label: 'Self-publish' },
           { value: 'traditional', label: 'Traditional' },
           { value: 'hybrid', label: 'Hybrid' },
           { value: 'undecided', label: 'Undecided' },

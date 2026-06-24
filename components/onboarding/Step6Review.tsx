@@ -32,7 +32,7 @@ const BUDGET_LABELS: Record<string, string> = {
 }
 
 const PATH_LABELS: Record<string, string> = {
-  self: 'Self-publishing', traditional: 'Traditional', hybrid: 'Hybrid', undecided: 'Undecided',
+  self: 'Self-publish', traditional: 'Traditional', hybrid: 'Hybrid', undecided: 'Undecided',
 }
 
 const TIMEFRAME_LABELS: Record<string, string> = {
