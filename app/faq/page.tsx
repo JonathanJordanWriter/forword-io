@@ -232,12 +232,12 @@ export default function FAQPage() {
 
         {/* Social links */}
         <div className="flex items-center gap-5 mb-10">
-          <p className="text-xs text-gray-400">Follow us</p>
+          <p className="text-xs font-medium text-brand-button">Follow us</p>
           <a
             href="https://www.youtube.com/@forwordwriting"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-button transition-colors"
+            className="flex items-center gap-1.5 text-xs text-[#FF0000] hover:opacity-75 transition-opacity font-medium"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.8 15.5V8.5l6.3 3.5-6.3 3.5z"/>
@@ -248,7 +248,7 @@ export default function FAQPage() {
             href="https://jonathanjordan.substack.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-button transition-colors"
+            className="flex items-center gap-1.5 text-xs text-[#FF6719] hover:opacity-75 transition-opacity font-medium"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/>
