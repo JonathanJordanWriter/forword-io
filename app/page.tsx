@@ -24,6 +24,17 @@ export default function Home() {
         >
           Log in
         </Link>
+        <a
+          href="https://youtu.be/iTmEy7KvLdA"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-6 py-3 border-2 border-brand-button text-brand-button text-sm font-medium rounded-xl hover:bg-brand-button/5 transition-colors flex items-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          Watch demo
+        </a>
       </div>
     </div>
   )
