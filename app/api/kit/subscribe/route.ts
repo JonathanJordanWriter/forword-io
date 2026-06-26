@@ -3,25 +3,23 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
   const { email, firstName } = await request.json()
 
-  const apiKey = process.env.KIT_API_KEY
+  const apiSecret = process.env.KIT_API_SECRET
   const sequenceId = process.env.KIT_SEQUENCE_ID
 
-  console.log('Kit subscribe called:', { email, firstName, hasApiKey: !!apiKey, sequenceId })
+  console.log('Kit subscribe called:', { email, firstName, hasApiSecret: !!apiSecret, sequenceId })
 
-  if (!apiKey || !sequenceId || !email) {
-    console.error('Kit subscribe: missing config', { hasApiKey: !!apiKey, hasSequenceId: !!sequenceId, hasEmail: !!email })
+  if (!apiSecret || !sequenceId || !email) {
+    console.error('Kit subscribe: missing config', { hasApiSecret: !!apiSecret, hasSequenceId: !!sequenceId, hasEmail: !!email })
     return NextResponse.json({ error: 'Missing config' }, { status: 400 })
   }
 
   try {
-    const res = await fetch(`https://api.kit.com/v4/sequences/${sequenceId}/subscribers`, {
+    const res = await fetch(`https://api.convertkit.com/v3/sequences/${sequenceId}/subscribe`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Kit-Api-Key': apiKey,
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email_address: email,
+        api_secret: apiSecret,
+        email,
         first_name: firstName ?? '',
       }),
     })
