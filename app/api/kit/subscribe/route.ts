@@ -6,10 +6,7 @@ export async function POST(request: Request) {
   const apiSecret = process.env.KIT_API_SECRET
   const sequenceId = process.env.KIT_SEQUENCE_ID
 
-  console.log('Kit subscribe called:', { email, firstName, hasApiSecret: !!apiSecret, sequenceId })
-
   if (!apiSecret || !sequenceId || !email) {
-    console.error('Kit subscribe: missing config', { hasApiSecret: !!apiSecret, hasSequenceId: !!sequenceId, hasEmail: !!email })
     return NextResponse.json({ error: 'Missing config' }, { status: 400 })
   }
 
@@ -24,11 +21,9 @@ export async function POST(request: Request) {
       }),
     })
 
-    const responseText = await res.text()
-    console.log('Kit API response:', res.status, responseText)
-
     if (!res.ok) {
-      console.error('Kit subscribe error:', res.status, responseText)
+      const err = await res.text()
+      console.error('Kit subscribe error:', res.status, err)
       return NextResponse.json({ error: 'Kit error' }, { status: 500 })
     }
 
