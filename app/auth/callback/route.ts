@@ -18,7 +18,18 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) return NextResponse.redirect(`${origin}${next}`)
+    if (!error) {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user?.email) {
+        const firstName = (user.user_metadata?.full_name as string ?? '').split(' ')[0]
+        fetch(`${origin}/api/kit/subscribe`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: user.email, firstName }),
+        }).catch(() => {})
+      }
+      return NextResponse.redirect(`${origin}${next}`)
+    }
   }
 
   if (tokenHash && type) {

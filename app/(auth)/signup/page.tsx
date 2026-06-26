@@ -32,6 +32,13 @@ export default function SignupPage() {
       return
     }
 
+    // Add to Kit sequence — fire-and-forget so Kit never blocks signup
+    fetch('/api/kit/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, firstName: fullName.split(' ')[0] }),
+    }).catch(() => {})
+
     router.push('/onboarding')
   }
 
