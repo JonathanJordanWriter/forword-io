@@ -11,23 +11,30 @@ const SPIN_LIMITS: Record<string, number> = {
   pro:    5,
 }
 
-// Prize pool with weighted probabilities (weights must sum to 100)
+// Prize pool with weighted probabilities and monthly win caps per user
 // creditCents: negative invoice item applied to next billing cycle (in cents)
+// maxPerMonth: how many times a single user can win this prize in a calendar month
 const PRIZES = [
-  { label: '$2 off next month', creditCents: 200,  code: null,   weight: 40 },
-  { label: '$3 off next month', creditCents: 300,  code: null,   weight: 30 },
-  { label: '10% off at ForWord Writers', creditCents: null, code: 'WIN10', weight: 25 },
-  { label: '$9 off next month', creditCents: 900,  code: null,   weight: 5  },
+  { label: '$2 off next month',           creditCents: 200,  code: null,   weight: 40, maxPerMonth: 2 },
+  { label: '$3 off next month',           creditCents: 300,  code: null,   weight: 30, maxPerMonth: 1 },
+  { label: '10% off at ForWord Writers',  creditCents: null, code: 'WIN10', weight: 25, maxPerMonth: 1 },
+  { label: '$9 off next month',           creditCents: 900,  code: null,   weight: 5,  maxPerMonth: 1 },
 ]
 
-function pickPrize() {
-  const roll = Math.random() * 100
+// Pick a prize from the eligible pool (prizes the user hasn't maxed out this month).
+// Weights are renormalized so probabilities stay proportional after filtering.
+function pickPrize(wonThisMonth: Record<string, number>) {
+  const eligible = PRIZES.filter(p => (wonThisMonth[p.label] ?? 0) < p.maxPerMonth)
+  if (eligible.length === 0) return PRIZES[0] // fallback — shouldn't happen given spin limits
+
+  const totalWeight = eligible.reduce((sum, p) => sum + p.weight, 0)
+  const roll = Math.random() * totalWeight
   let cumulative = 0
-  for (const prize of PRIZES) {
+  for (const prize of eligible) {
     cumulative += prize.weight
     if (roll < cumulative) return prize
   }
-  return PRIZES[0]
+  return eligible[0]
 }
 
 // First moment of the current calendar month in US Eastern time, as ISO string
@@ -104,8 +111,20 @@ export async function POST() {
     )
   }
 
-  // Deduct points and pick prize
-  const prize = pickPrize()
+  // Count how many times this user has won each prize this month
+  const { data: prizeHistory } = await service
+    .from('reward_spins')
+    .select('prize')
+    .eq('user_id', user.id)
+    .gte('created_at', monthStart)
+
+  const wonThisMonth: Record<string, number> = {}
+  for (const row of prizeHistory ?? []) {
+    wonThisMonth[row.prize] = (wonThisMonth[row.prize] ?? 0) + 1
+  }
+
+  // Deduct points and pick prize (filtered by monthly caps)
+  const prize = pickPrize(wonThisMonth)
   const newTotal = currentPoints - SPIN_COST
 
   await service
