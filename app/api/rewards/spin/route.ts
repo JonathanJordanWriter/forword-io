@@ -15,9 +15,9 @@ const SPIN_LIMITS: Record<string, number> = {
 // creditCents: negative invoice item applied to next billing cycle (in cents)
 // maxPerMonth: how many times a single user can win this prize in a calendar month
 const PRIZES = [
-  { label: '$1 off next month',           creditCents: 100,  code: null,   weight: 45, maxPerMonth: 5 },
-  { label: '$2 off next month',           creditCents: 200,  code: null,   weight: 25, maxPerMonth: 2 },
-  { label: '$3 off next month',           creditCents: 300,  code: null,   weight: 18, maxPerMonth: 1 },
+  { label: '$1 off next month',           creditCents: 100,  code: null,   weight: 60, maxPerMonth: 5 },
+  { label: '$2 off next month',           creditCents: 200,  code: null,   weight: 18, maxPerMonth: 2 },
+  { label: '$3 off next month',           creditCents: 300,  code: null,   weight: 10, maxPerMonth: 1 },
   { label: '10% off at ForWord Writers',  creditCents: null, code: 'WIN10', weight: 8,  maxPerMonth: 1 },
   { label: '$9 off next month',           creditCents: 900,  code: null,   weight: 4,  maxPerMonth: 1 },
 ]
