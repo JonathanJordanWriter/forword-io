@@ -8,17 +8,18 @@ const SPIN_COST = 2500
 // Monthly spin limits per tier
 const SPIN_LIMITS: Record<string, number> = {
   author: 2,
-  pro:    5,
+  pro:    4,
 }
 
 // Prize pool with weighted probabilities and monthly win caps per user
 // creditCents: negative invoice item applied to next billing cycle (in cents)
 // maxPerMonth: how many times a single user can win this prize in a calendar month
 const PRIZES = [
-  { label: '$2 off next month',           creditCents: 200,  code: null,   weight: 40, maxPerMonth: 2 },
-  { label: '$3 off next month',           creditCents: 300,  code: null,   weight: 30, maxPerMonth: 1 },
-  { label: '10% off at ForWord Writers',  creditCents: null, code: 'WIN10', weight: 25, maxPerMonth: 1 },
-  { label: '$9 off next month',           creditCents: 900,  code: null,   weight: 5,  maxPerMonth: 1 },
+  { label: '$1 off next month',           creditCents: 100,  code: null,   weight: 45, maxPerMonth: 5 },
+  { label: '$2 off next month',           creditCents: 200,  code: null,   weight: 25, maxPerMonth: 2 },
+  { label: '$3 off next month',           creditCents: 300,  code: null,   weight: 18, maxPerMonth: 1 },
+  { label: '10% off at ForWord Writers',  creditCents: null, code: 'WIN10', weight: 8,  maxPerMonth: 1 },
+  { label: '$9 off next month',           creditCents: 900,  code: null,   weight: 4,  maxPerMonth: 1 },
 ]
 
 // Pick a prize from the eligible pool (prizes the user hasn't maxed out this month).

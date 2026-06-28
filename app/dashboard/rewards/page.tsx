@@ -234,6 +234,7 @@ export default function RewardsPage() {
               <h3 className="text-sm font-semibold text-brand-coal mb-3">Prize pool</h3>
               <div className="grid grid-cols-1 gap-2">
                 {[
+                  '$1 off your next month*',
                   '$2 off your next month*',
                   '$3 off your next month*',
                   '$9 off your next month*',
@@ -246,7 +247,7 @@ export default function RewardsPage() {
                 ))}
               </div>
               <p className="text-xs text-gray-400 mt-3">
-                *$2, $3, and $9 off prizes are automatically applied to your Author or Author Pro subscription for the next billing cycle.
+                *$1, $2, $3, and $9 off prizes are automatically applied to your Author or Author Pro subscription for the next billing cycle.
               </p>
             </div>
 
