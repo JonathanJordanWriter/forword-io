@@ -19,7 +19,7 @@ const GOALS: { value: PrimaryGoal; label: string; description: string }[] = [
   { value: 'audiobook', label: 'Market an audiobook', description: 'Promote a new audio edition' },
 ]
 
-const AGE_RANGES = ['Under 18', '18–25', '26–35', '36–45', '46–55', '55+']
+const AGE_RANGES = ['Preschool', 'Elementary', '10–14', '14–18', '19–25', '26–35', '36–45', '46–59', '60+']
 
 const FICTION_INTERESTS = [
   'Book clubs', 'Cozy reads', 'Dark fiction', 'Fast-paced plots', 'Character-driven',
