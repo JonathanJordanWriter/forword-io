@@ -7,7 +7,7 @@ export default function Home() {
       <div className="mb-4">
         <Image src="/logo.png" alt="forword.io" width={280} height={80} priority />
       </div>
-      <p className="text-xl text-gray-500 mb-10">Move your book forward.</p>
+      <h1 className="text-xl text-gray-500 mb-10">Move your book forward.</h1>
       <p className="text-gray-600 max-w-md mb-10 leading-relaxed">
         Draft a personalized 90-day marketing plan for your book, built around your genre, goals, platforms, and time.
       </p>
