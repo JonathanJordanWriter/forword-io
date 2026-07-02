@@ -22,11 +22,11 @@ const sections: Section[] = [
       },
       {
         q: 'Does ForWord.io sell my book for me?',
-        a: <>As an author, you are your book&apos;s best evangelist. If you&apos;re looking for someone else to sell your book for you, you might want to reconsider whether you really want to be an author. We help by cutting through the noise and contradictory advice, tailoring a practical plan for you, your goals, and your schedule. Follow the steps and you will gain visibility and traction, which inevitably leads to more book sales. You can draft a 30-day plan totally free, no risk.</>,
+        a: <>As an author, you are your book&apos;s best evangelist. If you&apos;re looking for someone else to sell your book for you, ForWord.io is not the tool for you. We help by cutting through the noise and contradictory advice, tailoring a practical plan for you, your goals, and your schedule. But YOU are still the key ingredient. You can draft a 30-day plan totally free, no risk, and see for yourself if it helps you better position yourself and your book.</>,
       },
       {
         q: 'Does ForWord.io draft social media posts for me?',
-        a: <>No — because we believe the best writing comes from humans, specifically you. The tasks will give you prompts to build off of based around proven strategies. We&apos;re considering a future feature that would build a customized prompt list so you spend less time staring at a blank page and more time gaining visibility. However, we will never draft writing for you. We draw a hard line there. If you want a platform that &quot;writes&quot; for you, ForWord.io is definitely not for you.</>,
+        a: <>No, because we believe the best writing comes from humans. Some of the social tasks will give you prompts to build off of based around proven strategies, though. We&apos;re considering a future feature that would build a customized prompt list so you spend less time staring at a blank page and more time gaining visibility. However, we will never draft writing for you. We draw a hard line there. If you want a platform that &quot;writes&quot; for you, ForWord.io is definitely not for you.</>,
       },
     ],
   },
