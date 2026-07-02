@@ -260,8 +260,8 @@ export default function FAQPage() {
         {/* Video Tutorials */}
         <div className="mb-10">
           <h2 className="text-lg font-semibold text-brand-coal mb-1">Video Tutorials</h2>
-          <p className="text-sm text-gray-500 mb-4">New to forword.io? Watch these short walkthroughs to get up and running.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <p className="text-sm text-gray-500 mb-4">New to ForWord.io? Watch these walkthroughs to get up and running.</p>
+          <div className="grid grid-cols-3 gap-3">
             {[
               { label: 'Sign Up & Author Profile', url: 'https://youtu.be/ZRsvnHx_7aU', id: 'ZRsvnHx_7aU' },
               { label: 'Setting Up Your Book Profile', url: 'https://youtu.be/88Bt4oQzF7Y', id: '88Bt4oQzF7Y' },
