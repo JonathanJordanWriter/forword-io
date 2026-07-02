@@ -261,30 +261,45 @@ export default function FAQPage() {
         <div className="mb-10">
           <h2 className="text-lg font-semibold text-brand-coal mb-1">Video Tutorials</h2>
           <p className="text-sm text-gray-500 mb-4">New to forword.io? Watch these short walkthroughs to get up and running.</p>
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
-              { label: 'Sign Up & Author Profile', url: 'https://youtu.be/ZRsvnHx_7aU' },
-              { label: 'Setting Up Your Book Profile', url: 'https://youtu.be/88Bt4oQzF7Y' },
-              { label: 'Drafting & Managing Your Plan', url: 'https://youtu.be/uKkm-EVcMVM' },
-              { label: 'Earning Points & Winning Rewards', url: 'https://youtu.be/NhLEl_5X8vA' },
-              { label: 'Upgrading to Paid Versions', url: 'https://youtu.be/ffSr-Ex0XnQ' },
-            ].map(({ label, url }) => (
+              { label: 'Sign Up & Author Profile', url: 'https://youtu.be/ZRsvnHx_7aU', id: 'ZRsvnHx_7aU' },
+              { label: 'Setting Up Your Book Profile', url: 'https://youtu.be/88Bt4oQzF7Y', id: '88Bt4oQzF7Y' },
+              { label: 'Drafting & Managing Your Plan', url: 'https://youtu.be/uKkm-EVcMVM', id: 'uKkm-EVcMVM' },
+              { label: 'Earning Points & Winning Rewards', url: 'https://youtu.be/NhLEl_5X8vA', id: 'NhLEl_5X8vA' },
+              { label: 'Upgrading to Paid Versions', url: 'https://youtu.be/ffSr-Ex0XnQ', id: 'ffSr-Ex0XnQ' },
+            ].map(({ label, url, id }) => (
               <a
-                key={url}
+                key={id}
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:border-brand-button hover:bg-brand-accent/10 transition-colors group"
+                className="group rounded-xl overflow-hidden border border-gray-200 hover:border-brand-button transition-colors"
               >
-                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#FF0000]/10 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-[#FF0000]" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z"/>
+                {/* Thumbnail */}
+                <div className="relative w-full aspect-video bg-gray-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`https://img.youtube.com/vi/${id}/hqdefault.jpg`}
+                    alt={label}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Play button overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                    <div className="w-12 h-12 rounded-full bg-[#FF0000] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                {/* Label */}
+                <div className="px-3 py-2.5 flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700 group-hover:text-brand-button transition-colors">{label}</span>
+                  <svg className="w-4 h-4 text-gray-300 group-hover:text-brand-button flex-shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
                   </svg>
-                </span>
-                <span className="text-sm font-medium text-gray-700 group-hover:text-brand-button transition-colors">{label}</span>
-                <svg className="w-4 h-4 text-gray-300 group-hover:text-brand-button ml-auto transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
-                </svg>
+                </div>
               </a>
             ))}
           </div>
