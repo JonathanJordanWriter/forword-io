@@ -3,7 +3,6 @@ import { stripe } from '@/lib/stripe'
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 
-// Use service role key so we can write to the users table without RLS
 function getServiceClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,30 +10,16 @@ function getServiceClient() {
   )
 }
 
-// Map Stripe price IDs to tier names
 function tierFromPriceId(priceId: string): 'author' | 'pro' | null {
   if (priceId === process.env.STRIPE_AUTHOR_PRICE_ID) return 'author'
   if (priceId === process.env.STRIPE_PRO_PRICE_ID) return 'pro'
   return null
 }
 
-export async function POST(req: NextRequest) {
-  const body = await req.text()
-  const sig = req.headers.get('stripe-signature')
-
-  if (!sig) return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
-
-  let event: Stripe.Event
-  try {
-    event = stripe.webhooks.constructEvent(body, sig, (process.env.STRIPE_WEBHOOK_SECRET ?? '').trim())
-  } catch (err) {
-    console.error('Webhook signature verification failed:', err)
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
-  }
-
+// All event processing happens here — called fire-and-forget after 200 is returned
+async function processEvent(event: Stripe.Event) {
   const supabase = getServiceClient()
 
-  try {
   switch (event.type) {
     case 'customer.subscription.created':
     case 'customer.subscription.updated': {
@@ -47,11 +32,9 @@ export async function POST(req: NextRequest) {
       if (!tier) break
 
       const isActive = sub.status === 'active' || sub.status === 'trialing'
-      // current_period_end lives on the subscription's billing cycle anchor in newer API versions
       const periodEnd = (sub as unknown as { current_period_end?: number }).current_period_end
       const tierExpires = periodEnd ? new Date(periodEnd * 1000).toISOString() : null
 
-      // Don't downgrade beta users — is_beta overrides Stripe status
       if (!isActive) {
         const { data: u } = await supabase.from('users').select('is_beta').eq('id', userId).single()
         if (u?.is_beta) break
@@ -66,9 +49,6 @@ export async function POST(req: NextRequest) {
         })
         .eq('id', userId)
 
-      // Unlock tasks based on tier:
-      // - author: full 90 days for 1 book (the one they upgraded from, if known)
-      // - pro: full 90 days across all books
       if (isActive) {
         const { data: allPlans } = await supabase
           .from('plans')
@@ -81,12 +61,8 @@ export async function POST(req: NextRequest) {
 
         let plansToUnlock = plans
         if (tier === 'author') {
-          // Prefer the specific book recorded in subscription metadata (set at checkout).
-          // Fall back to most recently generated plan if metadata is absent.
           const bookId = sub.metadata?.book_id
-          const targetPlan = bookId
-            ? plans.find(p => p.book_id === bookId)
-            : null
+          const targetPlan = bookId ? plans.find(p => p.book_id === bookId) : null
           plansToUnlock = [targetPlan ?? plans[0]].filter(Boolean)
         }
 
@@ -96,10 +72,9 @@ export async function POST(req: NextRequest) {
             .update({ is_locked: false })
             .in('plan_id', plansToUnlock.map(p => p.id))
             .eq('is_locked', true)
-            .eq('is_completed', false) // never touch already-completed tasks
+            .eq('is_completed', false)
         }
 
-        // For author tier: re-lock day 31+ tasks on all other books
         if (tier === 'author' && plansToUnlock.length > 0) {
           const unlockedPlanId = plansToUnlock[0].id
           const plansToRelock = plans.filter(p => p.id !== unlockedPlanId)
@@ -122,11 +97,9 @@ export async function POST(req: NextRequest) {
       const userId = sub.metadata?.supabase_user_id
       if (!userId) break
 
-      // Don't downgrade beta users — is_beta overrides Stripe status
       const { data: betaCheck } = await supabase.from('users').select('is_beta').eq('id', userId).single()
       if (betaCheck?.is_beta) break
 
-      // Downgrade to starter and re-lock tasks beyond day 30
       await supabase
         .from('users')
         .update({ tier: 'starter', tier_expires_at: null, stripe_subscription_id: null })
@@ -233,14 +206,27 @@ export async function POST(req: NextRequest) {
     }
 
     default:
-      // Ignore unhandled event types
       break
   }
+}
+
+export async function POST(req: NextRequest) {
+  const body = await req.text()
+  const sig = req.headers.get('stripe-signature')
+
+  if (!sig) return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
+
+  let event: Stripe.Event
+  try {
+    event = stripe.webhooks.constructEvent(body, sig, (process.env.STRIPE_WEBHOOK_SECRET ?? '').trim())
   } catch (err) {
-    console.error('Webhook handler error:', err)
-    // Still return 200 so Stripe doesn't keep retrying
-    return NextResponse.json({ received: true, error: 'Handler error' })
+    console.error('Webhook signature verification failed:', err)
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
+
+  // Acknowledge receipt immediately so Stripe doesn't time out waiting for us.
+  // processEvent runs in the background — Vercel keeps the function alive while I/O is pending.
+  processEvent(event).catch(err => console.error('Webhook processing error:', err))
 
   return NextResponse.json({ received: true })
 }
