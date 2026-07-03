@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://forword.io/sitemap.xml
+Sitemap: https://www.forword.io/sitemap.xml
