@@ -134,7 +134,7 @@ export default async function DashboardPage() {
 
       <div className="max-w-3xl mx-auto px-8 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold text-brand-coal">Your marketing plans</h1>
             <p className="text-gray-500 text-sm mt-1">
@@ -157,6 +157,36 @@ export default async function DashboardPage() {
               + Add another book
             </Link>
           )}
+        </div>
+
+        {/* Tutorial video links */}
+        <div className="flex items-center gap-5 mb-8">
+          <a
+            href="https://youtu.be/88Bt4oQzF7Y"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-button transition-colors"
+          >
+            <span className="w-5 h-5 rounded bg-[#FF0000] flex items-center justify-center flex-shrink-0">
+              <svg className="w-2.5 h-2.5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </span>
+            Book Profile Tutorial Video
+          </a>
+          <a
+            href="https://youtu.be/uKkm-EVcMVM"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-button transition-colors"
+          >
+            <span className="w-5 h-5 rounded bg-[#FF0000] flex items-center justify-center flex-shrink-0">
+              <svg className="w-2.5 h-2.5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </span>
+            Marketing Plan Video Tutorial
+          </a>
         </div>
 
         {/* Empty state — shown before the user adds their first book */}
