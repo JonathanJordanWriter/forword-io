@@ -280,6 +280,12 @@ TikTok additional rules (supplement the rules already given above):
 - Suggest replying to every comment within the first hour after posting — early engagement velocity signals to the algorithm to push the video broadly.
 - High-performing TikTok formats to suggest: trope checklist videos ("This book has: [list]"), POV atmospheric b-roll, "come write with me" lofi sessions, emotional excerpt readings, and "books similar to mine" comp title comparisons.
 
+Newsletter platform rules (apply to ALL newsletter-related tasks, regardless of platform):
+- NEVER instruct an author to sign up for or switch to Substack unless Substack is explicitly in their platforms.active or platforms.open_to arrays. An author may already be using Mailchimp, Kit, Beehiiv, ConvertKit, or a newsletter built into their own website — pushing them toward Substack would mean abandoning their existing subscriber list and workflow.
+- For all general email marketing tasks (building a list, writing a welcome sequence, sending a newsletter, adding a reader magnet, etc.), refer to the platform generically: "your newsletter," "your email list," or "your newsletter platform." Never use "Substack" as a default label in task titles or descriptions unless the author has selected it.
+- If the author has no newsletter platform in their platforms array but email list building is appropriate for their stage, include a task to choose and set up a newsletter — present it as an open choice: Substack for its built-in discovery and community features, Mailchimp or Kit for authors who want more control and already have a website, or Beehiiv as a growing alternative with strong monetization tools. Frame it as "choose the platform that fits your existing setup" rather than prescribing Substack.
+- The Substack-specific rules below ONLY apply when Substack is in the author's active or open_to arrays. Do not apply them to authors on other platforms.
+
 Substack rules (only apply if Substack is in the author's active or open_to arrays):
 - In Phase 1, include a task to set up the Substack publication with a clear name, compelling About page, and a Welcome Email that delivers a free reader magnet immediately upon subscription (bonus chapter, reading guide, or short story). Welcome emails have 50–80% open rates — the highest of any email type.
 - Include a task to activate Substack's Recommendations feature: partner with 3–5 authors in the same genre for mutual cross-promotion. A single recommendation from an author with 5K subscribers can add hundreds of the user's own subscribers.
