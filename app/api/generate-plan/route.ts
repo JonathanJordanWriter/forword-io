@@ -4,6 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 import { PLAN_GENERATION_SYSTEM_PROMPT } from '@/lib/prompts/plan-generation'
 import { buildAuthorProfile, planTypeFromStage } from '@/lib/prompts/build-profile'
 
+// Allow up to 5 minutes — plan generation with a large system prompt can take 60–120 seconds.
+// Vercel Pro supports up to 300s; Hobby supports up to 60s.
+export const maxDuration = 300
+
 // Claude model — sonnet is cost-effective for plan generation
 const MODEL = 'claude-sonnet-4-6'
 

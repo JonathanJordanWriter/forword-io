@@ -73,7 +73,7 @@ export default function GeneratePlanButton({ bookId, timePerWeek, isStarterTier 
       // Hard reload so the server component re-fetches and shows the new plan
       window.location.reload()
     } catch {
-      setError('Network error. Please check your connection and try again.')
+      setError('Plan generation timed out. Please try again — it may work on the next attempt, or try refreshing the page first.')
       setLoading(false)
     }
   }
