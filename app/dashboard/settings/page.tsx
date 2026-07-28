@@ -14,6 +14,8 @@ export default function SettingsPage() {
   const [portalLoading, setPortalLoading] = useState(false)
   const [upgradeLoading, setUpgradeLoading] = useState(false)
   const [confirmPlan, setConfirmPlan] = useState<'author' | 'pro' | null>(null)
+  const [confirmDowngrade, setConfirmDowngrade] = useState(false)
+  const [downgradeLoading, setDowngradeLoading] = useState(false)
 
   // --- Email update ---
   const [newEmail, setNewEmail] = useState('')
@@ -55,6 +57,25 @@ export default function SettingsPage() {
       alert('Something went wrong. Please try again.')
     } finally {
       setPortalLoading(false)
+    }
+  }
+
+  async function handleDowngrade() {
+    setDowngradeLoading(true)
+    setConfirmDowngrade(false)
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: 'author' }),
+      })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+      else window.location.reload()
+    } catch {
+      alert('Something went wrong. Please try again.')
+    } finally {
+      setDowngradeLoading(false)
     }
   }
 
@@ -286,6 +307,15 @@ export default function SettingsPage() {
                   {portalLoading ? 'Loading…' : 'Manage billing'}
                 </button>
               )}
+              {tier === 'pro' && (
+                <button
+                  onClick={() => setConfirmDowngrade(true)}
+                  disabled={downgradeLoading}
+                  className="mt-4 w-full py-2 border border-gray-300 text-gray-600 text-sm font-medium rounded-xl hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                >
+                  {downgradeLoading ? 'Switching…' : 'Switch to Author — $9/mo'}
+                </button>
+              )}
             </div>
 
             {/* Author Pro tier */}
@@ -515,6 +545,44 @@ export default function SettingsPage() {
                 className="flex-1 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 disabled:opacity-50 transition-colors"
               >
                 Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Downgrade confirmation modal */}
+      {confirmDowngrade && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+          onClick={() => setConfirmDowngrade(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8"
+            onClick={e => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-bold text-brand-coal mb-2">Switch to Author plan?</h2>
+            <p className="text-sm text-gray-500 mb-3">
+              You&apos;ll move to Author at $9/month. Here&apos;s what changes:
+            </p>
+            <ul className="text-sm text-gray-600 space-y-1.5 mb-3 list-disc list-inside">
+              <li>One book of your choice keeps its full 90-day plan</li>
+              <li>All other books revert to 30-day plans (days 31+ locked)</li>
+            </ul>
+            <p className="text-xs text-gray-400 mb-6">The change takes effect immediately. Any credit for unused Pro time will be applied to your next invoice.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleDowngrade}
+                disabled={downgradeLoading}
+                className="flex-1 py-2.5 bg-brand-button text-white text-sm font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity"
+              >
+                {downgradeLoading ? 'Switching…' : 'Yes, switch to Author'}
+              </button>
+              <button
+                onClick={() => setConfirmDowngrade(false)}
+                className="flex-1 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                Keep Author Pro
               </button>
             </div>
           </div>
