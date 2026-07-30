@@ -263,6 +263,7 @@ export default function FAQPage() {
           <p className="text-sm text-gray-500 mb-4">New to ForWord.io? Watch these walkthroughs to get up and running.</p>
           <div className="grid grid-cols-3 gap-3">
             {[
+              { label: 'Full forword.io Demo', url: 'https://youtu.be/iTmEy7KvLdA', id: 'iTmEy7KvLdA' },
               { label: 'Sign Up & Author Profile', url: 'https://youtu.be/ZRsvnHx_7aU', id: 'ZRsvnHx_7aU' },
               { label: 'Setting Up Your Book Profile', url: 'https://youtu.be/88Bt4oQzF7Y', id: '88Bt4oQzF7Y' },
               { label: 'Drafting & Managing Your Plan', url: 'https://youtu.be/uKkm-EVcMVM', id: 'uKkm-EVcMVM' },
