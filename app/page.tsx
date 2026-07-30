@@ -52,7 +52,7 @@ export default function Home() {
           YouTube
         </a>
         <a
-          href="https://jonathanjordan.substack.com/"
+          href="https://forwordwriters.substack.com/"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 text-xs text-[#FF6719] hover:opacity-75 transition-opacity font-medium"
