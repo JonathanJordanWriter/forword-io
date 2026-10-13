@@ -3,8 +3,6 @@ import { Resend } from 'resend'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 // Service role client needed to upload to Storage without RLS restrictions
 const supabaseAdmin = createServiceClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,6 +10,7 @@ const supabaseAdmin = createServiceClient(
 )
 
 export async function POST(req: NextRequest) {
+  const resend = new Resend(process.env.RESEND_API_KEY)
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
